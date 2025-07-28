@@ -10,7 +10,10 @@ import (
 const defaultConfigPath = "./configs/client.yaml"
 
 type ClientConfigs struct {
-	Nickname string `yaml:"nickname"`
+	ServerHost     string `yaml:"server_host"`
+	ServerPort     string `yaml:"server_port"`
+	TimeoutSeconds int    `yaml:"timeout_seconds"`
+	ReconnectRetry int    `yaml:"reconnect_retry"`
 }
 
 func LoadConfig(path string) *ClientConfigs {
