@@ -4,9 +4,16 @@ import (
 	"fmt"
 	"log"
 	"net"
+
+	"github.com/OpsOMI/S.L.A.M/internal/configs/client"
 )
 
 func main() {
+	config := client.LoadConfig("./configs/client.yaml")
+	fmt.Println(config)
+}
+
+func Example() {
 	// Create a TCP Socket
 	conn, err := net.Dial("tcp", "localhost:6666")
 	if err != nil {

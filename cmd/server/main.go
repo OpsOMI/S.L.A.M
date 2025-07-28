@@ -5,9 +5,16 @@ import (
 	"log"
 	"net"
 	"time"
+
+	"github.com/OpsOMI/S.L.A.M/internal/configs/server"
 )
 
 func main() {
+	configs := server.LoadConfig("./configs/server.yaml")
+	fmt.Println(configs)
+}
+
+func ExampleMain() {
 	ln, err := net.Listen("tcp", "localhost:6666")
 	if err != nil {
 		log.Fatal(err)
@@ -24,7 +31,6 @@ func main() {
 		// Handle Connection
 		go handleConnection(conn)
 	}
-
 }
 
 func handleConnection(conn net.Conn) {

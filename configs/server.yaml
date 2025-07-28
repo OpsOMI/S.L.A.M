@@ -1,1 +1,2 @@
-port: 666
+host: localhost
+port: 6666
