@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  chat-server:
+    container_name: slam-server-prod
+    build:
+      context: ../../.
+      dockerfile: ./deployment/prod/Dockerfile
+    ports:
+      - "6666:6666"
+    depends_on:
+      - database
+    networks:
+      - secure-chat
+    volumes:
+      - ../../logs:/app/logs # Make sure this matches the log file path set in config.yaml.
+    env_file:
+      - .env.prod
+
+  database:
+    container_name: slam-postgres-prod
+    image: postgres:13
+    volumes:
+      - ../../storage/postgres_data:/var/lib/postgresql/data
+      - ../script:/docker-entrypoint-initdb.d
+    networks:
+      - secure-chat
+    environment:
+      POSTGRES_DB: ${DEV_DB_NAME}
+      POSTGRES_USER: ${DEV_DB_USER}
+      POSTGRES_PASSWORD: ${DEV_DB_PASSWORD}
+      POSTGRES_PORT: ${DEV_DB_PORT}
+
+networks:
+  secure-chat:
+    driver: bridge

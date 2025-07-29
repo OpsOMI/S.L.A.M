@@ -1,4 +1,4 @@
-package client
+package config
 
 import (
 	"log"
@@ -9,14 +9,16 @@ import (
 
 const defaultConfigPath = "./configs/client.yaml"
 
-type ClientConfigs struct {
+type Configs struct {
+	ServerName     string `yaml:"server_name"`
 	ServerHost     string `yaml:"server_host"`
 	ServerPort     string `yaml:"server_port"`
+	TSLCertPath    string `yaml:"tls_cert_path"`
 	TimeoutSeconds int    `yaml:"timeout_seconds"`
 	ReconnectRetry int    `yaml:"reconnect_retry"`
 }
 
-func LoadConfig(path string) *ClientConfigs {
+func LoadConfig(path string) *Configs {
 	if path == "" {
 		path = defaultConfigPath
 	}
@@ -26,7 +28,7 @@ func LoadConfig(path string) *ClientConfigs {
 		log.Fatalf("failed to read config file: %v", err)
 	}
 
-	var cfg ClientConfigs
+	var cfg Configs
 	if err := yaml.Unmarshal(file, &cfg); err != nil {
 		log.Fatalf("failed to unmarshal config: %v", err)
 	}

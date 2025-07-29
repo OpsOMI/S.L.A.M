@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "./queries/*"
+    schema: "../migrations/*"
+    gen:
+      go:
+        package: "pgqueries"
+        out: "./pgqueries"
+        overrides:
+          - go_type: "github.com/google/uuid.UUID"
+            db_type: "uuid"
