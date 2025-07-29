@@ -8,24 +8,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type ENV struct {
-	Prod       models.DatabaseConfig
-	Dev        models.DatabaseConfig
-	Management models.ManagementConfig
+type DatabaseConfig struct {
+	Prod models.DatabaseConfig
+	Dev  models.DatabaseConfig
 }
 
-func LoadAll(files ...string) *ENV {
+func LoadAll(files ...string) *DatabaseConfig {
 	for _, file := range files {
 		if err := godotenv.Overload(file); err != nil {
 			log.Fatalf("error loading env file %s: %v", file, err)
 		}
 	}
 
-	return &ENV{
-		Management: models.ManagementConfig{
-			Username: os.Getenv("MANAGEMENT_USERNAME"),
-			Password: os.Getenv("MANAGEMENT_PASSWORD"),
-		},
+	return &DatabaseConfig{
 		Prod: models.DatabaseConfig{
 			Driver:   os.Getenv("PROD_DB_DRIVER"),
 			Host:     os.Getenv("PROD_DB_HOST"),

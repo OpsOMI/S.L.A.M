@@ -1,7 +1,6 @@
 package runserver
 
 import (
-	"fmt"
 	"log"
 	"net"
 
@@ -25,8 +24,7 @@ func Run(cfg server.ServerConfigs) {
 	}
 	defer conn.Close()
 
-	fmt.Println(cfg.MigrationPath, "opdjsapodjaspodjasdasjdpasjdsoa")
-	if err := postgres.Migrate(conn, cfg.MigrationPath); err != nil {
+	if err := postgres.Migrate(conn, cfg.Server.App.MigrationPath); err != nil {
 		logg.Error("Migration failed", zap.Error(err))
 		panic(err)
 	}

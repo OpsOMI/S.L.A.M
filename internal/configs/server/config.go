@@ -1,50 +1,30 @@
 package server
 
 import (
-	"log"
-	"os"
-
+	"github.com/OpsOMI/S.L.A.M/internal/configs/server/core"
 	"github.com/OpsOMI/S.L.A.M/internal/configs/server/db"
-	"gopkg.in/yaml.v3"
+	"github.com/OpsOMI/S.L.A.M/internal/configs/server/managment"
 )
 
-const defaultConfigPath = "./configs/server.yaml"
-
 type ServerConfigs struct {
-	Host                 string `yaml:"host"`
-	Port                 string `yaml:"port"`
-	RequireAuth          string `yaml:"require_auth"`
-	MessageLifeTimeHours int    `yaml:"message_lifetime_hours"`
-	LogLevel             string `yaml:"log_level"`
-	MaxClients           int    `yaml:"max_clients"`
-	TSLCertPath          string `yaml:"tls_cert_path"`
-	TSLKeyPath           string `yaml:"tls_key_path"`
-	AppEnv               string `yaml:"app_env"`
-	MigrationPath        string `yaml:"migration_path"`
-	Env                  db.ENV
+	Server    core.Configs
+	Managment managment.ManagementConfig
+	DB        db.DatabaseConfig
 }
 
 func LoadConfig(
-	path string,
+	serverConfigPath string,
+	managmentEnvPath string,
 	envFiles ...string,
 ) *ServerConfigs {
-	if path == "" {
-		path = defaultConfigPath
+	cfg := &ServerConfigs{
+		Server: *core.LoadConfig(serverConfigPath),
+		DB:     *db.LoadAll(envFiles...),
 	}
 
-	file, err := os.ReadFile(path)
-	if err != nil {
-		log.Fatalf("failed to read config file: %v", err)
+	if managmentEnvPath != "" {
+		cfg.Managment = *managment.LoadAll(managmentEnvPath)
 	}
 
-	var cfg ServerConfigs
-	if err := yaml.Unmarshal(file, &cfg); err != nil {
-		log.Fatalf("failed to unmarshal config: %v", err)
-	}
-
-	cfg.Env = *db.LoadAll(
-		envFiles...,
-	)
-
-	return &cfg
+	return cfg
 }

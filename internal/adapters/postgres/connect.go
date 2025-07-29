@@ -15,26 +15,26 @@ func Connect(
 	cfg server.ServerConfigs,
 ) (*sql.DB, error) {
 	var connStr string
-	if cfg.AppEnv == "production" {
+	if cfg.Server.App.Mode == "production" {
 		connStr = fmt.Sprintf(
 			"user=%s password=%s dbname=%s port=%s sslmode=%s host=%s",
-			cfg.Env.Prod.User,
-			cfg.Env.Prod.Password,
-			cfg.Env.Prod.Name,
-			cfg.Env.Prod.Port,
-			cfg.Env.Prod.SSLMode,
-			cfg.Env.Prod.Host,
+			cfg.DB.Prod.User,
+			cfg.DB.Prod.Password,
+			cfg.DB.Prod.Name,
+			cfg.DB.Prod.Port,
+			cfg.DB.Prod.SSLMode,
+			cfg.DB.Prod.Host,
 		)
 	}
-	if cfg.AppEnv == "development" {
+	if cfg.Server.App.Mode == "development" {
 		connStr = fmt.Sprintf(
 			"user=%s password=%s dbname=%s port=%s sslmode=%s host=%s",
-			cfg.Env.Dev.User,
-			cfg.Env.Dev.Password,
-			cfg.Env.Dev.Name,
-			cfg.Env.Dev.Port,
-			cfg.Env.Dev.SSLMode,
-			cfg.Env.Dev.Host,
+			cfg.DB.Dev.User,
+			cfg.DB.Dev.Password,
+			cfg.DB.Dev.Name,
+			cfg.DB.Dev.Port,
+			cfg.DB.Dev.SSLMode,
+			cfg.DB.Dev.Host,
 		)
 	}
 
