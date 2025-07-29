@@ -1,7 +1,10 @@
-DEV_COMPOSE=deployment/dev/docker-compose.yml
-PROD_COMPOSE=deployment/prod/docker-compose.yml
+PROJECT_DIR := .
+DEPLOYMENT_DIR := $(PROJECT_DIR)/deployment
+DEV_COMPOSE := $(DEPLOYMENT_DIR)/dev/docker-compose.yml
+PROD_COMPOSE := $(DEPLOYMENT_DIR)/prod/docker-compose.yml
+SQLC_CONFIG := $(PROJECT_DIR)/internal/adapters/postgres/sqlc/sqlc.yaml
 
-.PHONY: help server client build-server build-client test clean dev-build dev-build-d prod-build prod-build-d
+.PHONY: help server client build-server build-client test clean dev dev-build dev-build-d prod prod-build prod-build-d sqlc
 
 ## 🖥️ Start server application (Go run)
 server:
@@ -12,16 +15,6 @@ server:
 client:
 	@echo "[i] Starting client with Go..."
 	@go run ./cmd/client
-
-## 🛠️ Build server binary
-build-server:
-	@echo "[i] Building server binary..."
-	@go build -o bin/server ./cmd/server
-
-## 🛠️ Build client binary
-build-client:
-	@echo "[i] Building client binary..."
-	@go build -o bin/client ./cmd/client
 
 ## 🧪 Run all tests recursively
 test:
@@ -34,25 +27,40 @@ clean:
 	@rm -rf bin/*
 	@rm -rf ./storage
 
-## 🐳 Start development environment (foreground)
+## 🐳 Start project in development mode
+dev:
+	@echo "[i] Starting dev environment..."
+	@docker compose -f $(DEV_COMPOSE) up
+
+## 🐳 Build and start dev environment
 dev-build:
-	@echo "[i] Starting dev docker-compose (foreground)..."
-	@docker-compose -f $(DEV_COMPOSE) up --build
+	@echo "[i] Building and starting dev environment..."
+	@docker compose -f $(DEV_COMPOSE) up --build
 
-## 🐳 Start development environment (background)
+## 🐳 Build and start dev environment (detached)
 dev-build-d:
-	@echo "[i] Starting dev docker-compose (detached)..."
-	@docker-compose -f $(DEV_COMPOSE) up --build -d
+	@echo "[i] Building and starting dev environment in background..."
+	@docker compose -f $(DEV_COMPOSE) up --build -d
 
-## 🐳 Start production environment (foreground)
+## 🐳 Start project in production mode
+prod:
+	@echo "[i] Starting prod environment..."
+	@docker compose -f $(PROD_COMPOSE) up
+
+## 🐳 Build and start prod environment
 prod-build:
-	@echo "[i] Starting prod docker-compose (foreground)..."
-	@docker-compose -f $(PROD_COMPOSE) up --build
+	@echo "[i] Building and starting prod environment..."
+	@docker compose -f $(PROD_COMPOSE) up --build
 
-## 🐳 Start production environment (background)
+## 🐳 Build and start prod environment (detached)
 prod-build-d:
-	@echo "[i] Starting prod docker-compose (detached)..."
-	@docker-compose -f $(PROD_COMPOSE) up --build -d
+	@echo "[i] Building and starting prod environment in background..."
+	@docker compose -f $(PROD_COMPOSE) up --build -d
+
+## 🧬 Generate SQLC code
+sqlc:
+	@echo "[i] Generating SQLC code..."
+	@sqlc generate -f $(SQLC_CONFIG)
 
 ## 📋 Show available targets
 help:
@@ -61,12 +69,13 @@ help:
 	@echo "Targets:"
 	@echo "  server           Run server app (Go)"
 	@echo "  client           Run client app (Go)"
-	@echo "  build-server     Build server binary"
-	@echo "  build-client     Build client binary"
-	@echo "  test             Run all tests"
+	@echo "  test             Run all tests recursively"
 	@echo "  clean            Remove built binaries and ./storage"
-	@echo "  dev-build        Start dev docker-compose"
-	@echo "  dev-build-d      Start dev docker-compose (detached)"
-	@echo "  prod-build       Start prod docker-compose"
-	@echo "  prod-build-d     Start prod docker-compose (detached)"
+	@echo "  dev              Start dev docker-compose"
+	@echo "  dev-build        Build and start dev environment"
+	@echo "  dev-build-d      Build and start dev environment (detached)"
+	@echo "  prod             Start prod docker-compose"
+	@echo "  prod-build       Build and start prod environment"
+	@echo "  prod-build-d     Build and start prod environment (detached)"
+	@echo "  sqlc             Generate SQLC code"
 	@echo "  help             Show this help"

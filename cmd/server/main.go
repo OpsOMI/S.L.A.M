@@ -6,6 +6,7 @@ import (
 	"net"
 	"time"
 
+	runserver "github.com/OpsOMI/S.L.A.M/internal/app/server"
 	"github.com/OpsOMI/S.L.A.M/internal/configs/server"
 )
 
@@ -13,10 +14,10 @@ func main() {
 	configs := server.LoadConfig(
 		"./configs/server.yaml",
 		"./env/real/.env.management",
-		"./deployment/dev/.env.example",
-		"./deployment/prod/.env.example",
+		"./deployment/dev/.env",
+		"./deployment/prod/.env",
 	)
-	fmt.Println(configs)
+	runserver.Run(*configs)
 }
 
 func ExampleMain() {
