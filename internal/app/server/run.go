@@ -1,10 +1,10 @@
 package runserver
 
 import (
-	"log"
-	"net"
+	"fmt"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/network"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres"
 	"github.com/OpsOMI/S.L.A.M/internal/configs/server"
 	"go.uber.org/zap"
@@ -30,10 +30,18 @@ func Run(cfg server.ServerConfigs) {
 	}
 	logg.Info("Database connected and migrations applied successfully")
 
-	ln, err := net.Listen("tcp", "localhost:6666")
+	logg.Info("Server Starting...")
+	listener, err := network.StartServer(
+		cfg.Server.App.Mode,
+		cfg.Server.Core.Port,
+		cfg.Server.Core.TSLCertPath,
+		cfg.Server.Core.TSLKeyPath,
+	)
 	if err != nil {
-		log.Fatal(err)
+		logg.Errorf("Start Server Error %s", err)
+		panic(err)
 	}
-	defer ln.Close()
-	logg.Info("Server Listening")
+	logg.Infof("Server Listening on %s", cfg.Server.Core.Port)
+
+	fmt.Println(listener)
 }
