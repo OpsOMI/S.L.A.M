@@ -43,8 +43,6 @@ func Run(cfg config.Configs) {
 	}
 	logg.Infof("Server Listening on %s", cfg.Server.Core.Port)
 
-	fmt.Println(listener)
-
 	for {
 		conn, err := listener.Accept()
 		if err != nil {

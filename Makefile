@@ -26,6 +26,7 @@ clean:
 	@echo "[i] Cleaning binaries and storage..."
 	@rm -rf bin/*
 	@rm -rf ./storage
+	@rm -rf ./tmp
 
 ## 🐳 Start project in development mode
 dev:

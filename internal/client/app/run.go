@@ -33,4 +33,14 @@ func Run(
 	defer conn.Close()
 
 	logg.Info("Successfully connected to server")
+
+	buf := make([]byte, 1024)
+	n, err := conn.Read(buf)
+	if err != nil {
+		logg.Error("Failed to read message from server: " + err.Error())
+		return
+	}
+
+	message := string(buf[:n])
+	logg.Info("Received message from server: " + message)
 }
