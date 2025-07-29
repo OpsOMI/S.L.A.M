@@ -5,12 +5,13 @@ import (
 	"log"
 	"net"
 
-	"github.com/OpsOMI/S.L.A.M/internal/configs/client"
+	"github.com/OpsOMI/S.L.A.M/internal/client/app"
+	"github.com/OpsOMI/S.L.A.M/internal/client/config"
 )
 
 func main() {
-	config := client.LoadConfig("./configs/client.yaml")
-	fmt.Println(config)
+	config := config.LoadConfig("./configs/client.yaml")
+	app.Run(config)
 }
 
 func Example() {

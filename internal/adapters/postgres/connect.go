@@ -7,34 +7,34 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OpsOMI/S.L.A.M/internal/configs/server"
+	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	_ "github.com/lib/pq"
 )
 
 func Connect(
-	cfg server.ServerConfigs,
+	serverConfig config.Configs,
 ) (*sql.DB, error) {
 	var connStr string
-	if cfg.Server.App.Mode == "production" {
+	if serverConfig.Server.App.Mode == "production" {
 		connStr = fmt.Sprintf(
 			"user=%s password=%s dbname=%s port=%s sslmode=%s host=%s",
-			cfg.DB.Prod.User,
-			cfg.DB.Prod.Password,
-			cfg.DB.Prod.Name,
-			cfg.DB.Prod.Port,
-			cfg.DB.Prod.SSLMode,
-			cfg.DB.Prod.Host,
+			serverConfig.DB.Prod.User,
+			serverConfig.DB.Prod.Password,
+			serverConfig.DB.Prod.Name,
+			serverConfig.DB.Prod.Port,
+			serverConfig.DB.Prod.SSLMode,
+			serverConfig.DB.Prod.Host,
 		)
 	}
-	if cfg.Server.App.Mode == "development" {
+	if serverConfig.Server.App.Mode == "development" {
 		connStr = fmt.Sprintf(
 			"user=%s password=%s dbname=%s port=%s sslmode=%s host=%s",
-			cfg.DB.Dev.User,
-			cfg.DB.Dev.Password,
-			cfg.DB.Dev.Name,
-			cfg.DB.Dev.Port,
-			cfg.DB.Dev.SSLMode,
-			cfg.DB.Dev.Host,
+			serverConfig.DB.Dev.User,
+			serverConfig.DB.Dev.Password,
+			serverConfig.DB.Dev.Name,
+			serverConfig.DB.Dev.Port,
+			serverConfig.DB.Dev.SSLMode,
+			serverConfig.DB.Dev.Host,
 		)
 	}
 

@@ -1,4 +1,6 @@
-server_host: 0.0.0.0
+server_name: slam
+server_host: localhost
 server_port: 6666
+tls_cert_path: "./certs/server.crt"
 timeout_seconds: 5
 reconnect_retry: 3
