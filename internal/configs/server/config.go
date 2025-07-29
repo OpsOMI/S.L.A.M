@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/OpsOMI/S.L.A.M/internal/configs/server/db"
 	"gopkg.in/yaml.v3"
 )
 
@@ -18,9 +19,13 @@ type ServerConfigs struct {
 	MaxClients           int    `yaml:"max_clients"`
 	TSLCertPath          string `yaml:"tls_cert_path"`
 	TSLKeyPath           string `yaml:"tls_key_path"`
+	Env                  db.ENV
 }
 
-func LoadConfig(path string) *ServerConfigs {
+func LoadConfig(
+	path string,
+	envFiles ...string,
+) *ServerConfigs {
 	if path == "" {
 		path = defaultConfigPath
 	}
@@ -34,6 +39,10 @@ func LoadConfig(path string) *ServerConfigs {
 	if err := yaml.Unmarshal(file, &cfg); err != nil {
 		log.Fatalf("failed to unmarshal config: %v", err)
 	}
+
+	cfg.Env = *db.LoadAll(
+		envFiles...,
+	)
 
 	return &cfg
 }

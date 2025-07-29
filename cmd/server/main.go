@@ -10,7 +10,12 @@ import (
 )
 
 func main() {
-	configs := server.LoadConfig("./configs/server.yaml")
+	configs := server.LoadConfig(
+		"./configs/server.yaml",
+		"./env/real/.env.management",
+		"./deployment/dev/.env.example",
+		"./deployment/prod/.env.example",
+	)
 	fmt.Println(configs)
 }
 
