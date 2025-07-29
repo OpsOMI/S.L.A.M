@@ -2,18 +2,18 @@ package services
 
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/configs/server"
+	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 )
 
 type IServices interface{}
 
 type services struct {
-	cfg    server.ServerConfigs
+	cfg    config.Configs
 	logger logger.ILogger
 }
 
 func NewServices(
-	cfg server.ServerConfigs,
+	cfg config.Configs,
 	logger logger.ILogger,
 ) IServices {
 	return &services{
