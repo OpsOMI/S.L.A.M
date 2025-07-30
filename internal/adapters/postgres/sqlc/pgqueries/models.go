@@ -10,6 +10,36 @@ import (
 	"github.com/google/uuid"
 )
 
+type Client struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	ClientKey uuid.UUID
+	RevokedAt sql.NullTime
+	CreatedAt sql.NullTime
+}
+
+type Message struct {
+	ID         uuid.UUID
+	SenderID   uuid.UUID
+	ReceiverID uuid.UUID
+	RoomID     uuid.UUID
+	ContentEnc string
+	CreatedAt  sql.NullTime
+}
+
+type Room struct {
+	ID        uuid.UUID
+	OwnerID   uuid.UUID
+	Code      string
+	CreatedAt sql.NullTime
+}
+
+type RoomMember struct {
+	RoomID   uuid.UUID
+	UserID   uuid.UUID
+	JoinedAt sql.NullTime
+}
+
 type User struct {
 	ID          uuid.UUID
 	Username    string
