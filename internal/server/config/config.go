@@ -9,7 +9,7 @@ import (
 type Configs struct {
 	Server    core.Configs
 	Managment managment.ManagementConfig
-	DB        db.DatabaseConfig
+	Db        db.DatabaseConfig
 }
 
 func LoadConfig(
@@ -19,7 +19,7 @@ func LoadConfig(
 ) *Configs {
 	cfg := &Configs{
 		Server: *core.LoadConfig(serverConfigPath),
-		DB:     *db.LoadAll(envFiles...),
+		Db:     *db.LoadAll(envFiles...),
 	}
 
 	if managmentEnvPath != "" {

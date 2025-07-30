@@ -1,8 +1,6 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres"
@@ -10,6 +8,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains"
 	"github.com/OpsOMI/S.L.A.M/internal/server/jobs"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
 	"github.com/OpsOMI/S.L.A.M/pkg"
 	"github.com/OpsOMI/S.L.A.M/pkg/cronpkg"
@@ -72,13 +71,10 @@ func Run(cfg config.Configs) {
 	}
 	logg.Infof("Server Listening on %s", cfg.Server.Core.Port)
 
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			continue
-		}
+	logg.Info("Controller Starting...")
+	controller := controllers.NewController(listener, logg, cfg)
 
-		fmt.Println("New Conn!", conn.LocalAddr())
-		fmt.Fprintln(conn, "Welcome to SLAM!")
+	if err := controller.Start(); err != nil {
+		logg.Error("Controller stopped with error", zap.Error(err))
 	}
 }
