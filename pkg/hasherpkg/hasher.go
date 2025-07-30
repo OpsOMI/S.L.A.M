@@ -23,8 +23,9 @@ type IHasher interface {
 	EncryptMessage(message string, secretKey []byte) (string, error)
 	DecryptMessage(encrypted string, secretKey []byte) (string, error)
 
-	// Generate 2FA
+	// Generate Secrets
 	Generate6DigitCode() (string, error)
+	Generate6CharPrivateCode() (string, error)
 }
 
 // Hasher struct implements the IHasher interface
@@ -117,4 +118,21 @@ func (h *Hasher) Generate6DigitCode() (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("%06d", n.Int64()), nil
+}
+
+// Generate6CharPrivateCode generates a 6-character alphanumeric code (no symbols)
+func (h *Hasher) Generate6CharPrivateCode() (string, error) {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	const length = 6
+
+	code := make([]byte, length)
+	for i := 0; i < length; i++ {
+		index, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			return "", err
+		}
+		code[i] = charset[index.Int64()]
+	}
+
+	return string(code), nil
 }

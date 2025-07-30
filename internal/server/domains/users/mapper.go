@@ -17,7 +17,7 @@ type IUsersMapper interface {
 	) *Users
 
 	CreateUser(
-		username, nickname, password string,
+		nickname, privateCode, username, password string,
 	) pgqueries.CreateUserParams
 
 	ChangeNickname(
@@ -74,12 +74,13 @@ func (m *mapper) Many(
 }
 
 func (m *mapper) CreateUser(
-	username, nickname, password string,
+	nickname, privateCode, username, password string,
 ) pgqueries.CreateUserParams {
 	return pgqueries.CreateUserParams{
-		Username: username,
-		Nickname: nickname,
-		Password: password,
+		Nickname:    nickname,
+		PrivateCode: privateCode,
+		Username:    username,
+		Password:    password,
 	}
 }
 

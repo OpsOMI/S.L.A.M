@@ -25,12 +25,13 @@ type Users struct {
 
 // New constructs a UserAuth instance for creation.
 func New(
-	nickname, username, password string,
+	nickname, privateCode, username, password string,
 ) User {
 	return User{
-		Nickname: strings.TrimSpace(nickname),
-		Username: strings.TrimSpace(username),
-		Password: strings.TrimSpace(password),
+		Nickname:    strings.TrimSpace(nickname),
+		Username:    strings.TrimSpace(username),
+		Password:    strings.TrimSpace(password),
+		PrivateCode: strings.TrimSpace(privateCode),
 	}
 }
 

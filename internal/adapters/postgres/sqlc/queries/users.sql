@@ -23,13 +23,15 @@ WHERE
 INSERT INTO users (
     username,
     password,
-    nickname
+    nickname,
+    private_code
 ) VALUES (
     @username,
     @password,
-    @nickname
+    @nickname,
+    @private_code
 )
-RETURNING id, private_code;
+RETURNING id;
 
 -- name: ChangeNickname :exec
 UPDATE users

@@ -33,31 +33,34 @@ const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     username,
     password,
-    nickname
+    nickname,
+    private_code
 ) VALUES (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
-RETURNING id, private_code
+RETURNING id
 `
 
 type CreateUserParams struct {
-	Username string
-	Password string
-	Nickname string
-}
-
-type CreateUserRow struct {
-	ID          uuid.UUID
+	Username    string
+	Password    string
+	Nickname    string
 	PrivateCode string
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.Password, arg.Nickname)
-	var i CreateUserRow
-	err := row.Scan(&i.ID, &i.PrivateCode)
-	return i, err
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Username,
+		arg.Password,
+		arg.Nickname,
+		arg.PrivateCode,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const deleteUser = `-- name: DeleteUser :exec

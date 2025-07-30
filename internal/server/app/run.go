@@ -49,7 +49,7 @@ func Run(cfg config.Configs) {
 	logg.Info("Shared packages initialized")
 
 	// Initialize repositories with queries
-	repositories := repositories.NewRepositories(queries, packages.TXManager(), mappers)
+	repositories := repositories.NewRepositories(queries, mappers, packages.TXManager())
 	logg.Info("Repositories initialized")
 	_ = repositories
 
