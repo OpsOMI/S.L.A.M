@@ -6,7 +6,13 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres"
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres/sqlc/pgqueries"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains"
+	"github.com/OpsOMI/S.L.A.M/internal/server/jobs"
+	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
+	"github.com/OpsOMI/S.L.A.M/pkg"
+	"github.com/OpsOMI/S.L.A.M/pkg/cronpkg"
 	"go.uber.org/zap"
 )
 
@@ -29,6 +35,29 @@ func Run(cfg config.Configs) {
 		panic(err)
 	}
 	logg.Info("Database connected and migrations applied successfully")
+
+	// Initialize domain mapper
+	mappers := domains.NewMappers()
+
+	// Initialize sqlc queries with DB connection and mapper
+	queries := pgqueries.New(conn)
+
+	// Initialize common/shared packages (Hasher, Mailer, etc.)
+	packages := pkg.NewPackages(
+		conn,
+	)
+	logg.Info("Shared packages initialized")
+
+	// Initialize repositories with queries
+	repositories := repositories.NewRepositories(queries, mappers, packages.TXManager())
+	logg.Info("Repositories initialized")
+	_ = repositories
+
+	// Initialize cron job manager and register jobs
+	cronManager := cronpkg.New()
+	jobs.Register(cronManager, logg)
+	cronManager.Start()
+	logg.Info("Cron jobs started")
 
 	logg.Info("Server Starting...")
 	listener, err := network.StartServer(

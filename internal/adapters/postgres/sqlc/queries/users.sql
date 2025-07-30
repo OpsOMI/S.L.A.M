@@ -21,17 +21,33 @@ WHERE
 
 -- name: CreateUser :one
 INSERT INTO users (
-    id,
     username,
     password,
-    nickname
+    nickname,
+    private_code
 ) VALUES (
-    @id,
     @username,
     @password,
-    @nickname
+    @nickname,
+    @private_code
 )
-RETURNING id, private_code;
+RETURNING id;
+
+-- name: CreateOwner :one
+INSERT INTO users (
+    username,
+    password,
+    nickname,
+    private_code,
+    role
+) VALUES (
+    @username,
+    @password,
+    @nickname,
+    @private_code,
+    'owner'
+)
+RETURNING id;
 
 -- name: ChangeNickname :exec
 UPDATE users

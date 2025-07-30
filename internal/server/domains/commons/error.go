@@ -1,0 +1,34 @@
+package commons
+
+const (
+	// HTTP Status Codes
+	StatusOK                  = 200
+	StatusBadRequest          = 400
+	StatusUnauthorized        = 401
+	StatusForbidden           = 403
+	StatusNotFound            = 404
+	StatusConflict            = 409
+	StatusTooManyRequests     = 429
+	StatusInternalServerError = 500
+	StatusServiceUnavailable  = 503
+
+	// General Errors
+	ErrInvalidID = "general.invalid_id"
+
+	// SQL Transaction Errors
+	ErrSQLTxCommit = "sql.tx_commit_error"
+	ErrSQLTxCreate = "sql.tx_create_error"
+
+	// File System Errors
+	ErrFileInvalidType = "file.invalid_type"
+	ErrFileCreateDir   = "file.create_dir_error"
+	ErrFileCreate      = "file.create_error"
+	ErrFileDelete      = "file.delete_error"
+	ErrFileCopy        = "file.copy_error"
+	ErrFileOpen        = "file.open_error"
+
+	// Log Messages
+	LogResendVerificationFailed = "Failed to resend verification email for [%s]: %v"
+	LogSend2FACodeFailed        = "Failed to send 2FA code to [%s]: %v"
+	LogSendPasswordResetFailed  = "Failed to send password reset email to [%s]: %v"
+)
