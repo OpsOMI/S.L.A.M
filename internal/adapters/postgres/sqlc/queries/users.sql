@@ -33,6 +33,22 @@ INSERT INTO users (
 )
 RETURNING id;
 
+-- name: CreateOwner :one
+INSERT INTO users (
+    username,
+    password,
+    nickname,
+    private_code,
+    role
+) VALUES (
+    @username,
+    @password,
+    @nickname,
+    @private_code,
+    'owner'
+)
+RETURNING id;
+
 -- name: ChangeNickname :exec
 UPDATE users
 SET

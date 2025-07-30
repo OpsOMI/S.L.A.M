@@ -31,7 +31,12 @@ type IUserRepository interface {
 		privateCode string,
 	) (*users.User, error)
 
-	Create(
+	CreateUser(
+		ctx context.Context,
+		domainModel users.User,
+	) (*uuid.UUID, error)
+
+	CreateOwner(
 		ctx context.Context,
 		domainModel users.User,
 	) (*uuid.UUID, error)

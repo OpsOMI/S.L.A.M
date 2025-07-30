@@ -46,5 +46,6 @@ type User struct {
 	Password    string
 	Nickname    string
 	PrivateCode string
+	Role        string
 	CreatedAt   sql.NullTime
 }

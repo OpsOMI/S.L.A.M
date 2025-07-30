@@ -29,6 +29,42 @@ func (q *Queries) ChangeNickname(ctx context.Context, arg ChangeNicknameParams) 
 	return err
 }
 
+const createOwner = `-- name: CreateOwner :one
+INSERT INTO users (
+    username,
+    password,
+    nickname,
+    private_code,
+    role
+) VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    'owner'
+)
+RETURNING id
+`
+
+type CreateOwnerParams struct {
+	Username    string
+	Password    string
+	Nickname    string
+	PrivateCode string
+}
+
+func (q *Queries) CreateOwner(ctx context.Context, arg CreateOwnerParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createOwner,
+		arg.Username,
+		arg.Password,
+		arg.Nickname,
+		arg.PrivateCode,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     username,
@@ -73,7 +109,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, password, nickname, private_code, created_at FROM users WHERE id = $1
+SELECT id, username, password, nickname, private_code, role, created_at FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
@@ -85,13 +121,14 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Password,
 		&i.Nickname,
 		&i.PrivateCode,
+		&i.Role,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getUserByNickname = `-- name: GetUserByNickname :one
-SELECT id, username, password, nickname, private_code, created_at FROM users WHERE nickname = $1
+SELECT id, username, password, nickname, private_code, role, created_at FROM users WHERE nickname = $1
 `
 
 func (q *Queries) GetUserByNickname(ctx context.Context, nickname string) (User, error) {
@@ -103,13 +140,14 @@ func (q *Queries) GetUserByNickname(ctx context.Context, nickname string) (User,
 		&i.Password,
 		&i.Nickname,
 		&i.PrivateCode,
+		&i.Role,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getUserByPrivateCode = `-- name: GetUserByPrivateCode :one
-SELECT id, username, password, nickname, private_code, created_at FROM users WHERE private_code = $1
+SELECT id, username, password, nickname, private_code, role, created_at FROM users WHERE private_code = $1
 `
 
 func (q *Queries) GetUserByPrivateCode(ctx context.Context, privateCode string) (User, error) {
@@ -121,13 +159,14 @@ func (q *Queries) GetUserByPrivateCode(ctx context.Context, privateCode string) 
 		&i.Password,
 		&i.Nickname,
 		&i.PrivateCode,
+		&i.Role,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, password, nickname, private_code, created_at FROM users WHERE username = $1
+SELECT id, username, password, nickname, private_code, role, created_at FROM users WHERE username = $1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
@@ -139,6 +178,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.Password,
 		&i.Nickname,
 		&i.PrivateCode,
+		&i.Role,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -198,7 +238,7 @@ func (q *Queries) IsUserExistByUsername(ctx context.Context, username string) (b
 
 const userLogin = `-- name: UserLogin :one
 SELECT
-    u.id, u.username, u.password, u.nickname, u.private_code, u.created_at, c.id, c.user_id, c.client_key, c.revoked_at, c.created_at
+    u.id, u.username, u.password, u.nickname, u.private_code, u.role, u.created_at, c.id, c.user_id, c.client_key, c.revoked_at, c.created_at
 FROM
     users AS u
 INNER JOIN clients AS c ON c.user_id = u.id
@@ -220,6 +260,7 @@ func (q *Queries) UserLogin(ctx context.Context, username string) (UserLoginRow,
 		&i.User.Password,
 		&i.User.Nickname,
 		&i.User.PrivateCode,
+		&i.User.Role,
 		&i.User.CreatedAt,
 		&i.Client.ID,
 		&i.Client.UserID,

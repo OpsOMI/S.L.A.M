@@ -79,12 +79,25 @@ func (r *repository) GetByPrivateCode(
 	return r.mappers.Users().One(&dbModel), nil
 }
 
-func (r *repository) Create(
+func (r *repository) CreateUser(
 	ctx context.Context,
 	domainModel users.User,
 ) (*uuid.UUID, error) {
 	params := r.mappers.Users().CreateUser(domainModel.Nickname, domainModel.PrivateCode, domainModel.Username, domainModel.Password)
 	id, err := r.queries.CreateUser(ctx, params)
+	if err != nil {
+		return nil, repoerrors.Internal(users.ErrCreateFailed, err)
+	}
+
+	return &id, nil
+}
+
+func (r *repository) CreateOwner(
+	ctx context.Context,
+	domainModel users.User,
+) (*uuid.UUID, error) {
+	params := r.mappers.Users().CreateOwner(domainModel.Nickname, domainModel.PrivateCode, domainModel.Username, domainModel.Password)
+	id, err := r.queries.CreateOwner(ctx, params)
 	if err != nil {
 		return nil, repoerrors.Internal(users.ErrCreateFailed, err)
 	}
