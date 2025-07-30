@@ -7,38 +7,230 @@ package pgqueries
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
-const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, username, password, nickname, private_code, created_at FROM users
+const changeNickname = `-- name: ChangeNickname :exec
+UPDATE users
+SET
+    nickname = COALESCE($1, nickname)
+WHERE
+    id = $2
 `
 
-func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getAllUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Username,
-			&i.Password,
-			&i.Nickname,
-			&i.PrivateCode,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type ChangeNicknameParams struct {
+	Nickname string
+	ID       uuid.UUID
+}
+
+func (q *Queries) ChangeNickname(ctx context.Context, arg ChangeNicknameParams) error {
+	_, err := q.db.ExecContext(ctx, changeNickname, arg.Nickname, arg.ID)
+	return err
+}
+
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (
+    id,
+    username,
+    password,
+    nickname
+) VALUES (
+    $1,
+    $2,
+    $3,
+    $4
+)
+RETURNING id, private_code
+`
+
+type CreateUserParams struct {
+	ID       uuid.UUID
+	Username string
+	Password string
+	Nickname string
+}
+
+type CreateUserRow struct {
+	ID          uuid.UUID
+	PrivateCode string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.ID,
+		arg.Username,
+		arg.Password,
+		arg.Nickname,
+	)
+	var i CreateUserRow
+	err := row.Scan(&i.ID, &i.PrivateCode)
+	return i, err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, username, password, nickname, private_code, created_at FROM users WHERE id = $1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Password,
+		&i.Nickname,
+		&i.PrivateCode,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserByNickname = `-- name: GetUserByNickname :one
+SELECT id, username, password, nickname, private_code, created_at FROM users WHERE nickname = $1
+`
+
+func (q *Queries) GetUserByNickname(ctx context.Context, nickname string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByNickname, nickname)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Password,
+		&i.Nickname,
+		&i.PrivateCode,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserByPrivateCode = `-- name: GetUserByPrivateCode :one
+SELECT id, username, password, nickname, private_code, created_at FROM users WHERE private_code = $1
+`
+
+func (q *Queries) GetUserByPrivateCode(ctx context.Context, privateCode string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByPrivateCode, privateCode)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Password,
+		&i.Nickname,
+		&i.PrivateCode,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, username, password, nickname, private_code, created_at FROM users WHERE username = $1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Password,
+		&i.Nickname,
+		&i.PrivateCode,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const isUserExistByID = `-- name: IsUserExistByID :one
+SELECT EXISTS (
+    SELECT 1 FROM users WHERE id = $1
+)
+`
+
+func (q *Queries) IsUserExistByID(ctx context.Context, id uuid.UUID) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isUserExistByID, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const isUserExistByNickname = `-- name: IsUserExistByNickname :one
+SELECT EXISTS (
+    SELECT 1 FROM users WHERE nickname = $1
+)
+`
+
+func (q *Queries) IsUserExistByNickname(ctx context.Context, nickname string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isUserExistByNickname, nickname)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const isUserExistByPrivateCode = `-- name: IsUserExistByPrivateCode :one
+SELECT EXISTS (
+    SELECT 1 FROM users WHERE private_code = $1
+)
+`
+
+func (q *Queries) IsUserExistByPrivateCode(ctx context.Context, privateCode string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isUserExistByPrivateCode, privateCode)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const isUserExistByUsername = `-- name: IsUserExistByUsername :one
+SELECT EXISTS (
+    SELECT 1 FROM users WHERE username = $1
+)
+`
+
+func (q *Queries) IsUserExistByUsername(ctx context.Context, username string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isUserExistByUsername, username)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const userLogin = `-- name: UserLogin :one
+SELECT
+    u.id, u.username, u.password, u.nickname, u.private_code, u.created_at, c.id, c.user_id, c.client_key, c.revoked_at, c.created_at
+FROM
+    users AS u
+INNER JOIN clients AS c ON c.user_id = u.id
+WHERE
+    u.username = $1
+`
+
+type UserLoginRow struct {
+	User   User
+	Client Client
+}
+
+func (q *Queries) UserLogin(ctx context.Context, username string) (UserLoginRow, error) {
+	row := q.db.QueryRowContext(ctx, userLogin, username)
+	var i UserLoginRow
+	err := row.Scan(
+		&i.User.ID,
+		&i.User.Username,
+		&i.User.Password,
+		&i.User.Nickname,
+		&i.User.PrivateCode,
+		&i.User.CreatedAt,
+		&i.Client.ID,
+		&i.Client.UserID,
+		&i.Client.ClientKey,
+		&i.Client.RevokedAt,
+		&i.Client.CreatedAt,
+	)
+	return i, err
 }
