@@ -19,7 +19,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type TokenManager interface {
+type ITokenManager interface {
 	GenerateToken(
 		clientID, userID, username, nickname string,
 		duration time.Duration,
@@ -34,19 +34,21 @@ type TokenManager interface {
 	) (*TokenInfo, error)
 }
 
-type JWTManager struct {
-	secret []byte
+type manager struct {
 	issuer string
+	secret []byte
 }
 
-func NewJWTManager(secret string, issuer string) *JWTManager {
-	return &JWTManager{
-		secret: []byte(secret),
+func NewJWTManager(
+	issuer, secret string,
+) ITokenManager {
+	return &manager{
 		issuer: issuer,
+		secret: []byte(secret),
 	}
 }
 
-func (jm *JWTManager) GenerateToken(clientID, userID, username, nickname string, duration time.Duration) (string, error) {
+func (jm *manager) GenerateToken(clientID, userID, username, nickname string, duration time.Duration) (string, error) {
 	claims := Claims{
 		TokenInfo: TokenInfo{
 			ClientID: clientID,
@@ -65,7 +67,7 @@ func (jm *JWTManager) GenerateToken(clientID, userID, username, nickname string,
 	return token.SignedString(jm.secret)
 }
 
-func (jm *JWTManager) ValidateToken(tokenStr string) (*Claims, error) {
+func (jm *manager) ValidateToken(tokenStr string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("jwt.unexpected_signing_method")
@@ -83,7 +85,7 @@ func (jm *JWTManager) ValidateToken(tokenStr string) (*Claims, error) {
 	return claims, nil
 }
 
-func (jm *JWTManager) ParseToken(tokenStr string) (*TokenInfo, error) {
+func (jm *manager) ParseToken(tokenStr string) (*TokenInfo, error) {
 	claims, err := jm.ValidateToken(tokenStr)
 	if err != nil {
 		return nil, err
