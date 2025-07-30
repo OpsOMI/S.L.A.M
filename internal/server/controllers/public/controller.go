@@ -17,6 +17,8 @@ func NewController() *PublicController {
 		routes: make(map[string]HandlerFunc),
 	}
 
+	pc.InitHealthRoutes()
+
 	return pc
 }
 

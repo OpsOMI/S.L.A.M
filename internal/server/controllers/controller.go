@@ -7,6 +7,8 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	"github.com/OpsOMI/S.L.A.M/internal/server/controllers/public"
@@ -50,18 +52,15 @@ func (c *Controller) Start() error {
 	}
 }
 
-type ClientMessage struct {
-	JwtToken string          `json:"jwt_token"` // JWT token for authentication and authorization
-	Command  string          `json:"command"`   // Command to execute, e.g., "/join", "/message"
-	Payload  json.RawMessage `json:"payload"`   // Command-specific data in JSON format
-	Scope    string          `json:"scope"`     // User scope or role, e.g., "public", "private", "owner"
-}
-
 func (c *Controller) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	c.logger.Info("New connection accepted: " + conn.RemoteAddr().String())
-	fmt.Fprintln(conn, "Welcome to SLAM!")
+
+	if err := response.Success(conn, map[string]string{"message": "Welcome to SLAM!"}); err != nil {
+		c.logger.Error("Failed to send welcome message: " + err.Error())
+		return
+	}
 
 	public := public.NewController()
 
@@ -72,11 +71,12 @@ func (c *Controller) HandleConnection(conn net.Conn) {
 			continue
 		}
 
-		var msg ClientMessage
+		var msg request.ClientMessage
 		err := json.Unmarshal([]byte(line), &msg)
 		if err != nil {
 			c.logger.Error("Invalid JSON format from " + conn.RemoteAddr().String() + ": " + err.Error())
-			fmt.Fprintln(conn, `{"error":"invalid JSON format"}`)
+
+			_ = response.Error(conn, "invalid JSON format")
 			continue
 		}
 
@@ -94,12 +94,13 @@ func (c *Controller) HandleConnection(conn net.Conn) {
 
 		if routeErr != nil {
 			c.logger.Error("Routing error for " + conn.RemoteAddr().String() + ": " + routeErr.Error())
-			fmt.Fprintf(conn, `{"error":"%s"}`+"\n", routeErr.Error())
+
+			_ = response.Error(conn, routeErr.Error())
 			continue
 		}
 
 		c.logger.Info("Command received from " + conn.RemoteAddr().String() + ": " + msg.Command)
-		fmt.Fprintf(conn, `{"info":"command received","command":"%s"}`+"\n", msg.Command)
+		_ = response.Success(conn, map[string]string{"info": "command received", "command": msg.Command})
 	}
 
 	if err := scanner.Err(); err != nil {
