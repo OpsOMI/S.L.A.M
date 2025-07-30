@@ -1,7 +1,6 @@
 package users
 
 import (
-	"net"
 	"strings"
 	"time"
 
@@ -76,10 +75,4 @@ func (u *User) ValidateForUpdate() error {
 	}
 
 	return nil
-}
-
-type Connection struct {
-	Conn        net.Conn
-	User        *User
-	CurrentRoom string
 }
