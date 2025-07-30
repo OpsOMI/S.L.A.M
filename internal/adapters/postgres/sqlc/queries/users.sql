@@ -21,12 +21,10 @@ WHERE
 
 -- name: CreateUser :one
 INSERT INTO users (
-    id,
     username,
     password,
     nickname
 ) VALUES (
-    @id,
     @username,
     @password,
     @nickname

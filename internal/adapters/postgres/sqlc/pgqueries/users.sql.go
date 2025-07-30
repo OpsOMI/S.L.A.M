@@ -31,21 +31,18 @@ func (q *Queries) ChangeNickname(ctx context.Context, arg ChangeNicknameParams) 
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-    id,
     username,
     password,
     nickname
 ) VALUES (
     $1,
     $2,
-    $3,
-    $4
+    $3
 )
 RETURNING id, private_code
 `
 
 type CreateUserParams struct {
-	ID       uuid.UUID
 	Username string
 	Password string
 	Nickname string
@@ -57,12 +54,7 @@ type CreateUserRow struct {
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.ID,
-		arg.Username,
-		arg.Password,
-		arg.Nickname,
-	)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.Password, arg.Nickname)
 	var i CreateUserRow
 	err := row.Scan(&i.ID, &i.PrivateCode)
 	return i, err

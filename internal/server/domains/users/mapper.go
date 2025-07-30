@@ -3,6 +3,7 @@ package users
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres/sqlc/pgqueries"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/utils"
+	"github.com/google/uuid"
 )
 
 type IUsersMapper interface {
@@ -14,6 +15,15 @@ type IUsersMapper interface {
 		dbModels []pgqueries.User,
 		count int64,
 	) *Users
+
+	CreateUser(
+		username, nickname, password string,
+	) pgqueries.CreateUserParams
+
+	ChangeNickname(
+		id uuid.UUID,
+		nickname string,
+	) pgqueries.ChangeNicknameParams
 }
 
 type mapper struct {
@@ -60,5 +70,25 @@ func (m *mapper) Many(
 	return &Users{
 		Items:      appModels,
 		TotalCount: count,
+	}
+}
+
+func (m *mapper) CreateUser(
+	username, nickname, password string,
+) pgqueries.CreateUserParams {
+	return pgqueries.CreateUserParams{
+		Username: username,
+		Nickname: nickname,
+		Password: password,
+	}
+}
+
+func (m *mapper) ChangeNickname(
+	id uuid.UUID,
+	nickname string,
+) pgqueries.ChangeNicknameParams {
+	return pgqueries.ChangeNicknameParams{
+		ID:       id,
+		Nickname: *m.utils.FromStrToPtrStr(nickname),
 	}
 }
