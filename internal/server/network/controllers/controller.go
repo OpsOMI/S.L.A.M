@@ -7,35 +7,37 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/connection"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
-	"github.com/OpsOMI/S.L.A.M/internal/server/controllers/public"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/private"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/public"
 )
 
 type Controller struct {
-	listener   net.Listener
-	logger     logger.ILogger
-	config     config.Configs
-	tokenstore tokenstore.ITokenManager
-	// router   *Router
+	listener    net.Listener
+	logger      logger.ILogger
+	config      config.Configs
+	tokenstore  tokenstore.ITokenStore
+	connmanager *connection.ConnectionManager
 }
 
 func NewController(
 	listener net.Listener,
 	logger logger.ILogger,
 	config config.Configs,
-	// router *Router,
 ) *Controller {
 	tokenstore := tokenstore.NewJWTManager(config.Server.Jwt.Issuer, config.Server.Jwt.Secret)
+	connmanager := connection.NewConnectionManager()
 
 	return &Controller{
-		listener:   listener,
-		logger:     logger,
-		config:     config,
-		tokenstore: tokenstore,
-		// router:   router,
+		listener:    listener,
+		logger:      logger,
+		config:      config,
+		tokenstore:  tokenstore,
+		connmanager: connmanager,
 	}
 }
 
@@ -46,8 +48,8 @@ func (c *Controller) Start() error {
 			fmt.Println("Accept error:", err)
 			continue
 		}
-
 		fmt.Println("New connection:", conn.RemoteAddr())
+
 		go c.HandleConnection(conn)
 	}
 }
@@ -62,7 +64,8 @@ func (c *Controller) HandleConnection(conn net.Conn) {
 		return
 	}
 
-	public := public.NewController()
+	public := public.NewController(c.logger)
+	private := private.NewController(c.logger, c.tokenstore)
 
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
@@ -80,27 +83,19 @@ func (c *Controller) HandleConnection(conn net.Conn) {
 			continue
 		}
 
-		var routeErr error
 		switch msg.Scope {
 		case "public":
-			routeErr = public.Route(conn, msg.Command, msg.Payload)
+			public.Route(conn, msg.Command, msg.Payload)
 		case "private":
-			// routeErr = private.Route(conn, msg.Command, msg.Payload)
+			private.Route(conn, msg.JwtToken, msg.Command, msg.Payload)
 		case "owner":
-			// routeErr = owner.Route(conn, msg.Command, msg.Payload)
+			// owner.Route(conn, msg.Command, msg.Payload)
 		default:
-			routeErr = fmt.Errorf("invalid scope: %s", msg.Scope)
-		}
-
-		if routeErr != nil {
-			c.logger.Error("Routing error for " + conn.RemoteAddr().String() + ": " + routeErr.Error())
-
-			_ = response.Error(conn, routeErr.Error())
+			_ = response.Error(conn, fmt.Sprintf("invalid scope: %s", msg.Scope))
 			continue
 		}
 
 		c.logger.Info("Command received from " + conn.RemoteAddr().String() + ": " + msg.Command)
-		_ = response.Success(conn, map[string]string{"info": "command received", "command": msg.Command})
 	}
 
 	if err := scanner.Err(); err != nil {

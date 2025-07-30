@@ -11,6 +11,6 @@ server:
   tls_cert_path: "./certs/server.crt"
   tls_key_path: "./certs/server.key"
 
-JWT:
+jwt:
   issuer: SLAM
   secret: u549QD5weh9A04n

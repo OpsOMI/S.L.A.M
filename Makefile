@@ -16,6 +16,11 @@ client:
 	@echo "[i] Starting client with Go..."
 	@go run ./cmd/client
 
+## 🖥️ Start client application (Go run)
+jwt:
+	@echo "[i] Generate Jwt with Go..."
+	@go run ./cmd/jwt
+
 ## 🧪 Run all tests recursively
 test:
 	@echo "[i] Running all tests..."

@@ -47,10 +47,10 @@ func Run(cfg *config.Configs) {
 	logg.Info("Received message from server: " + message)
 
 	clientMsg := request.ClientMessage{
-		JwtToken: "",
-		Command:  "/ping",
+		JwtToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiJjbGllbnQxMjMiLCJ1c2VyX2lkIjoidXNlcjQ1NiIsInVzZXJuYW1lIjoiam9obl9kb2UiLCJuaWNrbmFtZSI6IkpvaG5ueSIsImlzcyI6IlNMQU0iLCJleHAiOjE3NTM5ODYyNjIsImlhdCI6MTc1Mzg5OTg2Mn0.sUBemT1thzErjBOcPFpVZOiL7gCAfYRsyb6S5fb062w",
+		Command:  "/me",
 		Payload:  json.RawMessage(`{"message":"Selam Ping Pong"}`),
-		Scope:    "public",
+		Scope:    "private",
 	}
 
 	data, err := json.Marshal(clientMsg)
@@ -64,7 +64,7 @@ func Run(cfg *config.Configs) {
 		logg.Error("Failed to send message to server: " + err.Error())
 		return
 	}
-	logg.Info("Sent ping command to server")
+	logg.Info("Sent /me command to server")
 
 	n, err = conn.Read(buf)
 	if err != nil {

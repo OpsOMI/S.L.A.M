@@ -19,19 +19,19 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type ITokenManager interface {
+type ITokenStore interface {
 	GenerateToken(
 		clientID, userID, username, nickname string,
 		duration time.Duration,
 	) (string, error)
 
 	ValidateToken(
-		tokenStr string,
+		tokenStr *string,
 	) (*Claims, error)
 
 	ParseToken(
-		tokenStr string,
-	) (*TokenInfo, error)
+		tokenStr *string,
+	) *TokenInfo
 }
 
 type manager struct {
@@ -41,14 +41,14 @@ type manager struct {
 
 func NewJWTManager(
 	issuer, secret string,
-) ITokenManager {
+) ITokenStore {
 	return &manager{
 		issuer: issuer,
 		secret: []byte(secret),
 	}
 }
 
-func (jm *manager) GenerateToken(clientID, userID, username, nickname string, duration time.Duration) (string, error) {
+func (m *manager) GenerateToken(clientID, userID, username, nickname string, duration time.Duration) (string, error) {
 	claims := Claims{
 		TokenInfo: TokenInfo{
 			ClientID: clientID,
@@ -59,20 +59,26 @@ func (jm *manager) GenerateToken(clientID, userID, username, nickname string, du
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    jm.issuer,
+			Issuer:    m.issuer,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jm.secret)
+	return token.SignedString(m.secret)
 }
 
-func (jm *manager) ValidateToken(tokenStr string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (any, error) {
+func (m *manager) ValidateToken(
+	tokenStr *string,
+) (*Claims, error) {
+	if tokenStr == nil {
+		return nil, errors.New("jwt.invalid_token")
+	}
+
+	token, err := jwt.ParseWithClaims(*tokenStr, &Claims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("jwt.unexpected_signing_method")
 		}
-		return jm.secret, nil
+		return m.secret, nil
 	})
 	if err != nil {
 		return nil, err
@@ -85,11 +91,13 @@ func (jm *manager) ValidateToken(tokenStr string) (*Claims, error) {
 	return claims, nil
 }
 
-func (jm *manager) ParseToken(tokenStr string) (*TokenInfo, error) {
-	claims, err := jm.ValidateToken(tokenStr)
-	if err != nil {
-		return nil, err
+// This function assumes the JWT is already validated by middleware, so it skips error handling and returns the parsed token info directly.
+func (m *manager) ParseToken(tokenStr *string) *TokenInfo {
+	if tokenStr == nil {
+		return nil
 	}
 
-	return &claims.TokenInfo, nil
+	claims, _ := m.ValidateToken(tokenStr)
+
+	return &claims.TokenInfo
 }
