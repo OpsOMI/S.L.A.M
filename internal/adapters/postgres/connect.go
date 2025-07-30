@@ -18,23 +18,23 @@ func Connect(
 	if serverConfig.Server.App.Mode == "production" {
 		connStr = fmt.Sprintf(
 			"user=%s password=%s dbname=%s port=%s sslmode=%s host=%s",
-			serverConfig.DB.Prod.User,
-			serverConfig.DB.Prod.Password,
-			serverConfig.DB.Prod.Name,
-			serverConfig.DB.Prod.Port,
-			serverConfig.DB.Prod.SSLMode,
-			serverConfig.DB.Prod.Host,
+			serverConfig.Db.Prod.User,
+			serverConfig.Db.Prod.Password,
+			serverConfig.Db.Prod.Name,
+			serverConfig.Db.Prod.Port,
+			serverConfig.Db.Prod.SSLMode,
+			serverConfig.Db.Prod.Host,
 		)
 	}
 	if serverConfig.Server.App.Mode == "development" {
 		connStr = fmt.Sprintf(
 			"user=%s password=%s dbname=%s port=%s sslmode=%s host=%s",
-			serverConfig.DB.Dev.User,
-			serverConfig.DB.Dev.Password,
-			serverConfig.DB.Dev.Name,
-			serverConfig.DB.Dev.Port,
-			serverConfig.DB.Dev.SSLMode,
-			serverConfig.DB.Dev.Host,
+			serverConfig.Db.Dev.User,
+			serverConfig.Db.Dev.Password,
+			serverConfig.Db.Dev.Name,
+			serverConfig.Db.Dev.Port,
+			serverConfig.Db.Dev.SSLMode,
+			serverConfig.Db.Dev.Host,
 		)
 	}
 

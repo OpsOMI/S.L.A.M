@@ -13,6 +13,7 @@ const defaultConfigPath = "./configs/server.yaml"
 type Configs struct {
 	Core models.Server `yaml:"server"`
 	App  models.App    `yaml:"app"`
+	Jwt  models.Jwt    `yaml:"jwt"`
 }
 
 func LoadConfig(

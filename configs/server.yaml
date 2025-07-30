@@ -10,3 +10,7 @@ server:
   max_clients: 100
   tls_cert_path: "./certs/server.crt"
   tls_key_path: "./certs/server.key"
+
+JWT:
+  issuer: SLAM
+  secret: u549QD5weh9A04n
