@@ -2,12 +2,12 @@ package private
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/middlewares"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/types"
 )
@@ -44,10 +44,10 @@ func (p *PrivateController) Route(
 	conn net.Conn,
 	jwtToken, cmd string,
 	args json.RawMessage,
-) {
+) error {
 	handler, ok := p.routes[cmd]
 	if !ok {
-		_ = response.Error(conn, fmt.Sprintf("unknown command: %s", cmd))
+		return response.Response(commons.StatusBadRequest, "Unknown Command", cmd)
 	}
 
 	finalHandler := handler
@@ -55,11 +55,5 @@ func (p *PrivateController) Route(
 		finalHandler = p.middlewares[i](finalHandler)
 	}
 
-	// Here, we handle server-side errors such as I/O or JSON parsing issues.
-	// Errors related to client requests should be handled and communicated by the handler itself.
-	// If the handler returns an error, it means something went wrong on the server side, which we log for debugging.
-	err := finalHandler(conn, args, &jwtToken)
-	if err != nil {
-		p.logger.Error("Handler error: " + err.Error())
-	}
+	return finalHandler(conn, args, &jwtToken)
 }

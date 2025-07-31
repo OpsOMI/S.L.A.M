@@ -1,9 +1,10 @@
 package tokenstore
 
 import (
-	"errors"
 	"time"
 
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -64,29 +65,36 @@ func (m *manager) GenerateToken(clientID, userID, username, nickname string, dur
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(m.secret)
+	signedToken, err := token.SignedString(m.secret)
+	if err != nil {
+		return "", response.Response(
+			commons.StatusInternalServerError,
+			"Failed to sign JWT token",
+			nil,
+		)
+	}
+
+	return signedToken, nil
 }
 
-func (m *manager) ValidateToken(
-	tokenStr *string,
-) (*Claims, error) {
+func (m *manager) ValidateToken(tokenStr *string) (*Claims, error) {
 	if tokenStr == nil {
-		return nil, errors.New("jwt.invalid_token")
+		return nil, response.Response(commons.StatusUnauthorized, "JWT token is required", nil)
 	}
 
 	token, err := jwt.ParseWithClaims(*tokenStr, &Claims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("jwt.unexpected_signing_method")
+			return nil, response.Response(commons.StatusUnauthorized, "Unexpected signing method", nil)
 		}
 		return m.secret, nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, response.Response(commons.StatusUnauthorized, "Invalid JWT token", nil)
 	}
 
 	claims, ok := token.Claims.(*Claims)
 	if !ok || !token.Valid {
-		return nil, errors.New("jwt.invalid_token")
+		return nil, response.Response(commons.StatusUnauthorized, "Invalid JWT token", nil)
 	}
 	return claims, nil
 }

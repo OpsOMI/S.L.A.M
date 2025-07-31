@@ -29,7 +29,7 @@ func (q *Queries) ChangeNickname(ctx context.Context, arg ChangeNicknameParams) 
 	return err
 }
 
-const createOwner = `-- name: CreateOwner :one
+const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     username,
     password,
@@ -41,41 +41,7 @@ INSERT INTO users (
     $2,
     $3,
     $4,
-    'owner'
-)
-RETURNING id
-`
-
-type CreateOwnerParams struct {
-	Username    string
-	Password    string
-	Nickname    string
-	PrivateCode string
-}
-
-func (q *Queries) CreateOwner(ctx context.Context, arg CreateOwnerParams) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, createOwner,
-		arg.Username,
-		arg.Password,
-		arg.Nickname,
-		arg.PrivateCode,
-	)
-	var id uuid.UUID
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createUser = `-- name: CreateUser :one
-INSERT INTO users (
-    username,
-    password,
-    nickname,
-    private_code
-) VALUES (
-    $1,
-    $2,
-    $3,
-    $4
+    $5
 )
 RETURNING id
 `
@@ -85,6 +51,7 @@ type CreateUserParams struct {
 	Password    string
 	Nickname    string
 	PrivateCode string
+	Role        string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
@@ -93,6 +60,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 		arg.Password,
 		arg.Nickname,
 		arg.PrivateCode,
+		arg.Role,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)

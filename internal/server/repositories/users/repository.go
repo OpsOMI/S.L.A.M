@@ -36,11 +36,6 @@ type IUserRepository interface {
 		domainModel users.User,
 	) (*uuid.UUID, error)
 
-	CreateOwner(
-		ctx context.Context,
-		domainModel users.User,
-	) (*uuid.UUID, error)
-
 	ChangeNickname(
 		ctx context.Context,
 		id uuid.UUID,

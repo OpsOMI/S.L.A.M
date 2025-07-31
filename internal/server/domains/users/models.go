@@ -14,6 +14,7 @@ type User struct {
 	Password    string
 	Nickname    string
 	PrivateCode string
+	Role        string
 	CreatedAt   time.Time
 }
 
@@ -24,13 +25,14 @@ type Users struct {
 
 // New constructs a UserAuth instance for creation.
 func New(
-	nickname, privateCode, username, password string,
+	nickname, privateCode, username, password, role string,
 ) User {
 	return User{
 		Nickname:    strings.TrimSpace(nickname),
 		Username:    strings.TrimSpace(username),
 		Password:    strings.TrimSpace(password),
 		PrivateCode: strings.TrimSpace(privateCode),
+		Role:        strings.TrimSpace(role),
 	}
 }
 

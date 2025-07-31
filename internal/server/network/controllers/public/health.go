@@ -5,11 +5,12 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 )
 
 func (p *PublicController) InitHealthRoutes() {
 	p.routes["/ping"] = p.HandlePing
-	p.routes["/info"] = p.HandleRoot
+	p.routes["/"] = p.HandleRoot
 }
 
 func (p *PublicController) HandleRoot(
@@ -17,7 +18,7 @@ func (p *PublicController) HandleRoot(
 	args json.RawMessage,
 	jwtToken *string,
 ) error {
-	return response.Success(conn, "Welcome To The Public Controller")
+	return response.Response(commons.StatusOK, "Welcome To The Public Controller", nil)
 }
 
 func (p *PublicController) HandlePing(
@@ -25,5 +26,5 @@ func (p *PublicController) HandlePing(
 	args json.RawMessage,
 	jwtToken *string,
 ) error {
-	return response.Success(conn, "PONG")
+	return response.Response(commons.StatusOK, "PONG", nil)
 }

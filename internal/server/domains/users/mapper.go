@@ -17,12 +17,8 @@ type IUsersMapper interface {
 	) *Users
 
 	CreateUser(
-		nickname, privateCode, username, password string,
+		nickname, privateCode, username, password, role string,
 	) pgqueries.CreateUserParams
-
-	CreateOwner(
-		nickname, privateCode, username, password string,
-	) pgqueries.CreateOwnerParams
 
 	ChangeNickname(
 		id uuid.UUID,
@@ -78,24 +74,14 @@ func (m *mapper) Many(
 }
 
 func (m *mapper) CreateUser(
-	nickname, privateCode, username, password string,
+	nickname, privateCode, username, password, role string,
 ) pgqueries.CreateUserParams {
 	return pgqueries.CreateUserParams{
 		Nickname:    nickname,
 		PrivateCode: privateCode,
 		Username:    username,
 		Password:    password,
-	}
-}
-
-func (m *mapper) CreateOwner(
-	nickname, privateCode, username, password string,
-) pgqueries.CreateOwnerParams {
-	return pgqueries.CreateOwnerParams{
-		Nickname:    nickname,
-		PrivateCode: privateCode,
-		Username:    username,
-		Password:    password,
+		Role:        role,
 	}
 }
 

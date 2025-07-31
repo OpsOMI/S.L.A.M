@@ -10,6 +10,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/jobs"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
+	"github.com/OpsOMI/S.L.A.M/internal/server/services"
 	"github.com/OpsOMI/S.L.A.M/pkg"
 	"github.com/OpsOMI/S.L.A.M/pkg/cronpkg"
 	"go.uber.org/zap"
@@ -50,7 +51,10 @@ func Run(cfg config.Configs) {
 	// Initialize repositories with queries
 	repositories := repositories.NewRepositories(queries, mappers, packages.TXManager())
 	logg.Info("Repositories initialized")
-	_ = repositories
+
+	services := services.NewServices(logg, packages, repositories)
+	_ = services
+	logg.Info("Services initialized")
 
 	// Initialize cron job manager and register jobs
 	cronManager := cronpkg.New()

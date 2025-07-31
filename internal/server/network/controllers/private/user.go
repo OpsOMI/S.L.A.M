@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 )
 
 func (p *PrivateController) InitUserRoutes() {
@@ -18,5 +19,5 @@ func (p *PrivateController) HandleMe(
 ) error {
 	userInfo := p.tokenstore.ParseToken(jwtToken)
 
-	return response.Success(conn, userInfo)
+	return response.Response(commons.StatusOK, "Me Command Worked!", userInfo)
 }

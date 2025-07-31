@@ -24,20 +24,6 @@ INSERT INTO users (
     username,
     password,
     nickname,
-    private_code
-) VALUES (
-    @username,
-    @password,
-    @nickname,
-    @private_code
-)
-RETURNING id;
-
--- name: CreateOwner :one
-INSERT INTO users (
-    username,
-    password,
-    nickname,
     private_code,
     role
 ) VALUES (
@@ -45,7 +31,7 @@ INSERT INTO users (
     @password,
     @nickname,
     @private_code,
-    'owner'
+    @role
 )
 RETURNING id;
 
