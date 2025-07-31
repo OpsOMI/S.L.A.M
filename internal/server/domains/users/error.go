@@ -19,4 +19,9 @@ const (
 	ErrUsernameTooLong  = "users.username_too_long"
 	ErrUsernameTooShort = "users.username_too_short"
 	ErrPasswordRequired = "users.password_required"
+
+	// Service Errors
+	ErrNicknameBeingUsed = "users.nickname_being_used"
+	ErrUsernameBeingUsed = "users.username_being_used"
+	ErrHashingFailed     = "users.hashing_failed"
 )
