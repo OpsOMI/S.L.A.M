@@ -16,19 +16,19 @@ const (
 
 // AppError represents an application-specific error with additional metadata.
 type AppError struct {
-	StatusCode int
-	Message    string
-	Cause      error
-	Source     ErrorSource
-	Timestamp  time.Time
+	Code      string //  Frobidden, OK,
+	Message   string
+	Source    ErrorSource
+	Cause     error
+	Timestamp time.Time
 }
 
 // Error formats the error message, including the source, status code, message, and underlying cause if any.
 func (e *AppError) Error() string {
 	if e.Cause != nil {
-		return fmt.Sprintf("[%s] %d %s: %v", e.Source, e.StatusCode, e.Message, e.Cause)
+		return fmt.Sprintf("[%s] %s %s: %v", e.Source, e.Code, e.Message, e.Cause)
 	}
-	return fmt.Sprintf("[%s] %d %s", e.Source, e.StatusCode, e.Message)
+	return fmt.Sprintf("[%s] %s %s", e.Source, e.Code, e.Message)
 }
 
 // Unwrap returns the underlying error, supporting Go 1.13+ error unwrapping.
@@ -37,12 +37,12 @@ func (e *AppError) Unwrap() error {
 }
 
 // New creates a new AppError with the given status code, message, optional cause, and source.
-func New(statusCode int, message string, cause error, source ErrorSource) error {
+func New(code string, message string, cause error, source ErrorSource) error {
 	return &AppError{
-		StatusCode: statusCode,
-		Message:    message,
-		Cause:      cause,
-		Source:     source,
-		Timestamp:  time.Now(),
+		Code:      code,
+		Message:   message,
+		Cause:     cause,
+		Source:    source,
+		Timestamp: time.Now(),
 	}
 }

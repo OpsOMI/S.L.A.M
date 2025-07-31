@@ -2,15 +2,19 @@ package commons
 
 const (
 	// HTTP Status Codes
-	StatusOK                  = 200
-	StatusBadRequest          = 400
-	StatusUnauthorized        = 401
-	StatusForbidden           = 403
-	StatusNotFound            = 404
-	StatusConflict            = 409
-	StatusTooManyRequests     = 429
-	StatusInternalServerError = 500
-	StatusServiceUnavailable  = 503
+	StatusOK                  = "OK"
+	StatusBadRequest          = "BadRequest"
+	StatusUnauthorized        = "Unauthorized"
+	StatusForbidden           = "Forbidden"
+	StatusNotFound            = "NotFound"
+	StatusConflict            = "Conflict"
+	StatusTooManyRequests     = "TooManyRequests"
+	StatusInternalServerError = "InternalServerError"
+	StatusServiceUnavailable  = "ServiceUnavailable"
+
+	// Response Types
+	ResponseTypeSuccess = "Success"
+	ResponseTypeError   = "Error"
 
 	// General Errors
 	ErrInvalidID = "general.invalid_id"

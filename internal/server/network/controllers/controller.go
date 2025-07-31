@@ -59,7 +59,7 @@ func (c *Controller) HandleConnection(conn net.Conn) {
 
 	c.logger.Info("New connection accepted: " + conn.RemoteAddr().String())
 
-	if err := response.Success(conn, map[string]string{"message": "Welcome to SLAM!"}); err != nil {
+	if err := response.WriteJson(conn, map[string]string{"message": "Welcome to SLAM!"}); err != nil {
 		c.logger.Error("Failed to send welcome message: " + err.Error())
 		return
 	}
@@ -78,23 +78,22 @@ func (c *Controller) HandleConnection(conn net.Conn) {
 		err := json.Unmarshal([]byte(line), &msg)
 		if err != nil {
 			c.logger.Error("Invalid JSON format from " + conn.RemoteAddr().String() + ": " + err.Error())
-
-			_ = response.Error(conn, "invalid JSON format")
 			continue
 		}
 
+		var routeMsg error
 		switch msg.Scope {
 		case "public":
-			public.Route(conn, msg.Command, msg.Payload)
+			routeMsg = public.Route(conn, msg.Command, msg.Payload)
 		case "private":
-			private.Route(conn, msg.JwtToken, msg.Command, msg.Payload)
+			routeMsg = private.Route(conn, msg.JwtToken, msg.Command, msg.Payload)
 		case "owner":
 			// owner.Route(conn, msg.Command, msg.Payload)
 		default:
-			_ = response.Error(conn, fmt.Sprintf("invalid scope: %s", msg.Scope))
-			continue
+			routeMsg = response.Response("status.internal", "Invalid Scope", nil)
 		}
 
+		_ = response.Handle(conn, routeMsg)
 		c.logger.Info("Command received from " + conn.RemoteAddr().String() + ": " + msg.Command)
 	}
 
