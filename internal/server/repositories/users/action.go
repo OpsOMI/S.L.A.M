@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/repoerrors"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/google/uuid"
 )
@@ -83,19 +84,35 @@ func (r *repository) CreateUser(
 	ctx context.Context,
 	domainModel users.User,
 ) (*uuid.UUID, error) {
-	params := r.mappers.Users().CreateUser(
-		domainModel.Nickname,
-		domainModel.PrivateCode,
-		domainModel.Username,
-		domainModel.Password,
-		domainModel.Role,
-	)
-	id, err := r.queries.CreateUser(ctx, params)
-	if err != nil {
-		return nil, repoerrors.Internal(users.ErrCreateFailed, err)
+	var userID *uuid.UUID
+
+	if err := r.txManager.RunInTx(ctx, func(tx *sql.Tx) error {
+		qtx := r.queries.WithTx(tx)
+
+		userParams := r.mappers.Users().CreateUser(
+			domainModel.Nickname,
+			domainModel.PrivateCode,
+			domainModel.Username,
+			domainModel.Password,
+			domainModel.Role,
+		)
+
+		uid, err := qtx.CreateUser(ctx, userParams)
+		if err != nil {
+			return repoerrors.Internal(users.ErrCreateFailed, err)
+		}
+
+		clientParams := r.mappers.Clients().CreateClient(uid, uuid.New())
+		if _, err = qtx.CreateClient(ctx, clientParams); err != nil {
+			return repoerrors.Internal(clients.ErrCreateFailed, err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 
-	return &id, nil
+	return userID, nil
 }
 
 func (r *repository) ChangeNickname(

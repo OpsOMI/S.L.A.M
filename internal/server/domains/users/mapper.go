@@ -30,7 +30,6 @@ type mapper struct {
 	utils utils.IUtilMapper
 }
 
-// NewMapper creates a new instance of userAuthMapper.
 func NewMapper(
 	utilsMapper utils.IUtilMapper,
 ) *mapper {
@@ -39,7 +38,6 @@ func NewMapper(
 	}
 }
 
-// One maps a DB model (TUsersAuth) to a domain model (UserAuth).
 func (m *mapper) One(
 	dbModel *pgqueries.User,
 ) *User {
@@ -57,7 +55,6 @@ func (m *mapper) One(
 	}
 }
 
-// Many maps a list of DB models (TUsersAuth) to domain models with total count.
 func (m *mapper) Many(
 	dbModels []pgqueries.User,
 	count int64,
