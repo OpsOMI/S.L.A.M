@@ -8,11 +8,11 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 )
 
-func (p *PrivateController) InitUserRoutes() {
+func (p *Controller) InitUserRoutes() {
 	p.routes["/me"] = p.HandleMe
 }
 
-func (p *PrivateController) HandleMe(
+func (p *Controller) HandleMe(
 	conn net.Conn,
 	args json.RawMessage,
 	jwtToken *string,

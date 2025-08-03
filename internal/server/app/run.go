@@ -53,7 +53,6 @@ func Run(cfg config.Configs) {
 	logg.Info("Repositories initialized")
 
 	services := services.NewServices(logg, packages, repositories)
-	_ = services
 	logg.Info("Services initialized")
 
 	// Initialize cron job manager and register jobs
@@ -78,7 +77,7 @@ func Run(cfg config.Configs) {
 	logg.Info("Controller Starting...")
 	controller := controllers.NewController(listener, logg, cfg)
 
-	if err := controller.Start(); err != nil {
+	if err := controller.Start(services); err != nil {
 		logg.Error("Controller stopped with error", zap.Error(err))
 	}
 }

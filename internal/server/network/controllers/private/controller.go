@@ -10,24 +10,28 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/middlewares"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/types"
+	"github.com/OpsOMI/S.L.A.M/internal/server/services"
 )
 
-type PrivateController struct {
+type Controller struct {
 	logger      logger.ILogger
 	routes      map[string]types.HandlerFunc
 	tokenstore  tokenstore.ITokenStore
 	middlewares []types.Middleware
+	services    services.IServices
 }
 
 func NewController(
 	logger logger.ILogger,
 	tokenstore tokenstore.ITokenStore,
-) *PrivateController {
-	pc := &PrivateController{
+	services services.IServices,
+) *Controller {
+	pc := &Controller{
 		tokenstore:  tokenstore,
 		logger:      logger,
 		routes:      make(map[string]types.HandlerFunc),
 		middlewares: make([]types.Middleware, 0),
+		services:    services,
 	}
 
 	pc.Use(middlewares.JWTAuthMiddleware(tokenstore))
@@ -36,11 +40,11 @@ func NewController(
 	return pc
 }
 
-func (p *PrivateController) Use(mw types.Middleware) {
+func (p *Controller) Use(mw types.Middleware) {
 	p.middlewares = append(p.middlewares, mw)
 }
 
-func (p *PrivateController) Route(
+func (p *Controller) Route(
 	conn net.Conn,
 	jwtToken, cmd string,
 	args json.RawMessage,
