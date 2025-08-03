@@ -34,7 +34,7 @@ func NewController(
 		services:    services,
 	}
 
-	pc.Use(middlewares.JWTAuthMiddleware(tokenstore))
+	pc.Use(middlewares.JWTAuthMiddleware(tokenstore, commons.RoleOwner))
 	pc.InitAuthRoutes()
 
 	return pc

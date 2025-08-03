@@ -47,21 +47,27 @@ func Run(cfg *config.Configs) {
 	message := string(buf[:n])
 	logg.Info("Received message from server: " + message)
 
-	loginPayload := users.LoginReq{
-		Username: "boran",
-		Password: "123456",
+	// req := users.LoginReq{
+	// 	Username: "kaan",
+	// 	Password: "kaaaan",
+	// }
+
+	req := users.RegisterReq{
+		Nickname: "slm",
+		Username: "cbmmm",
+		Password: "kaaaan",
 	}
 
-	payloadBytes, err := json.Marshal(loginPayload)
+	payloadBytes, err := json.Marshal(req)
 	if err != nil {
 		log.Fatal("failed to marshal login payload:", err)
 	}
 
 	clientMsg := request.ClientMessage{
-		JwtToken: "",
-		Command:  "/auth/login",
+		JwtToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3ZWJhNDhlYS02ZDM0LTQ3YTEtYWFmNS00MDliN2MxNzJhZDciLCJ1c2VyX2lkIjoiYzQ1MjZlY2EtY2ZjNy00NTU1LTgwNDgtYmUzMTY5ZmE4ZTYyIiwidXNlcm5hbWUiOiJrYWFuIiwibmlja25hbWUiOiJrYWFuIiwicm9sZSI6InVzZXIiLCJpc3MiOiJTTEFNIiwiZXhwIjoxNzU0MzE2ODg1LCJpYXQiOjE3NTQyMzA0ODV9.gh9H5mg5OwgRkqHAxEhAMNxUPAtqTFp5_XmhZYju6Xo",
+		Command:  "/auth/register",
 		Payload:  payloadBytes,
-		Scope:    "public",
+		Scope:    "owner",
 	}
 
 	data, err := json.Marshal(clientMsg)

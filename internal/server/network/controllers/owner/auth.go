@@ -20,11 +20,6 @@ func (p *Controller) HandleRegister(
 	args json.RawMessage,
 	jwtToken *string,
 ) error {
-	ownerInfo := p.tokenstore.ParseToken(jwtToken)
-	if ownerInfo.Role != "owner" {
-		return response.Response(commons.StatusUnauthorized, "Unauthorized", nil)
-	}
-
 	var req users.RegisterReq
 	if err := request.ParseJSON(args, &req); err != nil {
 		return nil

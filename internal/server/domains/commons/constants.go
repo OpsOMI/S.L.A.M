@@ -19,6 +19,10 @@ const (
 	// General Errors
 	ErrInvalidID = "general.invalid_id"
 
+	// Roles
+	RoleOwner = "owner"
+	RoleUser  = "user"
+
 	// SQL Transaction Errors
 	ErrSQLTxCommit = "sql.tx_commit_error"
 	ErrSQLTxCreate = "sql.tx_create_error"

@@ -55,6 +55,7 @@ func (m *mapper) One(
 
 	return &User{
 		ID:          dbModel.ID,
+		Role:        dbModel.Role,
 		Username:    dbModel.Username,
 		Password:    dbModel.Password,
 		Nickname:    dbModel.Nickname,
