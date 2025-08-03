@@ -44,7 +44,7 @@ func NewController(
 func (c *Controller) Start(
 	services services.IServices,
 ) error {
-	public := public.NewController(c.logger, services)
+	public := public.NewController(c.logger, c.tokenstore, services)
 	private := private.NewController(c.logger, c.tokenstore, services)
 
 	for {

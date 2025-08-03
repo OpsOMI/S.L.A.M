@@ -23,5 +23,6 @@ const (
 	ErrNicknameBeingUsed  = "users.nickname_being_used"
 	ErrUsernameBeingUsed  = "users.username_being_used"
 	ErrHashingFailed      = "users.hashing_failed"
+	ErrHashCompareFailed  = "users.hash_compare_failed"
 	ErrInvalidCredentials = "users.invalid_credentials"
 )

@@ -5,13 +5,14 @@ import (
 	"time"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
+	"github.com/google/uuid"
 )
 
 func main() {
 	jwtManager := tokenstore.NewJWTManager("SLAM", "u549QD5weh9A04n")
 
-	clientID := "client123"
-	userID := "user456"
+	clientID := uuid.New()
+	userID := uuid.New()
 	username := "john_doe"
 	nickname := "Johnny"
 

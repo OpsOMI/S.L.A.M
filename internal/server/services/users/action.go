@@ -2,11 +2,35 @@ package users
 
 import (
 	"context"
+	"strings"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/serviceerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/google/uuid"
 )
+
+func (s *service) Login(
+	ctx context.Context,
+	username, password string,
+) (*users.User, error) {
+	domainModel, err := s.repositories.Users().Login(ctx, username)
+	if err != nil {
+		if strings.Contains(err.Error(), "not_found") {
+			return nil, serviceerrors.BadRequest(users.ErrInvalidCredentials)
+		}
+		return nil, err
+	}
+
+	ok, err := s.packages.Hasher().CompareArgon2(domainModel.Password, password)
+	if err != nil {
+		return nil, serviceerrors.Internal(users.ErrHashCompareFailed, err)
+	}
+	if !ok {
+		return nil, serviceerrors.BadRequest(users.ErrInvalidCredentials)
+	}
+
+	return domainModel, nil
+}
 
 func (s *service) GetByID(
 	ctx context.Context,

@@ -2,12 +2,14 @@ package app
 
 import (
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/client/config"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/mappers/users"
 )
 
 func Run(cfg *config.Configs) {
@@ -45,10 +47,20 @@ func Run(cfg *config.Configs) {
 	message := string(buf[:n])
 	logg.Info("Received message from server: " + message)
 
+	loginPayload := users.LoginReq{
+		Username: "boran",
+		Password: "123456",
+	}
+
+	payloadBytes, err := json.Marshal(loginPayload)
+	if err != nil {
+		log.Fatal("failed to marshal login payload:", err)
+	}
+
 	clientMsg := request.ClientMessage{
-		JwtToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiJjbGllbnQxMjMiLCJ1c2VyX2lkIjoidXNlcjQ1NiIsInVzZXJuYW1lIjoiam9obl9kb2UiLCJuaWNrbmFtZSI6IkpvaG5ueSIsImlzcyI6IlNMQU0iLCJleHAiOjE3NTM5ODYyNjIsImlhdCI6MTc1Mzg5OTg2Mn0.sUBemT1thzErjBOcPFpVZOiL7gCAfYRsyb6S5fb062w",
-		Command:  "/",
-		Payload:  json.RawMessage(`{"message":"Selam Ping Pong"}`),
+		JwtToken: "",
+		Command:  "/auth/login",
+		Payload:  payloadBytes,
 		Scope:    "public",
 	}
 

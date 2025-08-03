@@ -31,6 +31,9 @@ const (
 	ErrFileCopy        = "file.copy_error"
 	ErrFileOpen        = "file.open_error"
 
+	// Parse
+	ErrParseFailed = "parse.invalid_json_payload"
+
 	// Log Messages
 	LogResendVerificationFailed = "Failed to resend verification email for [%s]: %v"
 	LogSend2FACodeFailed        = "Failed to send 2FA code to [%s]: %v"
