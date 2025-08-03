@@ -6,8 +6,10 @@ import (
 	"strings"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
+	"github.com/OpsOMI/S.L.A.M/internal/client/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
 )
 
@@ -17,6 +19,7 @@ type Controller struct {
 	terminal terminal.Terminal
 	parser   parser.IParser
 	router   router.Router
+	store    *store.SessionStore
 }
 
 func NewController(
@@ -25,7 +28,9 @@ func NewController(
 ) *Controller {
 	terminal := terminal.NewTerminal()
 	parser := parser.NewParser()
-	router := router.NewRouter()
+	api := api.NewAPI(conn, logger)
+	store := store.NewSessionStore()
+	router := router.NewRouter(api, store)
 
 	return &Controller{
 		conn:     conn,
@@ -33,6 +38,7 @@ func NewController(
 		terminal: *terminal,
 		parser:   parser,
 		router:   router,
+		store:    store,
 	}
 }
 

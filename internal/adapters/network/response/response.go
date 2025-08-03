@@ -12,10 +12,10 @@ import (
 
 // BaseResponse defines the standard format for all server responses.
 type BaseResponse struct {
-	Message string      `json:"message"` // Message intended for the client
-	Code    string      `json:"code"`    // forbidden, ok
-	Errors  any         `json:"errors,omitempty"`
-	Data    interface{} `json:"details,omitempty"` // Optional extra information
+	Message string `json:"message"` // Message intended for the client
+	Code    string `json:"code"`    // forbidden, ok
+	Errors  any    `json:"errors,omitempty"`
+	Data    any    `json:"details,omitempty"` // Optional extra information
 }
 
 // Error implements the error interface for BaseResponse.

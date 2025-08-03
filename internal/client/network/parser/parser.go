@@ -35,7 +35,7 @@ func (p *parser) Parse(input string) (Command, error) {
 		return Command{}, errors.New("no command found")
 	}
 
-	cmd := strings.TrimPrefix(parts[0], "/")
+	cmd := parts[0]
 	args := []string{}
 	if len(parts) > 1 {
 		args = parts[1:]

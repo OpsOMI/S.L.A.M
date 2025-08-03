@@ -80,7 +80,7 @@ func (c *Controller) HandleConnection(
 			continue
 		}
 
-		var msg request.ClientMessage
+		var msg request.ClientRequest
 		err := json.Unmarshal([]byte(line), &msg)
 		if err != nil {
 			c.logger.Error("Invalid JSON from " + conn.RemoteAddr().String() + ": " + err.Error())

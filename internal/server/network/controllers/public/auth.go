@@ -13,7 +13,7 @@ import (
 )
 
 func (p *Controller) InitAuthRoutes() {
-	p.routes["/auth/login"] = p.HandleLogin
+	p.routes["/login"] = p.HandleLogin
 }
 
 func (p *Controller) HandleLogin(

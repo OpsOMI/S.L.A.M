@@ -8,7 +8,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 )
 
-type ClientMessage struct {
+type ClientRequest struct {
 	JwtToken string          `json:"jwt_token"` // JWT token for authentication and authorization
 	Scope    string          `json:"scope"`     // User scope or role, e.g., "public", "private", "owner"
 	Command  string          `json:"command"`   // Command to execute, e.g., "/join", "/message"

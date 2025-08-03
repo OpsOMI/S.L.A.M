@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network"
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/client/config"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/controller"
 )
@@ -31,6 +32,9 @@ func Run(cfg *config.Configs) {
 	}
 	defer conn.Close()
 	logg.Info("Successfully connected to server")
+
+	// This is for now. This reads the first welcome to slam message.
+	response.Read(conn)
 
 	logg.Info("Controller Started")
 	controller := controller.NewController(conn, logg)
