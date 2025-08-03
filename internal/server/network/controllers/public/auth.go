@@ -32,7 +32,7 @@ func (p *Controller) HandleLogin(
 		return err
 	}
 
-	jwt, err := p.tokenstore.GenerateToken(user.Clients.ID, user.ID, user.Username, user.Nickname, 24*time.Hour)
+	jwt, err := p.tokenstore.GenerateToken(user.Clients.ID, user.ID, user.Username, user.Nickname, user.Role, 24*time.Hour)
 	if err != nil {
 		return err
 	}

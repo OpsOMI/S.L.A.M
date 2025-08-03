@@ -20,9 +20,10 @@ const (
 	ErrPasswordRequired = "users.password_required"
 
 	// Service Errors
-	ErrNicknameBeingUsed  = "users.nickname_being_used"
-	ErrUsernameBeingUsed  = "users.username_being_used"
-	ErrHashingFailed      = "users.hashing_failed"
-	ErrHashCompareFailed  = "users.hash_compare_failed"
-	ErrInvalidCredentials = "users.invalid_credentials"
+	ErrNicknameBeingUsed         = "users.nickname_being_used"
+	ErrUsernameBeingUsed         = "users.username_being_used"
+	ErrCreatingPrivateCodeFailed = "users.creating_private_code_failed"
+	ErrHashingFailed             = "users.hashing_failed"
+	ErrHashCompareFailed         = "users.hash_compare_failed"
+	ErrInvalidCredentials        = "users.invalid_credentials"
 )

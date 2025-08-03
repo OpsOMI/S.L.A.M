@@ -14,6 +14,7 @@ type TokenInfo struct {
 	UserID   uuid.UUID `json:"user_id"`
 	Username string    `json:"username"`
 	Nickname string    `json:"nickname"`
+	Role     string    `json:"role"`
 }
 
 type Claims struct {
@@ -24,7 +25,7 @@ type Claims struct {
 type ITokenStore interface {
 	GenerateToken(
 		clientID, userID uuid.UUID,
-		username, nickname string,
+		username, nickname, role string,
 		duration time.Duration,
 	) (string, error)
 
@@ -53,7 +54,7 @@ func NewJWTManager(
 
 func (m *manager) GenerateToken(
 	clientID, userID uuid.UUID,
-	username, nickname string,
+	username, nickname, role string,
 	duration time.Duration,
 ) (string, error) {
 	claims := Claims{
@@ -62,6 +63,7 @@ func (m *manager) GenerateToken(
 			UserID:   userID,
 			Username: username,
 			Nickname: nickname,
+			Role:     role,
 		},
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),

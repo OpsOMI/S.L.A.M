@@ -18,7 +18,7 @@ func main() {
 
 	duration := time.Hour * 24
 
-	token, err := jwtManager.GenerateToken(clientID, userID, username, nickname, duration)
+	token, err := jwtManager.GenerateToken(clientID, userID, username, nickname, "user", duration)
 	if err != nil {
 		fmt.Println("Token generate error:", err)
 		return

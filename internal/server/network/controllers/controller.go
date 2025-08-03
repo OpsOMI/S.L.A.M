@@ -12,6 +12,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/owner"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/private"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/public"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services"
@@ -46,6 +47,7 @@ func (c *Controller) Start(
 ) error {
 	public := public.NewController(c.logger, c.tokenstore, services)
 	private := private.NewController(c.logger, c.tokenstore, services)
+	owner := owner.NewController(c.logger, c.tokenstore, services)
 
 	for {
 		conn, err := c.listener.Accept()
@@ -55,7 +57,7 @@ func (c *Controller) Start(
 		}
 		fmt.Println("New connection:", conn.RemoteAddr())
 
-		go c.HandleConnection(conn, public, private)
+		go c.HandleConnection(conn, public, private, owner)
 	}
 }
 
@@ -63,6 +65,7 @@ func (c *Controller) HandleConnection(
 	conn net.Conn,
 	public *public.Controller,
 	private *private.Controller,
+	owner *owner.Controller,
 ) {
 	defer conn.Close()
 
@@ -90,6 +93,8 @@ func (c *Controller) HandleConnection(
 			routeMsg = public.Route(conn, msg.Command, msg.Payload)
 		case "private":
 			routeMsg = private.Route(conn, msg.JwtToken, msg.Command, msg.Payload)
+		case "owner":
+			routeMsg = owner.Route(conn, msg.JwtToken, msg.Command, msg.Payload)
 		default:
 			routeMsg = response.Response("status.internal", "Invalid Scope", nil)
 		}

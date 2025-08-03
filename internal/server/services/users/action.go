@@ -87,7 +87,7 @@ func (s *service) GetByPrivateCode(
 
 func (s *service) CreateUser(
 	ctx context.Context,
-	nickname, privateCode, username, password, role string,
+	nickname, username, password, role string,
 ) (*uuid.UUID, error) {
 	if ok, err := s.repositories.Users().IsExistByNickname(ctx, nickname); err != nil {
 		return nil, err
@@ -99,6 +99,11 @@ func (s *service) CreateUser(
 		return nil, err
 	} else if *ok {
 		return nil, serviceerrors.Conflict(users.ErrUsernameBeingUsed)
+	}
+
+	privateCode, err := s.packages.Hasher().Generate6CharPrivateCode()
+	if err != nil {
+		return nil, serviceerrors.Conflict(users.ErrCreatingPrivateCodeFailed)
 	}
 
 	domainModel := users.New(nickname, privateCode, username, password, role)
