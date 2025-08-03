@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
+	"github.com/OpsOMI/S.L.A.M/internal/server/services/clients"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/utils"
 	"github.com/OpsOMI/S.L.A.M/pkg"
@@ -11,11 +12,13 @@ import (
 type IServices interface {
 	Utils() utils.IUtilServices
 	Users() users.IUserService
+	Clients() clients.IClientService
 }
 
 type services struct {
-	utils utils.IUtilServices
-	users users.IUserService
+	utils   utils.IUtilServices
+	users   users.IUserService
+	clients clients.IClientService
 }
 
 func NewServices(
@@ -25,10 +28,12 @@ func NewServices(
 ) IServices {
 	utils := utils.NewServices()
 	users := users.NewService(utils, packages, repositories)
+	clients := clients.NewService(utils, packages, repositories)
 
 	return &services{
-		utils: utils,
-		users: users,
+		utils:   utils,
+		users:   users,
+		clients: clients,
 	}
 }
 
@@ -38,4 +43,8 @@ func (s *services) Utils() utils.IUtilServices {
 
 func (s *services) Users() users.IUserService {
 	return s.users
+}
+
+func (s *services) Clients() clients.IClientService {
+	return s.clients
 }
