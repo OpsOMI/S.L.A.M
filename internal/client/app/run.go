@@ -35,7 +35,6 @@ func Run(cfg *config.Configs) {
 		return
 	}
 	defer conn.Close()
-
 	logg.Info("Successfully connected to server")
 
 	buf := make([]byte, 2048)

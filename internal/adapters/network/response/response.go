@@ -1,10 +1,12 @@
 package response
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"net"
 
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors"
 )
 
@@ -28,7 +30,7 @@ func Handle(conn net.Conn, err error) error {
 
 	// If error is already a BaseResponse (value or pointer), send it directly
 	if respPtr, ok := err.(*BaseResponse); ok {
-		return WriteJson(conn, *respPtr)
+		return request.Send(conn, *respPtr)
 	}
 
 	// If error is an AppError, map its fields into BaseResponse
@@ -46,7 +48,7 @@ func Handle(conn net.Conn, err error) error {
 			resp.Data = nil
 		}
 
-		return WriteJson(conn, resp)
+		return request.Send(conn, resp)
 	}
 
 	// For unknown error types, send generic internal server error
@@ -55,17 +57,24 @@ func Handle(conn net.Conn, err error) error {
 		Code:    "status.internal_server_error",
 		Data:    nil,
 	}
-	return WriteJson(conn, resp)
+	return request.Send(conn, resp)
 }
 
-// WriteJson serializes the response and writes it to the connection.
-func WriteJson(conn net.Conn, payload any) error {
-	b, err := json.Marshal(payload)
+// Read reads and unmarshals a BaseResponse from the connection.
+func Read(conn net.Conn) (*BaseResponse, error) {
+	reader := bufio.NewReader(conn)
+	line, err := reader.ReadBytes('\n')
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = conn.Write(append(b, '\n'))
-	return err
+
+	var resp BaseResponse
+	err = json.Unmarshal(line, &resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
 }
 
 // Response creates and returns a BaseResponse representing a success response.
