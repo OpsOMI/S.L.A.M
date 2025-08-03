@@ -71,7 +71,7 @@ func (c *Controller) HandleConnection(
 
 	c.logger.Info("New connection accepted: " + conn.RemoteAddr().String())
 
-	_ = response.WriteJson(conn, map[string]string{"message": "Welcome to SLAM!"})
+	_ = request.Send(conn, map[string]string{"message": "Welcome to SLAM!"})
 
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
@@ -80,7 +80,7 @@ func (c *Controller) HandleConnection(
 			continue
 		}
 
-		var msg request.ClientMessage
+		var msg request.ClientRequest
 		err := json.Unmarshal([]byte(line), &msg)
 		if err != nil {
 			c.logger.Error("Invalid JSON from " + conn.RemoteAddr().String() + ": " + err.Error())

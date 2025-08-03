@@ -12,7 +12,7 @@ import (
 )
 
 func (p *Controller) InitAuthRoutes() {
-	p.routes["/auth/register"] = p.HandleRegister
+	p.routes["/register"] = p.HandleRegister
 }
 
 func (p *Controller) HandleRegister(
