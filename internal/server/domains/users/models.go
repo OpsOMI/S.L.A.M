@@ -36,8 +36,8 @@ func New(
 	}
 }
 
-// ValidateForCreate checks domain rules for user registration.
-func (u *User) ValidateForCreate() error {
+// ValidateCreate checks domain rules for user registration.
+func (u *User) ValidateCreate() error {
 	if u.Nickname == "" {
 		return domainerrors.BadRequest(ErrNicknameRequired)
 	}

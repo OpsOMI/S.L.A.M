@@ -78,7 +78,7 @@ func (s *service) CreateUser(
 	}
 
 	domainModel := users.New(nickname, privateCode, username, password, role)
-	if err := domainModel.ValidateForCreate(); err != nil {
+	if err := domainModel.ValidateCreate(); err != nil {
 		return nil, err
 	}
 

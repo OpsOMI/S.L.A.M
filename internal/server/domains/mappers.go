@@ -1,6 +1,7 @@
 package domains
 
 import (
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/utils"
@@ -10,23 +11,27 @@ type IMapper interface {
 	Common() commons.ICommonMapper
 	Utils() utils.IUtilMapper
 	Users() users.IUsersMapper
+	Clients() clients.IClientsMapper
 }
 
 type mappers struct {
-	common commons.ICommonMapper
-	utils  utils.IUtilMapper
-	users  users.IUsersMapper
+	common  commons.ICommonMapper
+	utils   utils.IUtilMapper
+	users   users.IUsersMapper
+	clients clients.IClientsMapper
 }
 
 func NewMappers() IMapper {
 	common := commons.NewMapper()
 	utils := utils.NewMapper()
 	users := users.NewMapper(utils)
+	clients := clients.NewMapper(utils)
 
 	return &mappers{
-		common: common,
-		utils:  utils,
-		users:  users,
+		common:  common,
+		utils:   utils,
+		users:   users,
+		clients: clients,
 	}
 }
 
@@ -42,4 +47,8 @@ func (m *mappers) Utils() utils.IUtilMapper {
 
 func (m *mappers) Users() users.IUsersMapper {
 	return m.users
+}
+
+func (m *mappers) Clients() clients.IClientsMapper {
+	return m.clients
 }
