@@ -11,7 +11,7 @@ import (
 func NewZapLogger() (ILogger, error) {
 	encoderConfig := zap.NewDevelopmentEncoderConfig()
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
-	consoleCore := zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.InfoLevel)
+	consoleCore := zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.WarnLevel)
 
 	logger := zap.New(consoleCore, zap.AddCaller(), zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.FatalLevel))
 
