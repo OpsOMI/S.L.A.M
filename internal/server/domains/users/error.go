@@ -4,7 +4,6 @@ const (
 	// Repository Errors
 	ErrFetchFailed    = "users.fetch_failed"
 	ErrCountFailed    = "users.count_failed"
-	ErrLoginFailed    = "users.login_failed"
 	ErrCreateFailed   = "users.create_failed"
 	ErrUpdateFailed   = "users.update_failed"
 	ErrDeleteFailed   = "users.delete_failed"
@@ -21,7 +20,8 @@ const (
 	ErrPasswordRequired = "users.password_required"
 
 	// Service Errors
-	ErrNicknameBeingUsed = "users.nickname_being_used"
-	ErrUsernameBeingUsed = "users.username_being_used"
-	ErrHashingFailed     = "users.hashing_failed"
+	ErrNicknameBeingUsed  = "users.nickname_being_used"
+	ErrUsernameBeingUsed  = "users.username_being_used"
+	ErrHashingFailed      = "users.hashing_failed"
+	ErrInvalidCredentials = "users.invalid_credentials"
 )

@@ -2,6 +2,7 @@ package users
 
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres/sqlc/pgqueries"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/utils"
 	"github.com/google/uuid"
 )
@@ -9,6 +10,10 @@ import (
 type IUsersMapper interface {
 	One(
 		dbModel *pgqueries.User,
+	) *User
+
+	OneWithClient(
+		dbModel *pgqueries.UserLoginRow,
 	) *User
 
 	Many(
@@ -27,14 +32,17 @@ type IUsersMapper interface {
 }
 
 type mapper struct {
-	utils utils.IUtilMapper
+	utils   utils.IUtilMapper
+	clients clients.IClientsMapper
 }
 
 func NewMapper(
-	utilsMapper utils.IUtilMapper,
+	utils utils.IUtilMapper,
+	clients clients.IClientsMapper,
 ) *mapper {
 	return &mapper{
-		utils: utilsMapper,
+		utils:   utils,
+		clients: clients,
 	}
 }
 
@@ -53,6 +61,21 @@ func (m *mapper) One(
 		PrivateCode: dbModel.PrivateCode,
 		CreatedAt:   dbModel.CreatedAt.Time,
 	}
+}
+
+func (m *mapper) OneWithClient(
+	dbModel *pgqueries.UserLoginRow,
+) *User {
+	if dbModel == nil {
+		return nil
+	}
+
+	userModel := m.One(&dbModel.User)
+	clientModel := m.clients.One(&dbModel.Client)
+
+	userModel.Clients = clientModel
+
+	return userModel
 }
 
 func (m *mapper) Many(

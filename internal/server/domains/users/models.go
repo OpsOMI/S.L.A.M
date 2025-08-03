@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/domainerrors"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
 	"github.com/google/uuid"
 )
 
@@ -15,6 +16,7 @@ type User struct {
 	Nickname    string
 	PrivateCode string
 	Role        string
+	Clients     *clients.Client
 	CreatedAt   time.Time
 }
 
