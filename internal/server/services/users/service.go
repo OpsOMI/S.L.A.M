@@ -50,6 +50,11 @@ type IUserService interface {
 		ctx context.Context,
 		id string,
 	) error
+
+	IsExistsByUsername(
+		ctx context.Context,
+		username string,
+	) (bool, error)
 }
 
 type service struct {

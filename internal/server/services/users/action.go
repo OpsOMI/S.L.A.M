@@ -97,7 +97,7 @@ func (s *service) CreateUser(
 
 	if ok, err := s.repositories.Users().IsExistByUsername(ctx, nickname); err != nil {
 		return nil, err
-	} else if *ok {
+	} else if ok {
 		return nil, serviceerrors.Conflict(users.ErrUsernameBeingUsed)
 	}
 
@@ -160,4 +160,11 @@ func (s *service) DeleteByID(
 	}
 
 	return nil
+}
+
+func (s *service) IsExistsByUsername(
+	ctx context.Context,
+	username string,
+) (bool, error) {
+	return s.repositories.Users().IsExistByUsername(ctx, username)
 }

@@ -152,12 +152,12 @@ func (r *repository) IsExistByID(
 func (r *repository) IsExistByUsername(
 	ctx context.Context,
 	username string,
-) (*bool, error) {
+) (bool, error) {
 	exists, err := r.queries.IsUserExistByUsername(ctx, username)
 	if err != nil {
-		return nil, repoerrors.Internal(users.ErrIsExistsFailed, err)
+		return false, repoerrors.Internal(users.ErrIsExistsFailed, err)
 	}
-	return &exists, nil
+	return exists, nil
 }
 
 func (r *repository) IsExistByNickname(

@@ -60,7 +60,7 @@ type IUserRepository interface {
 	IsExistByUsername(
 		ctx context.Context,
 		username string,
-	) (*bool, error)
+	) (bool, error)
 
 	IsExistByNickname(
 		ctx context.Context,
