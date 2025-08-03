@@ -15,6 +15,41 @@ type IClientsRepository interface {
 		ctx context.Context,
 		id uuid.UUID,
 	) (*clients.Client, error)
+
+	GetByClientKey(
+		ctx context.Context,
+		clientKey uuid.UUID,
+	) (*clients.Client, error)
+
+	GetByUserID(
+		ctx context.Context,
+		userID uuid.UUID,
+	) (*clients.Clients, error)
+
+	RevokeByID(
+		ctx context.Context,
+		id uuid.UUID,
+	) error
+
+	DeleteByID(
+		ctx context.Context,
+		id uuid.UUID,
+	) error
+
+	IsExistByID(
+		ctx context.Context,
+		id uuid.UUID,
+	) (*bool, error)
+
+	IsExistByClientKey(
+		ctx context.Context,
+		clientKey uuid.UUID,
+	) (*bool, error)
+
+	IsRevoked(
+		ctx context.Context,
+		id uuid.UUID,
+	) (*bool, error)
 }
 
 type repository struct {
