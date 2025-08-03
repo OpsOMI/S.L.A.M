@@ -24,8 +24,8 @@ type mappers struct {
 func NewMappers() IMapper {
 	common := commons.NewMapper()
 	utils := utils.NewMapper()
-	users := users.NewMapper(utils)
 	clients := clients.NewMapper(utils)
+	users := users.NewMapper(utils, clients)
 
 	return &mappers{
 		common:  common,

@@ -2,11 +2,35 @@ package users
 
 import (
 	"context"
+	"strings"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/serviceerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/google/uuid"
 )
+
+func (s *service) Login(
+	ctx context.Context,
+	username, password string,
+) (*users.User, error) {
+	domainModel, err := s.repositories.Users().Login(ctx, username)
+	if err != nil {
+		if strings.Contains(err.Error(), "not_found") {
+			return nil, serviceerrors.BadRequest(users.ErrInvalidCredentials)
+		}
+		return nil, err
+	}
+
+	ok, err := s.packages.Hasher().CompareArgon2(domainModel.Password, password)
+	if err != nil {
+		return nil, serviceerrors.Internal(users.ErrHashCompareFailed, err)
+	}
+	if !ok {
+		return nil, serviceerrors.BadRequest(users.ErrInvalidCredentials)
+	}
+
+	return domainModel, nil
+}
 
 func (s *service) GetByID(
 	ctx context.Context,
@@ -63,7 +87,7 @@ func (s *service) GetByPrivateCode(
 
 func (s *service) CreateUser(
 	ctx context.Context,
-	nickname, privateCode, username, password, role string,
+	nickname, username, password, role string,
 ) (*uuid.UUID, error) {
 	if ok, err := s.repositories.Users().IsExistByNickname(ctx, nickname); err != nil {
 		return nil, err
@@ -73,8 +97,13 @@ func (s *service) CreateUser(
 
 	if ok, err := s.repositories.Users().IsExistByUsername(ctx, nickname); err != nil {
 		return nil, err
-	} else if *ok {
+	} else if ok {
 		return nil, serviceerrors.Conflict(users.ErrUsernameBeingUsed)
+	}
+
+	privateCode, err := s.packages.Hasher().Generate6CharPrivateCode()
+	if err != nil {
+		return nil, serviceerrors.Conflict(users.ErrCreatingPrivateCodeFailed)
 	}
 
 	domainModel := users.New(nickname, privateCode, username, password, role)
@@ -131,4 +160,11 @@ func (s *service) DeleteByID(
 	}
 
 	return nil
+}
+
+func (s *service) IsExistsByUsername(
+	ctx context.Context,
+	username string,
+) (bool, error) {
+	return s.repositories.Users().IsExistByUsername(ctx, username)
 }

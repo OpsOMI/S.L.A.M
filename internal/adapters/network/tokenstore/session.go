@@ -6,13 +6,15 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 type TokenInfo struct {
-	ClientID string `json:"client_id"`
-	UserID   string `json:"user_id"`
-	Username string `json:"username"`
-	Nickname string `json:"nickname"`
+	ClientID uuid.UUID `json:"client_id"`
+	UserID   uuid.UUID `json:"user_id"`
+	Username string    `json:"username"`
+	Nickname string    `json:"nickname"`
+	Role     string    `json:"role"`
 }
 
 type Claims struct {
@@ -22,7 +24,8 @@ type Claims struct {
 
 type ITokenStore interface {
 	GenerateToken(
-		clientID, userID, username, nickname string,
+		clientID, userID uuid.UUID,
+		username, nickname, role string,
 		duration time.Duration,
 	) (string, error)
 
@@ -49,13 +52,18 @@ func NewJWTManager(
 	}
 }
 
-func (m *manager) GenerateToken(clientID, userID, username, nickname string, duration time.Duration) (string, error) {
+func (m *manager) GenerateToken(
+	clientID, userID uuid.UUID,
+	username, nickname, role string,
+	duration time.Duration,
+) (string, error) {
 	claims := Claims{
 		TokenInfo: TokenInfo{
 			ClientID: clientID,
 			UserID:   userID,
 			Username: username,
 			Nickname: nickname,
+			Role:     role,
 		},
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),

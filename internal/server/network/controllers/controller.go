@@ -12,8 +12,10 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/owner"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/private"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/public"
+	"github.com/OpsOMI/S.L.A.M/internal/server/services"
 )
 
 type Controller struct {
@@ -40,8 +42,13 @@ func NewController(
 		connmanager: connmanager,
 	}
 }
+func (c *Controller) Start(
+	services services.IServices,
+) error {
+	public := public.NewController(c.logger, c.tokenstore, services)
+	private := private.NewController(c.logger, c.tokenstore, services)
+	owner := owner.NewController(c.logger, c.tokenstore, services)
 
-func (c *Controller) Start() error {
 	for {
 		conn, err := c.listener.Accept()
 		if err != nil {
@@ -50,22 +57,21 @@ func (c *Controller) Start() error {
 		}
 		fmt.Println("New connection:", conn.RemoteAddr())
 
-		go c.HandleConnection(conn)
+		go c.HandleConnection(conn, public, private, owner)
 	}
 }
 
-func (c *Controller) HandleConnection(conn net.Conn) {
+func (c *Controller) HandleConnection(
+	conn net.Conn,
+	public *public.Controller,
+	private *private.Controller,
+	owner *owner.Controller,
+) {
 	defer conn.Close()
 
 	c.logger.Info("New connection accepted: " + conn.RemoteAddr().String())
 
-	if err := response.WriteJson(conn, map[string]string{"message": "Welcome to SLAM!"}); err != nil {
-		c.logger.Error("Failed to send welcome message: " + err.Error())
-		return
-	}
-
-	public := public.NewController(c.logger)
-	private := private.NewController(c.logger, c.tokenstore)
+	_ = response.WriteJson(conn, map[string]string{"message": "Welcome to SLAM!"})
 
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
@@ -77,7 +83,7 @@ func (c *Controller) HandleConnection(conn net.Conn) {
 		var msg request.ClientMessage
 		err := json.Unmarshal([]byte(line), &msg)
 		if err != nil {
-			c.logger.Error("Invalid JSON format from " + conn.RemoteAddr().String() + ": " + err.Error())
+			c.logger.Error("Invalid JSON from " + conn.RemoteAddr().String() + ": " + err.Error())
 			continue
 		}
 
@@ -88,7 +94,7 @@ func (c *Controller) HandleConnection(conn net.Conn) {
 		case "private":
 			routeMsg = private.Route(conn, msg.JwtToken, msg.Command, msg.Payload)
 		case "owner":
-			// owner.Route(conn, msg.Command, msg.Payload)
+			routeMsg = owner.Route(conn, msg.JwtToken, msg.Command, msg.Payload)
 		default:
 			routeMsg = response.Response("status.internal", "Invalid Scope", nil)
 		}

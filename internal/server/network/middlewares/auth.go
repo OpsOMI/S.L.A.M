@@ -4,16 +4,31 @@ import (
 	"encoding/json"
 	"net"
 
+	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/types"
 )
 
-func JWTAuthMiddleware(ts tokenstore.ITokenStore) types.Middleware {
+func JWTAuthMiddleware(
+	ts tokenstore.ITokenStore,
+	targetRole ...string,
+) types.Middleware {
 	return func(next types.HandlerFunc) types.HandlerFunc {
 		return func(conn net.Conn, args json.RawMessage, jwtToken *string) error {
-			_, err := ts.ValidateToken(jwtToken)
+			claims, err := ts.ValidateToken(jwtToken)
 			if err != nil {
 				return err
+			}
+
+			if len(targetRole) == 1 {
+				if claims.Role != targetRole[0] {
+					return response.Response(
+						commons.StatusUnauthorized,
+						"unauthorized: role mismatch",
+						nil,
+					)
+				}
 			}
 
 			return next(conn, args, jwtToken)

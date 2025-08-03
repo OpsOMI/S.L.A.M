@@ -10,19 +10,19 @@ import (
 	"github.com/google/uuid"
 )
 
-// func (r *repository) Login(
-// 	ctx context.Context,
-// 	username string,
-// ) (*users.LoginUser, error) {
-// 	dbModel, err := r.queries.UserLogin(ctx, username)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			return nil, repoerrors.NotFound(users.ErrNotFound)
-// 		}
-// 		return nil, repoerrors.Internal(users.ErrLoginFailed, err)
-// 	}
-// 	return r.mappers.Users().ToLoginUser(&dbModel), nil
-// }
+func (r *repository) Login(
+	ctx context.Context,
+	username string,
+) (*users.User, error) {
+	dbModel, err := r.queries.UserLogin(ctx, username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, repoerrors.NotFound(users.ErrNotFound)
+		}
+		return nil, repoerrors.Internal(users.ErrFetchFailed, err)
+	}
+	return r.mappers.Users().OneWithClient(&dbModel), nil
+}
 
 func (r *repository) GetByID(
 	ctx context.Context,
@@ -152,12 +152,12 @@ func (r *repository) IsExistByID(
 func (r *repository) IsExistByUsername(
 	ctx context.Context,
 	username string,
-) (*bool, error) {
+) (bool, error) {
 	exists, err := r.queries.IsUserExistByUsername(ctx, username)
 	if err != nil {
-		return nil, repoerrors.Internal(users.ErrIsExistsFailed, err)
+		return false, repoerrors.Internal(users.ErrIsExistsFailed, err)
 	}
-	return &exists, nil
+	return exists, nil
 }
 
 func (r *repository) IsExistByNickname(

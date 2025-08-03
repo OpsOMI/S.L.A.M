@@ -19,6 +19,10 @@ const (
 	// General Errors
 	ErrInvalidID = "general.invalid_id"
 
+	// Roles
+	RoleOwner = "owner"
+	RoleUser  = "user"
+
 	// SQL Transaction Errors
 	ErrSQLTxCommit = "sql.tx_commit_error"
 	ErrSQLTxCreate = "sql.tx_create_error"
@@ -30,6 +34,9 @@ const (
 	ErrFileDelete      = "file.delete_error"
 	ErrFileCopy        = "file.copy_error"
 	ErrFileOpen        = "file.open_error"
+
+	// Parse
+	ErrParseFailed = "parse.invalid_json_payload"
 
 	// Log Messages
 	LogResendVerificationFailed = "Failed to resend verification email for [%s]: %v"

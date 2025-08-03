@@ -11,6 +11,11 @@ import (
 )
 
 type IUserService interface {
+	Login(
+		ctx context.Context,
+		username, password string,
+	) (*users.User, error)
+
 	GetByID(
 		ctx context.Context,
 		id string,
@@ -33,7 +38,7 @@ type IUserService interface {
 
 	CreateUser(
 		ctx context.Context,
-		nickname, privateCode, username, password, role string,
+		nickname, username, password, role string,
 	) (*uuid.UUID, error)
 
 	ChangeNickname(
@@ -45,6 +50,11 @@ type IUserService interface {
 		ctx context.Context,
 		id string,
 	) error
+
+	IsExistsByUsername(
+		ctx context.Context,
+		username string,
+	) (bool, error)
 }
 
 type service struct {
