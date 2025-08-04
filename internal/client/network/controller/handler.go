@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/client/api"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
