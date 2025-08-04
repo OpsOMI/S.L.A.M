@@ -24,8 +24,13 @@ func (t *Terminal) ShowWelcome() {
 	fmt.Println()
 }
 
-func (t *Terminal) Prompt(label string) (string, error) {
-	fmt.Print(label)
+func (t *Terminal) Prompt(label, nickname string) (string, error) {
+	if nickname != "" {
+		fmt.Print("\033[31m" + "[" + nickname + "]" + "\033[0m " + label)
+	} else {
+		fmt.Print(label)
+	}
+
 	input, err := t.reader.ReadString('\n')
 	if err != nil {
 		return "", err

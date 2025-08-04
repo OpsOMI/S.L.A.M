@@ -1,8 +1,11 @@
 package router
 
 import (
+	"errors"
+
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/router/owner"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router/public"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
@@ -10,6 +13,7 @@ import (
 
 type Router struct {
 	public public.Router
+	owner  owner.Router
 }
 
 func NewRouter(
@@ -20,9 +24,14 @@ func NewRouter(
 		store,
 		api,
 	)
+	owner := owner.NewRouter(
+		store,
+		api,
+	)
 
 	return Router{
 		public: public,
+		owner:  owner,
 	}
 }
 
@@ -36,6 +45,9 @@ func (r *Router) Route(
 	if r.public.Supports(command.Name) {
 		return r.public.Route(command, &req)
 	}
+	if r.owner.Supports(command.Name) {
+		return r.owner.Route(command, &req)
+	}
 
-	return nil
+	return errors.New("Unknown command: " + command.Name)
 }

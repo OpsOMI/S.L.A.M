@@ -56,7 +56,7 @@ func Run(cfg config.Configs) {
 	logg.Info("Services initialized")
 
 	Setup(cfg, services, logg)
-	logg.Info("[setup] Default owner initialized successfully.")
+	logg.Info("[setup] Default migartions added successfully.")
 
 	// Initialize cron job manager and register jobs
 	cronManager := cronpkg.New()

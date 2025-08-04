@@ -46,7 +46,7 @@ func (c *Controller) Run() {
 	c.terminal.ShowWelcome()
 
 	for {
-		input, err := c.terminal.Prompt(">: ")
+		input, err := c.terminal.Prompt("-> ", c.store.Nickname)
 		if err != nil {
 			c.logger.Error("Error reading input: " + err.Error())
 			continue
@@ -66,10 +66,10 @@ func (c *Controller) Run() {
 			}
 
 			c.logger.Info("User typed command: " + input)
-			fmt.Println(command)
+			// fmt.Println(command)
 
 			if err := c.router.Route(command); err != nil {
-				c.logger.Warn("Unknown command or routing error: " + err.Error())
+				c.terminal.PrintError(err.Error())
 			}
 		} else {
 			// This is where the client trying to send a message to another client.
