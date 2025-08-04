@@ -7,11 +7,11 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/connection"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
+	"github.com/OpsOMI/S.L.A.M/internal/server/infrastructure/connection"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/owner"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/private"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/public"
