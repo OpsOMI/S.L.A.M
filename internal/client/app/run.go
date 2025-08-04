@@ -2,9 +2,9 @@ package app
 
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/client/config"
+	"github.com/OpsOMI/S.L.A.M/internal/client/infrastructure/network"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/controller"
 )
 
