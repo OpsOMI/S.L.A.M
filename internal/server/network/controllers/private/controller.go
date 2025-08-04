@@ -5,10 +5,10 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/middlewares"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/types"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services"

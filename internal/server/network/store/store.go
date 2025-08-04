@@ -3,8 +3,8 @@ package store
 import (
 	"time"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/store"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"

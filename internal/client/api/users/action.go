@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
 
 func (s *module) Login(

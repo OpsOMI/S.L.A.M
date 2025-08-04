@@ -1,27 +1,13 @@
 package response
 
 import (
-	"bufio"
-	"encoding/json"
 	"errors"
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
-
-// BaseResponse defines the standard format for all server responses.
-type BaseResponse struct {
-	Message string `json:"message"` // Message intended for the client
-	Code    string `json:"code"`    // forbidden, ok
-	Errors  any    `json:"errors,omitempty"`
-	Data    any    `json:"details,omitempty"` // Optional extra information
-}
-
-// Error implements the error interface for BaseResponse.
-func (r *BaseResponse) Error() string {
-	return r.Message
-}
 
 func Handle(conn net.Conn, err error) error {
 	if err == nil {
@@ -29,14 +15,14 @@ func Handle(conn net.Conn, err error) error {
 	}
 
 	// If error is already a BaseResponse (value or pointer), send it directly
-	if respPtr, ok := err.(*BaseResponse); ok {
+	if respPtr, ok := err.(*response.BaseResponse); ok {
 		return request.Send(conn, *respPtr)
 	}
 
 	// If error is an AppError, map its fields into BaseResponse
 	var appErr *apperrors.AppError
 	if errors.As(err, &appErr) {
-		resp := BaseResponse{
+		resp := response.BaseResponse{
 			Message: appErr.Message,
 			Code:    appErr.Code,
 		}
@@ -52,7 +38,7 @@ func Handle(conn net.Conn, err error) error {
 	}
 
 	// For unknown error types, send generic internal server error
-	resp := BaseResponse{
+	resp := response.BaseResponse{
 		Message: "Internal Server Error",
 		Code:    "status.internal_server_error",
 		Data:    nil,
@@ -60,26 +46,8 @@ func Handle(conn net.Conn, err error) error {
 	return request.Send(conn, resp)
 }
 
-// Read reads and unmarshals a BaseResponse from the connection.
-func Read(conn net.Conn) (*BaseResponse, error) {
-	reader := bufio.NewReader(conn)
-	line, err := reader.ReadBytes('\n')
-	if err != nil {
-		return nil, err
-	}
-
-	var resp BaseResponse
-	err = json.Unmarshal(line, &resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return &resp, nil
-}
-
-// Response creates and returns a BaseResponse representing a success response.
 func Response(code, message string, data any) error {
-	return &BaseResponse{
+	return &response.BaseResponse{
 		Code:    code,
 		Message: message,
 		Data:    data,
