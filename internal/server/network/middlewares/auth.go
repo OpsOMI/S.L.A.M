@@ -5,13 +5,13 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/types"
 )
 
 func JWTAuthMiddleware(
-	ts tokenstore.ITokenStore,
+	ts store.IJwtManager,
 	targetRole ...string,
 ) types.Middleware {
 	return func(next types.HandlerFunc) types.HandlerFunc {
