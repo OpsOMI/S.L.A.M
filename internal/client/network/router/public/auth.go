@@ -20,6 +20,7 @@ func (r *Router) HandleLogin(
 	if err != nil {
 		return err
 	}
+
 	// Logged In.
 	r.store.SetToken(jwt)
 	r.store.ParseJWT()
