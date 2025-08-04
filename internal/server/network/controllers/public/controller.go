@@ -5,30 +5,30 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/types"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services"
 )
 
 type Controller struct {
-	logger     logger.ILogger
-	routes     map[string]types.HandlerFunc
-	tokenstore tokenstore.ITokenStore
-	services   services.IServices
+	logger   logger.ILogger
+	routes   map[string]types.HandlerFunc
+	store    store.IJwtManager
+	services services.IServices
 }
 
 func NewController(
 	logger logger.ILogger,
-	tokenstore tokenstore.ITokenStore,
+	store store.IJwtManager,
 	services services.IServices,
 ) *Controller {
 	pc := &Controller{
-		logger:     logger,
-		routes:     make(map[string]types.HandlerFunc),
-		tokenstore: tokenstore,
-		services:   services,
+		logger:   logger,
+		routes:   make(map[string]types.HandlerFunc),
+		store:    store,
+		services: services,
 	}
 
 	pc.InitHealthRoutes()

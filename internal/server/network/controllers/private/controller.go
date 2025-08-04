@@ -5,10 +5,11 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
+
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/middlewares"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/types"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services"
 )
@@ -16,25 +17,25 @@ import (
 type Controller struct {
 	logger      logger.ILogger
 	routes      map[string]types.HandlerFunc
-	tokenstore  tokenstore.ITokenStore
+	store       store.IJwtManager
 	middlewares []types.Middleware
 	services    services.IServices
 }
 
 func NewController(
 	logger logger.ILogger,
-	tokenstore tokenstore.ITokenStore,
+	store store.IJwtManager,
 	services services.IServices,
 ) *Controller {
 	pc := &Controller{
-		tokenstore:  tokenstore,
+		store:       store,
 		logger:      logger,
 		routes:      make(map[string]types.HandlerFunc),
 		middlewares: make([]types.Middleware, 0),
 		services:    services,
 	}
 
-	pc.Use(middlewares.JWTAuthMiddleware(tokenstore))
+	pc.Use(middlewares.JWTAuthMiddleware(store))
 	pc.InitUserRoutes()
 
 	return pc

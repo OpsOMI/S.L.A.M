@@ -4,7 +4,7 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/client/api/users"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/api/users"
 )
 
 type IAPI interface {

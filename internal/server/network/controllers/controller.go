@@ -7,22 +7,22 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/connection"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
+	"github.com/OpsOMI/S.L.A.M/internal/server/infrastructure/connection"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/owner"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/private"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/public"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type Controller struct {
 	listener    net.Listener
 	logger      logger.ILogger
 	config      config.Configs
-	tokenstore  tokenstore.ITokenStore
+	store       store.IJwtManager
 	connmanager *connection.ConnectionManager
 }
 
@@ -31,23 +31,23 @@ func NewController(
 	logger logger.ILogger,
 	config config.Configs,
 ) *Controller {
-	tokenstore := tokenstore.NewJWTManager(config.Server.Jwt.Issuer, config.Server.Jwt.Secret)
+	tokenstore := store.NewManager(config.Server.Jwt.Issuer, config.Server.Jwt.Secret)
 	connmanager := connection.NewConnectionManager()
 
 	return &Controller{
 		listener:    listener,
 		logger:      logger,
 		config:      config,
-		tokenstore:  tokenstore,
+		store:       tokenstore,
 		connmanager: connmanager,
 	}
 }
 func (c *Controller) Start(
 	services services.IServices,
 ) error {
-	public := public.NewController(c.logger, c.tokenstore, services)
-	private := private.NewController(c.logger, c.tokenstore, services)
-	owner := owner.NewController(c.logger, c.tokenstore, services)
+	public := public.NewController(c.logger, c.store, services)
+	private := private.NewController(c.logger, c.store, services)
+	owner := owner.NewController(c.logger, c.store, services)
 
 	for {
 		conn, err := c.listener.Accept()

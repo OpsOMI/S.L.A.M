@@ -1,13 +1,13 @@
 package store
 
 import (
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/tokenstore"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/store"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type SessionStore struct {
 	JWT string
-	tokenstore.TokenInfo
+	store.TokenInfo
 }
 
 func NewSessionStore() *SessionStore {
@@ -27,7 +27,7 @@ func (s *SessionStore) ParseJWT() error {
 		return nil
 	}
 
-	claims := &tokenstore.Claims{}
+	claims := &store.Claims{}
 
 	_, _, err := new(jwt.Parser).ParseUnverified(s.JWT, claims)
 	if err != nil {

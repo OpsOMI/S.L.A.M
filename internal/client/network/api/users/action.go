@@ -7,21 +7,29 @@ import (
 	"os"
 	"strings"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
+	"golang.org/x/term"
+
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
 
-func (s *module) Login(req *request.ClientRequest) (string, error) {
+func (s *module) Login(
+	req *request.ClientRequest,
+) (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("Username: ")
 	username, _ := reader.ReadString('\n')
 
 	fmt.Print("Password: ")
-	password, _ := reader.ReadString('\n')
+	bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return "", fmt.Errorf("failed to read password: %w", err)
+	}
+	fmt.Println()
 
 	username = strings.TrimSpace(username)
-	password = strings.TrimSpace(password)
+	password := strings.TrimSpace(string(bytePassword))
 
 	payload := map[string]string{
 		"username": username,

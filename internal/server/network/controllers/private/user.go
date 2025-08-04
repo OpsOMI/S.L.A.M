@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 )
 
 func (p *Controller) InitUserRoutes() {
@@ -17,7 +17,7 @@ func (p *Controller) HandleMe(
 	args json.RawMessage,
 	jwtToken *string,
 ) error {
-	userInfo := p.tokenstore.ParseToken(jwtToken)
+	userInfo := p.store.ParseToken(jwtToken)
 
 	return response.Response(commons.StatusOK, "Me Command Worked!", userInfo)
 }

@@ -13,6 +13,43 @@ func Setup(
 	svcs services.IServices,
 	log logger.ILogger,
 ) {
+	// Create Admin
+	SetupDefaultAdmin(cfg, svcs, log)
+
+	// Create Dummy User
+	SetupUser(cfg, svcs, log)
+}
+
+func SetupUser(
+	cfg config.Configs,
+	svcs services.IServices,
+	log logger.ILogger,
+) {
+	ctx := context.Background()
+
+	ok, err := svcs.Users().IsExistsByUsername(ctx, "dummy")
+	if err != nil {
+		log.Warnf("[setup] Default owner is_exist failed: %v", err)
+		return
+	}
+	if ok {
+		log.Info("[setup] Dummy user already exists, skipping creation.")
+		return
+	}
+
+	id, err := svcs.Users().CreateUser(ctx, "user", "dummy", "dummy", "user")
+	if err != nil {
+		log.Warnf("[setup] Dummy user creation failed: %v", err)
+		return
+	}
+	log.Infof("[setup] Default owner user created successfully. ID: %v", id)
+}
+
+func SetupDefaultAdmin(
+	cfg config.Configs,
+	svcs services.IServices,
+	log logger.ILogger,
+) {
 	ctx := context.Background()
 
 	ok, err := svcs.Users().IsExistsByUsername(ctx, cfg.Managment.Username)

@@ -1,28 +1,16 @@
-package tokenstore
+package store
 
 import (
 	"time"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/store"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-type TokenInfo struct {
-	ClientID uuid.UUID `json:"client_id"`
-	UserID   uuid.UUID `json:"user_id"`
-	Username string    `json:"username"`
-	Nickname string    `json:"nickname"`
-	Role     string    `json:"role"`
-}
-
-type Claims struct {
-	TokenInfo
-	jwt.RegisteredClaims
-}
-
-type ITokenStore interface {
+type IJwtManager interface {
 	GenerateToken(
 		clientID, userID uuid.UUID,
 		username, nickname, role string,
@@ -31,11 +19,11 @@ type ITokenStore interface {
 
 	ValidateToken(
 		tokenStr *string,
-	) (*Claims, error)
+	) (*store.Claims, error)
 
 	ParseToken(
 		tokenStr *string,
-	) *TokenInfo
+	) *store.TokenInfo
 }
 
 type manager struct {
@@ -43,9 +31,9 @@ type manager struct {
 	secret []byte
 }
 
-func NewJWTManager(
+func NewManager(
 	issuer, secret string,
-) ITokenStore {
+) IJwtManager {
 	return &manager{
 		issuer: issuer,
 		secret: []byte(secret),
@@ -57,8 +45,8 @@ func (m *manager) GenerateToken(
 	username, nickname, role string,
 	duration time.Duration,
 ) (string, error) {
-	claims := Claims{
-		TokenInfo: TokenInfo{
+	claims := store.Claims{
+		TokenInfo: store.TokenInfo{
 			ClientID: clientID,
 			UserID:   userID,
 			Username: username,
@@ -85,12 +73,12 @@ func (m *manager) GenerateToken(
 	return signedToken, nil
 }
 
-func (m *manager) ValidateToken(tokenStr *string) (*Claims, error) {
+func (m *manager) ValidateToken(tokenStr *string) (*store.Claims, error) {
 	if tokenStr == nil {
 		return nil, response.Response(commons.StatusUnauthorized, "JWT token is required", nil)
 	}
 
-	token, err := jwt.ParseWithClaims(*tokenStr, &Claims{}, func(token *jwt.Token) (any, error) {
+	token, err := jwt.ParseWithClaims(*tokenStr, &store.Claims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, response.Response(commons.StatusUnauthorized, "Unexpected signing method", nil)
 		}
@@ -100,7 +88,7 @@ func (m *manager) ValidateToken(tokenStr *string) (*Claims, error) {
 		return nil, response.Response(commons.StatusUnauthorized, "Invalid JWT token", nil)
 	}
 
-	claims, ok := token.Claims.(*Claims)
+	claims, ok := token.Claims.(*store.Claims)
 	if !ok || !token.Valid {
 		return nil, response.Response(commons.StatusUnauthorized, "Invalid JWT token", nil)
 	}
@@ -108,7 +96,7 @@ func (m *manager) ValidateToken(tokenStr *string) (*Claims, error) {
 }
 
 // This function assumes the JWT is already validated by middleware, so it skips error handling and returns the parsed token info directly.
-func (m *manager) ParseToken(tokenStr *string) *TokenInfo {
+func (m *manager) ParseToken(tokenStr *string) *store.TokenInfo {
 	if tokenStr == nil {
 		return nil
 	}

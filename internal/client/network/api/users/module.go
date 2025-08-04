@@ -3,7 +3,7 @@ package users
 import (
 	"net"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type IUserModule interface {

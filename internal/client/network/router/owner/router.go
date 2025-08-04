@@ -1,4 +1,4 @@
-package public
+package owner
 
 import (
 	"fmt"
@@ -40,8 +40,8 @@ func (r *Router) Route(
 	command parser.Command,
 	req *request.ClientRequest,
 ) error {
-	req.JwtToken = ""
-	req.Scope = "public"
+	req.JwtToken = r.store.JWT
+	req.Scope = "owner"
 
 	if handler, ok := r.routes[command.Name]; ok {
 		return handler(command, req)

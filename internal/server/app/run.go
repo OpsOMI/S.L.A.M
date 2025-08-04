@@ -2,11 +2,11 @@ package app
 
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres/sqlc/pgqueries"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains"
+	"github.com/OpsOMI/S.L.A.M/internal/server/infrastructure/network"
 	"github.com/OpsOMI/S.L.A.M/internal/server/jobs"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
@@ -56,7 +56,7 @@ func Run(cfg config.Configs) {
 	logg.Info("Services initialized")
 
 	Setup(cfg, services, logg)
-	logg.Info("[setup] Default owner initialized successfully.")
+	logg.Info("[setup] Default migartions added successfully.")
 
 	// Initialize cron job manager and register jobs
 	cronManager := cronpkg.New()

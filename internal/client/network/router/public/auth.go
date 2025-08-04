@@ -3,8 +3,8 @@ package public
 import (
 	"fmt"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 func (r *Router) AuthRoutes() {
@@ -20,6 +20,7 @@ func (r *Router) HandleLogin(
 	if err != nil {
 		return err
 	}
+
 	// Logged In.
 	r.store.SetToken(jwt)
 	r.store.ParseJWT()

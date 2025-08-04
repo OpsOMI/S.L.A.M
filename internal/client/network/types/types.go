@@ -1,8 +1,8 @@
 package types
 
 import (
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type RouteFunc func(cmd parser.Command, req *request.ClientRequest) error
