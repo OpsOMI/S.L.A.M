@@ -6,10 +6,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/mappers/users"
+	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
 )
 
 func (p *Controller) InitAuthRoutes() {
@@ -22,7 +22,7 @@ func (p *Controller) HandleLogin(
 	jwtToken *string,
 ) error {
 	var req users.LoginReq
-	if err := request.ParseJSON(args, &req); err != nil {
+	if err := utils.ParseJSON(args, &req); err != nil {
 		return err
 	}
 

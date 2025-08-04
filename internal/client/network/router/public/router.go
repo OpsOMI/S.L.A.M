@@ -3,11 +3,11 @@ package public
 import (
 	"fmt"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/client/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/types"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type Router struct {

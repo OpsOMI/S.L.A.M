@@ -7,7 +7,6 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	"github.com/OpsOMI/S.L.A.M/internal/server/infrastructure/connection"
@@ -16,6 +15,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/public"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type Controller struct {

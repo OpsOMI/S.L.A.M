@@ -6,8 +6,8 @@ import (
 	"errors"
 	"net"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 // BaseResponse defines the standard format for all server responses.

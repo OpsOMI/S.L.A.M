@@ -7,11 +7,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/network/response"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
-func (s *module) Login(req *request.ClientRequest) (string, error) {
+func (s *module) Login(
+	req *request.ClientRequest,
+) (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("Username: ")
