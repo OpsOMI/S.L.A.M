@@ -13,6 +13,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type Controller struct {
@@ -23,6 +24,7 @@ type Controller struct {
 	parser   parser.IParser
 	router   router.Router
 	store    *store.SessionStore
+	api      api.IAPI
 }
 
 func NewController(
@@ -44,6 +46,7 @@ func NewController(
 		parser:   parser,
 		router:   router,
 		store:    store,
+		api:      api,
 	}
 }
 
@@ -104,6 +107,13 @@ func (c *Controller) Run() {
 
 		default:
 			if input != "" {
+				if err := c.api.Users().SendMessage(&request.ClientRequest{
+					JwtToken: c.store.JWT,
+					Scope:    "private",
+					Command:  "/send",
+				}, input); err != nil {
+					c.logger.Warn("Send Message Error: " + err.Error())
+				}
 				c.terminal.PrintMessage("You", input)
 			}
 		}

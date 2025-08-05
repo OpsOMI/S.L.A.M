@@ -21,6 +21,11 @@ type IUserModule interface {
 		req *request.ClientRequest,
 		roomCode string,
 	) (*message.MessagesReps, error)
+
+	SendMessage(
+		req *request.ClientRequest,
+		content string,
+	) error
 }
 
 type module struct {

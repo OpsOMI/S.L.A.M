@@ -188,3 +188,39 @@ func (s *module) Join(
 
 	return &data, nil
 }
+
+func (s *module) SendMessage(
+	req *request.ClientRequest,
+	content string,
+) error {
+	content = strings.TrimSpace(content)
+
+	payload := message.MessageReq{
+		Content: content,
+	}
+
+	// Encode payload to JSON
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to encode payload: %w", err)
+	}
+
+	// Set payload into request and send
+	req.Payload = payloadBytes
+	if err := request.Send(s.conn, req); err != nil {
+		return fmt.Errorf("failed to send register message: %w", err)
+	}
+
+	// Read response from server
+	resp, err := response.Read(s.conn)
+	if err != nil {
+		return fmt.Errorf("failed to read register response: %w", err)
+	}
+
+	baseResp := resp
+	if baseResp.Code != "OK" {
+		return fmt.Errorf("server error: %s", baseResp.Message)
+	}
+
+	return nil
+}
