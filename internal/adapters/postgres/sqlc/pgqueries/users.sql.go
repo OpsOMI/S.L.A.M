@@ -152,6 +152,41 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 	return i, err
 }
 
+const getUserFullInfo = `-- name: GetUserFullInfo :one
+SELECT
+    u.id, u.username, u.password, u.nickname, u.private_code, u.role, u.created_at, c.id, c.user_id, c.client_key, c.revoked_at, c.created_at
+FROM
+    users AS u
+INNER JOIN clients AS c ON c.user_id = u.id
+WHERE
+    u.private_code = $1
+`
+
+type GetUserFullInfoRow struct {
+	User   User
+	Client Client
+}
+
+func (q *Queries) GetUserFullInfo(ctx context.Context, privateCode string) (GetUserFullInfoRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserFullInfo, privateCode)
+	var i GetUserFullInfoRow
+	err := row.Scan(
+		&i.User.ID,
+		&i.User.Username,
+		&i.User.Password,
+		&i.User.Nickname,
+		&i.User.PrivateCode,
+		&i.User.Role,
+		&i.User.CreatedAt,
+		&i.Client.ID,
+		&i.Client.UserID,
+		&i.Client.ClientKey,
+		&i.Client.RevokedAt,
+		&i.Client.CreatedAt,
+	)
+	return i, err
+}
+
 const isUserExistByID = `-- name: IsUserExistByID :one
 SELECT EXISTS (
     SELECT 1 FROM users WHERE id = $1

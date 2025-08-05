@@ -118,7 +118,9 @@ func (t *Terminal) SetConnected(status bool) {
 	t.Render()
 }
 
-func (t *Terminal) SetMessages(messages *message.MessagesReps) {
+func (t *Terminal) SetMessages(
+	messages *message.MessagesReps,
+) {
 	t.messages = nil
 	for _, m := range messages.Items {
 		t.messages = append(t.messages, Messages{

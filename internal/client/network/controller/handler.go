@@ -1,30 +1,40 @@
 package controller
 
 import (
+	"bufio"
+	"encoding/json"
 	"net"
 	"strings"
 	"time"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
+	"github.com/OpsOMI/S.L.A.M/internal/client/config"
+	"github.com/OpsOMI/S.L.A.M/internal/client/infrastructure/network"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type Controller struct {
-	conn     net.Conn
-	logger   logger.ILogger
-	terminal terminal.Terminal
-	parser   parser.IParser
-	router   router.Router
-	store    *store.SessionStore
+	conn        net.Conn
+	messageChan chan message.MessageResp
+	config      config.Configs
+	logger      logger.ILogger
+	terminal    *terminal.Terminal
+	parser      parser.IParser
+	router      router.Router
+	store       *store.SessionStore
+	api         api.IAPI
 }
 
 func NewController(
 	conn net.Conn,
 	logger logger.ILogger,
+	config config.Configs,
 ) *Controller {
 	terminal := terminal.NewTerminal()
 	parser := parser.NewParser()
@@ -34,11 +44,13 @@ func NewController(
 
 	return &Controller{
 		conn:     conn,
+		config:   config,
 		logger:   logger,
-		terminal: *terminal,
+		terminal: terminal,
 		parser:   parser,
 		router:   router,
 		store:    store,
+		api:      api,
 	}
 }
 
@@ -46,6 +58,25 @@ func (c *Controller) Run() {
 	c.terminal.Render()
 	c.terminal.SetConnected(c.conn != nil)
 	c.terminal.ClearScreen()
+
+	c.messageChan = make(chan message.MessageResp, 100)
+
+	go func() {
+		for msg := range c.messageChan {
+			roomCode := c.store.GetRoom()
+			if roomCode == msg.RoomCode {
+				nickname := msg.SenderNickname
+				if c.store.Nickname == msg.SenderNickname {
+					nickname = "You"
+				}
+				c.terminal.PrintMessage(nickname, msg.Content)
+			}
+		}
+	}()
+
+	// if c.conn != nil {
+	// 	c.ListenServerMessages()
+	// }
 
 	for {
 		if !c.checkConnection() {
@@ -59,7 +90,6 @@ func (c *Controller) Run() {
 		}
 
 		c.terminal.SetPromptLabel("->", c.store.Nickname)
-
 		c.terminal.Render()
 
 		input, err := c.terminal.Prompt()
@@ -69,13 +99,22 @@ func (c *Controller) Run() {
 		}
 
 		switch {
-		case input == "exit" || input == "quit":
+		case input == "/exit" || input == "/quit":
 			c.logger.Info("User exited the client.")
 			return
 
-		case input == "clear":
+		case input == "/clear":
 			c.terminal.ClearScreen()
 			continue
+		case input == "/reconnect":
+			if err = c.Reconnect(); err != nil {
+				c.logger.Warn("Failed to reconnect to the server: " + err.Error())
+				c.terminal.PrintError("Could not reconnect to the server. Please check your connection.")
+				continue
+			}
+
+			c.terminal.PrintNotification("Successfully reconnected to the server.")
+			c.logger.Info("Reconnected to the server successfully.")
 
 		case strings.HasPrefix(input, "/"):
 			command, err := c.parser.Parse(input)
@@ -91,7 +130,17 @@ func (c *Controller) Run() {
 
 		default:
 			if input != "" {
-				c.terminal.PrintMessage("You", input)
+				if err := c.api.Users().SendMessage(&request.ClientRequest{
+					JwtToken: c.store.JWT,
+					Scope:    "private",
+					Command:  "/send",
+				}, input); err != nil {
+					c.logger.Warn("Send Message Error: " + err.Error())
+				}
+
+				if c.store.GetRoom() != "" {
+					c.terminal.PrintMessage("You", input)
+				}
 			}
 		}
 	}
@@ -121,4 +170,43 @@ func (c *Controller) checkConnection() bool {
 	}
 
 	return true
+}
+
+func (c *Controller) Reconnect() error {
+	conn, err := network.Reconnect(c.conn, c.config)
+	if err != nil {
+		return err
+	}
+
+	c.conn = conn
+
+	api := api.NewAPI(c.conn, c.logger)
+	c.router = router.NewRouter(api, c.store, c.terminal)
+
+	// if c.conn != nil {
+	// 	c.ListenServerMessages()
+	// }
+
+	return nil
+}
+
+func (c *Controller) ListenServerMessages() {
+	go func() {
+		reader := bufio.NewReader(c.conn)
+		for {
+			msg, err := reader.ReadString('\n')
+			if err != nil {
+				c.logger.Warn("Server message read error: " + err.Error())
+				break
+			}
+
+			var serverMsg message.MessageResp
+			if err := json.Unmarshal([]byte(msg), &serverMsg); err != nil {
+				c.logger.Warn("Invalid server message format: " + err.Error())
+				continue
+			}
+
+			c.messageChan <- serverMsg
+		}
+	}()
 }

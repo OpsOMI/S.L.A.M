@@ -8,8 +8,9 @@ import (
 )
 
 type ClientInfo struct {
-	Conn   net.Conn
-	RoomID string
+	Conn     net.Conn
+	UserID   uuid.UUID
+	RoomCode string
 }
 
 type ConnectionManager struct {
@@ -30,17 +31,20 @@ func (cm *ConnectionManager) Register(
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	cm.clients[clientID] = &ClientInfo{
-		Conn:   conn,
-		RoomID: "",
+		Conn:     conn,
+		RoomCode: "",
 	}
 
 }
 
-func (cm *ConnectionManager) SetClientRoom(clientID uuid.UUID, roomID string) {
+func (cm *ConnectionManager) SetClientRoom(
+	clientID uuid.UUID,
+	roomCode string,
+) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	if client, ok := cm.clients[clientID]; ok {
-		client.RoomID = roomID
+		client.RoomCode = roomCode
 	}
 }
 
@@ -48,9 +52,26 @@ func (cm *ConnectionManager) GetClientRoom(clientID uuid.UUID) (string, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	if client, ok := cm.clients[clientID]; ok {
-		return client.RoomID, true
+		return client.RoomCode, true
 	}
 	return "", false
+}
+
+func (cm *ConnectionManager) GetConnectionsByRoomCode(roomCode string) ([]net.Conn, bool) {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+
+	var conns []net.Conn
+	for _, client := range cm.clients {
+		if client.RoomCode == roomCode {
+			conns = append(conns, client.Conn)
+		}
+	}
+
+	if len(conns) == 0 {
+		return nil, false
+	}
+	return conns, true
 }
 
 func (cm *ConnectionManager) Unregister(clientID uuid.UUID) {
