@@ -6,7 +6,6 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/repoerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
-	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/google/uuid"
 )
@@ -108,10 +107,10 @@ func (r *repository) CreateUser(
 			return repoerrors.Internal(clients.ErrCreateFailed, err)
 		}
 
-		roomParams := r.mappers.Rooms().CreateParams(uid, domainModel.PrivateCode)
-		if _, err := qtx.CreateRoom(ctx, roomParams); err != nil {
-			return repoerrors.Internal(rooms.ErrCreateFailed, err)
-		}
+		// roomParams := r.mappers.Rooms().CreateParams(uid, domainModel.PrivateCode)
+		// if _, err := qtx.CreateRoom(ctx, roomParams); err != nil {
+		// 	return repoerrors.Internal(rooms.ErrCreateFailed, err)
+		// }
 		userID = uid
 
 		return nil

@@ -3,12 +3,12 @@ package private
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 )
 
@@ -32,11 +32,12 @@ func (p *Controller) HandleJoin(
 	if err != nil {
 		return err
 	}
-
-	// Recive Messages and then send the messages to the client who join the room.
-
 	p.connections.SetClientRoom(userInfo.ClientID, room.Code)
-	fmt.Println(p.connections.GetClientRoom(userInfo.ClientID))
 
-	return response.Response(commons.StatusOK, "Joined Successfully", nil)
+	domainMessages, err := p.services.Messages().GetMessagesByRoomCode(ctx, room.Code)
+	if err != nil {
+		return err
+	}
+
+	return response.Response(commons.StatusOK, "Joined Successfully", message.ManyMessage(domainMessages))
 }

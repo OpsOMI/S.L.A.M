@@ -1,6 +1,9 @@
 package messages
 
 import (
+	"context"
+
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/messages"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/rooms"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/users"
@@ -9,6 +12,16 @@ import (
 )
 
 type IMessageService interface {
+	GetMessagesByRoomCode(
+		ctx context.Context,
+		roomCode string,
+	) (*messages.RoomMessages, error)
+
+	CreateMessage(
+		ctx context.Context,
+		senderID, receiverID, roomCode string,
+		conent string,
+	) error
 }
 
 type service struct {
