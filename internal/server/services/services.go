@@ -35,7 +35,7 @@ func NewServices(
 	utils := utils.NewServices()
 	users := users.NewService(utils, packages, repositories)
 	clients := clients.NewService(utils, packages, repositories)
-	rooms := rooms.NewService(utils, packages, repositories)
+	rooms := rooms.NewService(utils, packages, repositories, clients)
 	messages := messages.NewService(utils, packages, repositories, users, rooms)
 
 	return &services{
