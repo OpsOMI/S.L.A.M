@@ -6,24 +6,28 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/types"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type Router struct {
-	api    api.IAPI
-	store  *store.SessionStore
-	routes map[string]types.RouteFunc
+	api      api.IAPI
+	terminal *terminal.Terminal
+	store    *store.SessionStore
+	routes   map[string]types.RouteFunc
 }
 
 func NewRouter(
+	terminal *terminal.Terminal,
 	store *store.SessionStore,
 	api api.IAPI,
 ) Router {
 	r := Router{
-		api:    api,
-		store:  store,
-		routes: make(map[string]types.RouteFunc),
+		api:      api,
+		store:    store,
+		terminal: terminal,
+		routes:   make(map[string]types.RouteFunc),
 	}
 
 	r.AuthRoutes()
@@ -41,6 +45,13 @@ func (r *Router) Route(
 	req *request.ClientRequest,
 ) error {
 	req.JwtToken = r.store.JWT
+	if req.JwtToken == "" {
+		return fmt.Errorf("unauthorized: command %q", command.Name)
+	}
+	r.store.ParseJWT()
+	if r.store.Role != "owner" {
+		return fmt.Errorf("unauthorized: command %q", command.Name)
+	}
 	req.Scope = "owner"
 
 	if handler, ok := r.routes[command.Name]; ok {

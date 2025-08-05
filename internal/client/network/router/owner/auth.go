@@ -1,8 +1,6 @@
 package owner
 
 import (
-	"fmt"
-
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
@@ -15,8 +13,12 @@ func (r *Router) HandleRegister(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
-	fmt.Println(req, "Request")
-	fmt.Println(cmd, "Command")
+	id, err := r.api.Users().Register(req)
+	if err != nil {
+		return err
+	}
+
+	r.terminal.PrintNotification("New User Created: " + id.String())
 
 	return nil
 }

@@ -24,6 +24,7 @@ func (r *Router) HandleLogin(
 	// Logged In.
 	r.store.SetToken(jwt)
 	r.store.ParseJWT()
+	r.terminal.Render()
 
 	return nil
 }

@@ -6,9 +6,9 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
-	"github.com/OpsOMI/S.L.A.M/internal/server/network/mappers/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/users"
 )
 
 func (p *Controller) InitAuthRoutes() {
@@ -31,5 +31,5 @@ func (p *Controller) HandleRegister(
 		return err
 	}
 
-	return response.Response(commons.StatusOK, "User Created!", id)
+	return response.Response(commons.StatusOK, "User Created!", users.ToRegisterResponse(*id))
 }

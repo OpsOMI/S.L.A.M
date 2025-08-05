@@ -84,7 +84,7 @@ func (r *repository) CreateUser(
 	ctx context.Context,
 	domainModel users.User,
 ) (*uuid.UUID, error) {
-	var userID *uuid.UUID
+	var userID uuid.UUID
 
 	if err := r.txManager.RunInTx(ctx, func(tx *sql.Tx) error {
 		qtx := r.queries.WithTx(tx)
@@ -107,12 +107,14 @@ func (r *repository) CreateUser(
 			return repoerrors.Internal(clients.ErrCreateFailed, err)
 		}
 
+		userID = uid
+
 		return nil
 	}); err != nil {
 		return nil, err
 	}
 
-	return userID, nil
+	return &userID, nil
 }
 
 func (r *repository) ChangeNickname(
