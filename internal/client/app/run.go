@@ -37,6 +37,6 @@ func Run(cfg *config.Configs) {
 	response.Read(conn)
 
 	logg.Info("Controller Started")
-	controller := controller.NewController(conn, logg)
+	controller := controller.NewController(conn, logg, *cfg)
 	controller.Run()
 }

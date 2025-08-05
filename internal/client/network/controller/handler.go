@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
+	"github.com/OpsOMI/S.L.A.M/internal/client/config"
+	"github.com/OpsOMI/S.L.A.M/internal/client/infrastructure/network"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
@@ -15,8 +17,9 @@ import (
 
 type Controller struct {
 	conn     net.Conn
+	config   config.Configs
 	logger   logger.ILogger
-	terminal terminal.Terminal
+	terminal *terminal.Terminal
 	parser   parser.IParser
 	router   router.Router
 	store    *store.SessionStore
@@ -25,6 +28,7 @@ type Controller struct {
 func NewController(
 	conn net.Conn,
 	logger logger.ILogger,
+	config config.Configs,
 ) *Controller {
 	terminal := terminal.NewTerminal()
 	parser := parser.NewParser()
@@ -34,8 +38,9 @@ func NewController(
 
 	return &Controller{
 		conn:     conn,
+		config:   config,
 		logger:   logger,
-		terminal: *terminal,
+		terminal: terminal,
 		parser:   parser,
 		router:   router,
 		store:    store,
@@ -59,7 +64,6 @@ func (c *Controller) Run() {
 		}
 
 		c.terminal.SetPromptLabel("->", c.store.Nickname)
-
 		c.terminal.Render()
 
 		input, err := c.terminal.Prompt()
@@ -69,13 +73,22 @@ func (c *Controller) Run() {
 		}
 
 		switch {
-		case input == "exit" || input == "quit":
+		case input == "/exit" || input == "/quit":
 			c.logger.Info("User exited the client.")
 			return
 
-		case input == "clear":
+		case input == "/clear":
 			c.terminal.ClearScreen()
 			continue
+		case input == "/reconnect":
+			if err = c.Reconnect(); err != nil {
+				c.logger.Warn("Failed to reconnect to the server: " + err.Error())
+				c.terminal.PrintError("Could not reconnect to the server. Please check your connection.")
+				continue
+			}
+
+			c.terminal.PrintNotification("Successfully reconnected to the server.")
+			c.logger.Info("Reconnected to the server successfully.")
 
 		case strings.HasPrefix(input, "/"):
 			command, err := c.parser.Parse(input)
@@ -121,4 +134,18 @@ func (c *Controller) checkConnection() bool {
 	}
 
 	return true
+}
+
+func (c *Controller) Reconnect() error {
+	conn, err := network.Reconnect(c.conn, c.config)
+	if err != nil {
+		return err
+	}
+
+	c.conn = conn
+
+	api := api.NewAPI(c.conn, c.logger)
+	c.router = router.NewRouter(api, c.store, c.terminal)
+
+	return nil
 }

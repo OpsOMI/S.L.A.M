@@ -7,6 +7,8 @@ import (
 	"net"
 	"os"
 	"time"
+
+	"github.com/OpsOMI/S.L.A.M/internal/client/config"
 )
 
 // ConnectToServer tries to establish a TLS connection to the server with retries.
@@ -52,4 +54,27 @@ func ConnectToServer(
 	}
 
 	return nil, fmt.Errorf("failed to connect after %d retries: %w", retryCount, err)
+}
+
+func Reconnect(
+	conn net.Conn,
+	config config.Configs,
+) (net.Conn, error) {
+	if conn != nil {
+		conn.Close()
+	}
+
+	conn, err := ConnectToServer(
+		config.ServerName,
+		config.ServerHost,
+		config.ServerPort,
+		config.TSLCertPath,
+		config.TimeoutSeconds,
+		config.ReconnectRetry,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
 }
