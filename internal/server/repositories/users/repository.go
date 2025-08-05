@@ -16,6 +16,11 @@ type IUserRepository interface {
 		username string,
 	) (*users.User, error)
 
+	GetUserFullInfo(
+		ctx context.Context,
+		privateCode string,
+	) (*users.User, error)
+
 	GetByID(
 		ctx context.Context,
 		id uuid.UUID,

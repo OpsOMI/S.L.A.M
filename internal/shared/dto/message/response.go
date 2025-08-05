@@ -3,6 +3,7 @@ package message
 import "github.com/OpsOMI/S.L.A.M/internal/server/domains/messages"
 
 type MessageResp struct {
+	RoomCode       string `json:"roomCode"`
 	SenderNickname string `json:"senderNickname"`
 	Content        string `json:"content"`
 }

@@ -2,11 +2,10 @@ package rooms
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
-	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 )
 
 func (s *service) GetByID(
@@ -86,7 +85,7 @@ func (s *service) IsExistByOwnerID(
 func (s *service) IsIsRoomOrDirectChat(
 	ctx context.Context,
 	roomOrUserCode string,
-) (*clients.Client, bool, error) {
+) (*users.User, bool, error) {
 	room, err := s.GetByCode(ctx, roomOrUserCode)
 	if err != nil && !strings.Contains(err.Error(), "not_found") {
 		return nil, false, err
@@ -95,10 +94,10 @@ func (s *service) IsIsRoomOrDirectChat(
 		return nil, true, nil
 	}
 
-	reciever, err := s.clients.GetByClientKey(ctx, roomOrUserCode)
+	fullInfo, err := s.users.FullInfo(ctx, roomOrUserCode)
 	if err != nil {
-		return nil, false, fmt.Errorf("no user or room found with code: %s", roomOrUserCode)
+		return nil, false, err
 	}
 
-	return reciever, false, nil
+	return fullInfo, false, nil
 }

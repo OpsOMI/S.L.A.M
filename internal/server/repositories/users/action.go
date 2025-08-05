@@ -25,6 +25,20 @@ func (r *repository) Login(
 	return r.mappers.Users().OneWithClient(&dbModel), nil
 }
 
+func (r *repository) GetUserFullInfo(
+	ctx context.Context,
+	privateCode string,
+) (*users.User, error) {
+	dbModel, err := r.queries.GetUserFullInfo(ctx, privateCode)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, repoerrors.NotFound(users.ErrNotFound)
+		}
+		return nil, repoerrors.Internal(users.ErrFetchFailed, err)
+	}
+	return r.mappers.Users().OneWithPrivateCode(&dbModel), nil
+}
+
 func (r *repository) GetByID(
 	ctx context.Context,
 	id uuid.UUID,

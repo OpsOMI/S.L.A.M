@@ -19,6 +19,15 @@ INNER JOIN clients AS c ON c.user_id = u.id
 WHERE
     u.username = @username;
 
+-- name: GetUserFullInfo :one
+SELECT
+    sqlc.embed(u), sqlc.embed(c)
+FROM
+    users AS u
+INNER JOIN clients AS c ON c.user_id = u.id
+WHERE
+    u.private_code = @private_code;
+
 -- name: CreateUser :one
 INSERT INTO users (
     username,

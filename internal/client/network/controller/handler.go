@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"bufio"
+	"encoding/json"
 	"net"
 	"strings"
 	"time"
@@ -13,18 +15,20 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 type Controller struct {
-	conn     net.Conn
-	config   config.Configs
-	logger   logger.ILogger
-	terminal *terminal.Terminal
-	parser   parser.IParser
-	router   router.Router
-	store    *store.SessionStore
-	api      api.IAPI
+	conn        net.Conn
+	messageChan chan message.MessageResp
+	config      config.Configs
+	logger      logger.ILogger
+	terminal    *terminal.Terminal
+	parser      parser.IParser
+	router      router.Router
+	store       *store.SessionStore
+	api         api.IAPI
 }
 
 func NewController(
@@ -54,6 +58,25 @@ func (c *Controller) Run() {
 	c.terminal.Render()
 	c.terminal.SetConnected(c.conn != nil)
 	c.terminal.ClearScreen()
+
+	c.messageChan = make(chan message.MessageResp, 100)
+
+	go func() {
+		for msg := range c.messageChan {
+			roomCode := c.store.GetRoom()
+			if roomCode == msg.RoomCode {
+				nickname := msg.SenderNickname
+				if c.store.Nickname == msg.SenderNickname {
+					nickname = "You"
+				}
+				c.terminal.PrintMessage(nickname, msg.Content)
+			}
+		}
+	}()
+
+	// if c.conn != nil {
+	// 	c.ListenServerMessages()
+	// }
 
 	for {
 		if !c.checkConnection() {
@@ -114,7 +137,10 @@ func (c *Controller) Run() {
 				}, input); err != nil {
 					c.logger.Warn("Send Message Error: " + err.Error())
 				}
-				c.terminal.PrintMessage("You", input)
+
+				if c.store.GetRoom() != "" {
+					c.terminal.PrintMessage("You", input)
+				}
 			}
 		}
 	}
@@ -157,5 +183,30 @@ func (c *Controller) Reconnect() error {
 	api := api.NewAPI(c.conn, c.logger)
 	c.router = router.NewRouter(api, c.store, c.terminal)
 
+	// if c.conn != nil {
+	// 	c.ListenServerMessages()
+	// }
+
 	return nil
+}
+
+func (c *Controller) ListenServerMessages() {
+	go func() {
+		reader := bufio.NewReader(c.conn)
+		for {
+			msg, err := reader.ReadString('\n')
+			if err != nil {
+				c.logger.Warn("Server message read error: " + err.Error())
+				break
+			}
+
+			var serverMsg message.MessageResp
+			if err := json.Unmarshal([]byte(msg), &serverMsg); err != nil {
+				c.logger.Warn("Invalid server message format: " + err.Error())
+				continue
+			}
+
+			c.messageChan <- serverMsg
+		}
+	}()
 }

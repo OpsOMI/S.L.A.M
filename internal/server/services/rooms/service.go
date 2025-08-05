@@ -3,10 +3,11 @@ package rooms
 import (
 	"context"
 
-	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
-	clientservice "github.com/OpsOMI/S.L.A.M/internal/server/services/clients"
+	"github.com/OpsOMI/S.L.A.M/internal/server/services/clients"
+	userservice "github.com/OpsOMI/S.L.A.M/internal/server/services/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/utils"
 	"github.com/OpsOMI/S.L.A.M/pkg"
 )
@@ -50,26 +51,29 @@ type IRoomService interface {
 	IsIsRoomOrDirectChat(
 		ctx context.Context,
 		roomOrUserCode string,
-	) (*clients.Client, bool, error)
+	) (*users.User, bool, error)
 }
 
 type service struct {
 	utils        utils.IUtilServices
 	packages     pkg.IPackages
 	repositories repositories.IRepositories
-	clients      clientservice.IClientService
+	users        userservice.IUserService
+	clients      clients.IClientService
 }
 
 func NewService(
 	utils utils.IUtilServices,
 	packages pkg.IPackages,
 	repositories repositories.IRepositories,
-	clients clientservice.IClientService,
+	users userservice.IUserService,
+	clients clients.IClientService,
 ) IRoomService {
 	return &service{
 		utils:        utils,
 		packages:     packages,
 		repositories: repositories,
+		users:        users,
 		clients:      clients,
 	}
 }

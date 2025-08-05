@@ -16,6 +16,10 @@ type IUsersMapper interface {
 		dbModel *pgqueries.UserLoginRow,
 	) *User
 
+	OneWithPrivateCode(
+		dbModel *pgqueries.GetUserFullInfoRow,
+	) *User
+
 	Many(
 		dbModels []pgqueries.User,
 		count int64,
@@ -66,6 +70,21 @@ func (m *mapper) One(
 
 func (m *mapper) OneWithClient(
 	dbModel *pgqueries.UserLoginRow,
+) *User {
+	if dbModel == nil {
+		return nil
+	}
+
+	userModel := m.One(&dbModel.User)
+	clientModel := m.clients.One(&dbModel.Client)
+
+	userModel.Clients = clientModel
+
+	return userModel
+}
+
+func (m *mapper) OneWithPrivateCode(
+	dbModel *pgqueries.GetUserFullInfoRow,
 ) *User {
 	if dbModel == nil {
 		return nil

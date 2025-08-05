@@ -6,7 +6,8 @@ import (
 )
 
 type SessionStore struct {
-	JWT string
+	JWT  string
+	Room string
 	store.TokenInfo
 }
 
@@ -16,6 +17,14 @@ func NewSessionStore() *SessionStore {
 
 func (s *SessionStore) SetToken(token string) {
 	s.JWT = token
+}
+
+func (s *SessionStore) SetRoom(room string) {
+	s.Room = room
+}
+
+func (s *SessionStore) GetRoom() string {
+	return s.Room
 }
 
 func (s *SessionStore) GetToken() string {

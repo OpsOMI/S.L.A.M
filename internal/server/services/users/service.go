@@ -16,6 +16,11 @@ type IUserService interface {
 		username, password string,
 	) (*users.User, error)
 
+	FullInfo(
+		ctx context.Context,
+		privateCode string,
+	) (*users.User, error)
+
 	GetByID(
 		ctx context.Context,
 		id string,
