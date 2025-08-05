@@ -11,12 +11,13 @@ import (
 )
 
 type Terminal struct {
-	reader      *bufio.Reader
-	messages    []string
-	output      Notification
-	promptLabel string
-	height      int
-	width       int
+	reader    *bufio.Reader
+	messages  []string
+	output    Notification
+	label     string
+	connected bool
+	height    int
+	width     int
 }
 
 type Notification struct {
@@ -32,10 +33,11 @@ func NewTerminal() *Terminal {
 	}
 
 	return &Terminal{
-		reader:   bufio.NewReader(os.Stdin),
-		messages: []string{},
-		height:   height,
-		width:    width,
+		reader:    bufio.NewReader(os.Stdin),
+		messages:  []string{},
+		connected: true,
+		height:    height,
+		width:     width,
 	}
 }
 
@@ -51,6 +53,16 @@ func (t *Terminal) Render() {
 	col := max((t.width-len(welcome))/2, 1)
 	t.moveCursor(1, col)
 	fmt.Print(welcome)
+
+	// Connected Dot
+	dotCol := t.width
+	t.moveCursor(1, dotCol)
+
+	if t.connected {
+		fmt.Print("\033[32m⬤\033[0m")
+	} else {
+		fmt.Print("\033[31m⬤\033[0m")
+	}
 
 	// Start messages
 	msgStartRow := 3
@@ -76,15 +88,15 @@ func (t *Terminal) Render() {
 	}
 
 	// Print prompt at bottom line (this requires promptLabel to be stored)
-	if t.promptLabel != "" {
+	if t.label != "" {
 		t.moveCursor(t.height, 1)
-		fmt.Print(t.promptLabel)
+		fmt.Print(t.label)
 	}
 }
 
 func (t *Terminal) Prompt() (string, error) {
 	t.moveCursor(t.height, 1)
-	fmt.Print(t.promptLabel)
+	fmt.Print(t.label)
 
 	input, err := t.reader.ReadString('\n')
 	if err != nil {
@@ -95,6 +107,11 @@ func (t *Terminal) Prompt() (string, error) {
 }
 
 // Setter
+func (t *Terminal) SetConnected(status bool) {
+	t.connected = status
+	t.Render()
+}
+
 func (t *Terminal) SetPromptLabel(label, nickname string) {
 	var promptLabel string
 	if nickname != "" {
@@ -103,7 +120,7 @@ func (t *Terminal) SetPromptLabel(label, nickname string) {
 		promptLabel = "\033[34m[Unknown]\033[0m " + label + " "
 	}
 
-	t.promptLabel = promptLabel
+	t.label = promptLabel
 }
 
 // Clears
