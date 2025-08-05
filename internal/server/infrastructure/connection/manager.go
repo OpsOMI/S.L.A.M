@@ -3,6 +3,8 @@ package connection
 import (
 	"net"
 	"sync"
+
+	"github.com/google/uuid"
 )
 
 type ClientInfo struct {
@@ -11,18 +13,18 @@ type ClientInfo struct {
 }
 
 type ConnectionManager struct {
-	clients map[string]*ClientInfo
+	clients map[uuid.UUID]*ClientInfo
 	mu      sync.RWMutex
 }
 
 func NewConnectionManager() *ConnectionManager {
 	return &ConnectionManager{
-		clients: make(map[string]*ClientInfo),
+		clients: make(map[uuid.UUID]*ClientInfo),
 	}
 }
 
 func (cm *ConnectionManager) Register(
-	clientID string,
+	clientID uuid.UUID,
 	conn net.Conn,
 ) {
 	cm.mu.Lock()
@@ -34,7 +36,7 @@ func (cm *ConnectionManager) Register(
 
 }
 
-func (cm *ConnectionManager) SetClientRoom(clientID, roomID string) {
+func (cm *ConnectionManager) SetClientRoom(clientID uuid.UUID, roomID string) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	if client, ok := cm.clients[clientID]; ok {
@@ -42,7 +44,7 @@ func (cm *ConnectionManager) SetClientRoom(clientID, roomID string) {
 	}
 }
 
-func (cm *ConnectionManager) GetClientRoom(clientID string) (string, bool) {
+func (cm *ConnectionManager) GetClientRoom(clientID uuid.UUID) (string, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	if client, ok := cm.clients[clientID]; ok {
@@ -51,13 +53,13 @@ func (cm *ConnectionManager) GetClientRoom(clientID string) (string, bool) {
 	return "", false
 }
 
-func (cm *ConnectionManager) Unregister(clientID string) {
+func (cm *ConnectionManager) Unregister(clientID uuid.UUID) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	delete(cm.clients, clientID)
 }
 
-func (cm *ConnectionManager) GetConn(clientID string) (net.Conn, bool) {
+func (cm *ConnectionManager) GetConn(clientID uuid.UUID) (net.Conn, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	if client, ok := cm.clients[clientID]; ok {
