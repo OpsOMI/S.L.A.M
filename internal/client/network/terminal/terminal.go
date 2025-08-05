@@ -7,17 +7,23 @@ import (
 	"strings"
 	"time"
 
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"golang.org/x/term"
 )
 
 type Terminal struct {
 	reader    *bufio.Reader
-	messages  []string
+	messages  []Messages
 	output    Notification
 	label     string
 	connected bool
 	height    int
 	width     int
+}
+
+type Messages struct {
+	SenderNickname string
+	Content        string
 }
 
 type Notification struct {
@@ -34,7 +40,7 @@ func NewTerminal() *Terminal {
 
 	return &Terminal{
 		reader:    bufio.NewReader(os.Stdin),
-		messages:  []string{},
+		messages:  make([]Messages, 0),
 		connected: true,
 		height:    height,
 		width:     width,
@@ -67,13 +73,16 @@ func (t *Terminal) Render() {
 	// Start messages
 	msgStartRow := 3
 	maxMessages := t.height - msgStartRow - 2
-	if len(t.messages) > maxMessages {
-		t.messages = t.messages[len(t.messages)-maxMessages:]
-	}
 
-	for i, msg := range t.messages {
+	start := 0
+	if len(t.messages) > maxMessages {
+		start = len(t.messages) - maxMessages
+	}
+	visibleMessages := t.messages[start:]
+
+	for i, message := range visibleMessages {
 		t.moveCursor(msgStartRow+i, 1)
-		fmt.Print(msg)
+		fmt.Print(message.SenderNickname + ": " + message.Content)
 	}
 
 	// Print outputMessage (error or notification) on line above prompt (height-1)
@@ -95,9 +104,6 @@ func (t *Terminal) Render() {
 }
 
 func (t *Terminal) Prompt() (string, error) {
-	t.moveCursor(t.height, 1)
-	fmt.Print(t.label)
-
 	input, err := t.reader.ReadString('\n')
 	if err != nil {
 		return "", err
@@ -112,10 +118,21 @@ func (t *Terminal) SetConnected(status bool) {
 	t.Render()
 }
 
+func (t *Terminal) SetMessages(messages *message.MessagesReps) {
+	t.messages = nil
+	for _, m := range messages.Items {
+		t.messages = append(t.messages, Messages{
+			SenderNickname: m.SenderNickname,
+			Content:        m.Content,
+		})
+	}
+	t.Render()
+}
+
 func (t *Terminal) SetPromptLabel(label, nickname string) {
 	var promptLabel string
 	if nickname != "" {
-		promptLabel = "\033[31m[" + nickname + "]\033[0m " + label + ""
+		promptLabel = "\033[31m[" + nickname + "]\033[0m " + label + " "
 	} else {
 		promptLabel = "\033[34m[Unknown]\033[0m " + label + " "
 	}
@@ -136,13 +153,11 @@ func (t *Terminal) ClearOutput() {
 }
 
 // Prints
-func (t *Terminal) PrintMessage(msg string) {
-	t.messages = append(t.messages, msg)
-	// Crop messages if they exceed available screen space (height - 2 lines for error + prompt)
-	maxMessages := t.height - 2
-	if len(t.messages) > maxMessages {
-		t.messages = t.messages[len(t.messages)-maxMessages:]
-	}
+func (t *Terminal) PrintMessage(nickname, content string) {
+	t.messages = append(t.messages, Messages{
+		SenderNickname: nickname,
+		Content:        content,
+	})
 	t.Render()
 }
 
@@ -160,6 +175,7 @@ func (t *Terminal) PrintError(msg string) {
 func (t *Terminal) PrintNotification(msg string) {
 	t.output.Message = msg
 	t.output.Code = "info"
+	fmt.Println("printedNotification")
 	t.Render()
 
 	go func() {

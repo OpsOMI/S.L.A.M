@@ -6,6 +6,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router/owner"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/router/private"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router/public"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
@@ -13,8 +14,9 @@ import (
 )
 
 type Router struct {
-	public public.Router
-	owner  owner.Router
+	public  public.Router
+	private private.Router
+	owner   owner.Router
 }
 
 func NewRouter(
@@ -27,6 +29,11 @@ func NewRouter(
 		store,
 		api,
 	)
+	private := private.NewRouter(
+		terminal,
+		store,
+		api,
+	)
 	owner := owner.NewRouter(
 		terminal,
 		store,
@@ -34,8 +41,9 @@ func NewRouter(
 	)
 
 	return Router{
-		public: public,
-		owner:  owner,
+		public:  public,
+		private: private,
+		owner:   owner,
 	}
 }
 
@@ -48,6 +56,9 @@ func (r *Router) Route(
 
 	if r.public.Supports(command.Name) {
 		return r.public.Route(command, &req)
+	}
+	if r.private.Supports(command.Name) {
+		return r.private.Route(command, &req)
 	}
 	if r.owner.Supports(command.Name) {
 		return r.owner.Route(command, &req)

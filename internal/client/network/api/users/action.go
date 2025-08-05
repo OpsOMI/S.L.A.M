@@ -9,6 +9,8 @@ import (
 
 	"golang.org/x/term"
 
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/users"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
@@ -139,4 +141,50 @@ func (s *module) Register(
 	}
 
 	return data.ID, nil
+}
+
+func (s *module) Join(
+	req *request.ClientRequest,
+	roomCode string,
+) (*message.MessagesReps, error) {
+	roomCode = strings.TrimSpace(roomCode)
+
+	payload := rooms.JoinReq{
+		RoomCode: roomCode,
+	}
+
+	// Encode payload to JSON
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode payload: %w", err)
+	}
+
+	// Set payload into request and send
+	req.Payload = payloadBytes
+	if err := request.Send(s.conn, req); err != nil {
+		return nil, fmt.Errorf("failed to send register message: %w", err)
+	}
+
+	// Read response from server
+	resp, err := response.Read(s.conn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read register response: %w", err)
+	}
+
+	baseResp := resp
+	if baseResp.Code != "OK" {
+		return nil, fmt.Errorf("server error: %s", baseResp.Message)
+	}
+
+	dataBytes, err := json.Marshal(baseResp.Data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to re-marshal login response data: %w", err)
+	}
+
+	var data message.MessagesReps
+	if err := json.Unmarshal(dataBytes, &data); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal login response data: %w", err)
+	}
+
+	return &data, nil
 }

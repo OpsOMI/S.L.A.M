@@ -1,4 +1,4 @@
-package clients
+package rooms
 
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/postgres/sqlc/pgqueries"
@@ -6,26 +6,27 @@ import (
 	"github.com/google/uuid"
 )
 
-type IClientsMapper interface {
+type IRoomsMapper interface {
 	One(
-		dbModel *pgqueries.Client,
-	) *Client
+		dbModel *pgqueries.Room,
+	) *Room
 
 	Many(
-		dbModels []pgqueries.Client,
+		dbModels []pgqueries.Room,
 		count int64,
-	) *Clients
+	) *Rooms
 
-	CreateClient(
-		userID, clientKey uuid.UUID,
-	) pgqueries.CreateClientParams
+	CreateParams(
+		ownerID uuid.UUID,
+		code string,
+	) pgqueries.CreateRoomParams
 }
 
 type mapper struct {
 	utils utils.IUtilMapper
 }
 
-// NewMapper creates a new instance of userAuthMapper.
+// NewMapper creates a new instance of rooms mapper.
 func NewMapper(
 	utils utils.IUtilMapper,
 ) *mapper {
@@ -35,40 +36,41 @@ func NewMapper(
 }
 
 func (m *mapper) One(
-	dbModel *pgqueries.Client,
-) *Client {
+	dbModel *pgqueries.Room,
+) *Room {
 	if dbModel == nil {
 		return nil
 	}
 
-	return &Client{
+	return &Room{
 		ID:        dbModel.ID,
-		ClientKey: dbModel.ClientKey,
-		RevokedAt: &dbModel.RevokedAt.Time,
+		OwnerID:   dbModel.OwnerID,
+		Code:      dbModel.Code,
 		CreatedAt: dbModel.CreatedAt.Time,
 	}
 }
 
 func (m *mapper) Many(
-	dbModels []pgqueries.Client,
+	dbModels []pgqueries.Room,
 	count int64,
-) *Clients {
-	var appModels []Client
+) *Rooms {
+	var appModels []Room
 	for _, dbModel := range dbModels {
 		appModels = append(appModels, *m.One(&dbModel))
 	}
 
-	return &Clients{
+	return &Rooms{
 		Items:      appModels,
 		TotalCount: count,
 	}
 }
 
-func (m *mapper) CreateClient(
-	userID, clientKey uuid.UUID,
-) pgqueries.CreateClientParams {
-	return pgqueries.CreateClientParams{
-		UserID:    userID,
-		ClientKey: clientKey,
+func (m *mapper) CreateParams(
+	ownerID uuid.UUID,
+	code string,
+) pgqueries.CreateRoomParams {
+	return pgqueries.CreateRoomParams{
+		OwnerID: ownerID,
+		Code:    code,
 	}
 }

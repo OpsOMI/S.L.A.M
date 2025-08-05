@@ -1,0 +1,17 @@
+package messages
+
+const (
+	// Repository Errors
+	ErrFetchFailed    = "messages.fetch_failed"
+	ErrCountFailed    = "messages.count_failed"
+	ErrLoginFailed    = "messages.login_failed"
+	ErrCreateFailed   = "messages.create_failed"
+	ErrUpdateFailed   = "messages.update_failed"
+	ErrDeleteFailed   = "messages.delete_failed"
+	ErrIsExistsFailed = "messages.exists_check_failed"
+	ErrNotFound       = "messages.not_found"
+
+	// Domain Errors
+	ErrSenderIDRequired        = "messages.sender_id_required"
+	ErrReciverOrRoomIDRequired = "messages.reciver_or_room_id_required"
+)

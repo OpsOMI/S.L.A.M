@@ -3,6 +3,7 @@ package users
 import (
 	"net"
 
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 	"github.com/google/uuid"
 )
@@ -15,6 +16,11 @@ type IUserModule interface {
 	Register(
 		req *request.ClientRequest,
 	) (uuid.UUID, error)
+
+	Join(
+		req *request.ClientRequest,
+		roomCode string,
+	) (*message.MessagesReps, error)
 }
 
 type module struct {

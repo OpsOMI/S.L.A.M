@@ -9,11 +9,9 @@ SELECT * FROM rooms WHERE owner_id = @owner_id ORDER BY created_at DESC;
 
 -- name: CreateRoom :one
 INSERT INTO rooms (
-    id,
     owner_id,
     code
 ) VALUES (
-    @id,
     @owner_id,
     @code
 )
@@ -21,6 +19,9 @@ RETURNING id;
 
 -- name: DeleteRoomByID :exec
 DELETE FROM rooms WHERE id = @id;
+
+-- name: CountRoomsByOwnerID :one
+SELECT COUNT(*) FROM rooms WHERE owner_id = @owner_id;
 
 -- name: IsRoomExistByID :one
 SELECT EXISTS (
