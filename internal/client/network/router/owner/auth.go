@@ -15,8 +15,12 @@ func (r *Router) HandleRegister(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
-	fmt.Println(req, "Request")
-	fmt.Println(cmd, "Command")
+	id, err := r.api.Users().Register(req)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(id, "SADA")
 
 	return nil
 }

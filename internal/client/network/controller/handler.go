@@ -29,7 +29,7 @@ func NewController(
 	parser := parser.NewParser()
 	api := api.NewAPI(conn, logger)
 	store := store.NewSessionStore()
-	router := router.NewRouter(api, store)
+	router := router.NewRouter(api, store, terminal)
 
 	return &Controller{
 		conn:     conn,

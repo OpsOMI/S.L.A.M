@@ -8,6 +8,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router/owner"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router/public"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
@@ -19,12 +20,14 @@ type Router struct {
 func NewRouter(
 	api api.IAPI,
 	store *store.SessionStore,
+	terminal *terminal.Terminal,
 ) Router {
 	public := public.NewRouter(
 		store,
 		api,
 	)
 	owner := owner.NewRouter(
+		terminal,
 		store,
 		api,
 	)
