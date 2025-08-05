@@ -77,6 +77,9 @@ func (m *manager) ValidateToken(tokenStr *string) (*store.Claims, error) {
 	if tokenStr == nil {
 		return nil, response.Response(commons.StatusUnauthorized, "JWT token is required", nil)
 	}
+	if *tokenStr == "" {
+		return nil, response.Response(commons.StatusUnauthorized, "Unauthorized", nil)
+	}
 
 	token, err := jwt.ParseWithClaims(*tokenStr, &store.Claims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
