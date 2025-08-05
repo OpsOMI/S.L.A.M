@@ -11,27 +11,35 @@ import (
 	"github.com/google/uuid"
 )
 
+const countRoomsByOwnerID = `-- name: CountRoomsByOwnerID :one
+SELECT COUNT(*) FROM rooms WHERE owner_id = $1
+`
+
+func (q *Queries) CountRoomsByOwnerID(ctx context.Context, ownerID uuid.UUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countRoomsByOwnerID, ownerID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createRoom = `-- name: CreateRoom :one
 INSERT INTO rooms (
-    id,
     owner_id,
     code
 ) VALUES (
     $1,
-    $2,
-    $3
+    $2
 )
 RETURNING id
 `
 
 type CreateRoomParams struct {
-	ID      uuid.UUID
 	OwnerID uuid.UUID
 	Code    string
 }
 
 func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, createRoom, arg.ID, arg.OwnerID, arg.Code)
+	row := q.db.QueryRowContext(ctx, createRoom, arg.OwnerID, arg.Code)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
