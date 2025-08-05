@@ -23,6 +23,7 @@ func NewRouter(
 	terminal *terminal.Terminal,
 ) Router {
 	public := public.NewRouter(
+		terminal,
 		store,
 		api,
 	)

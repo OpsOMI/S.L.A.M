@@ -13,9 +13,9 @@ import (
 
 type Router struct {
 	api      api.IAPI
+	terminal *terminal.Terminal
 	store    *store.SessionStore
 	routes   map[string]types.RouteFunc
-	terminal *terminal.Terminal
 }
 
 func NewRouter(

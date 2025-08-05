@@ -5,16 +5,23 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"golang.org/x/term"
 )
 
 type Terminal struct {
-	reader       *bufio.Reader
-	messages     []string
-	errorMessage string // single error message shown above prompt
-	height       int
-	width        int
+	reader      *bufio.Reader
+	messages    []string
+	output      Notification
+	promptLabel string
+	height      int
+	width       int
+}
+
+type Notification struct {
+	Code    string // Error, Information
+	Message string
 }
 
 func NewTerminal() *Terminal {
@@ -32,82 +39,52 @@ func NewTerminal() *Terminal {
 	}
 }
 
-func (t *Terminal) ClearScreen() {
-	fmt.Print("\033[2J") // Clear entire screen
-	fmt.Print("\033[H")  // Move cursor to top-left
-}
-
 func (t *Terminal) moveCursor(row, col int) {
 	fmt.Printf("\033[%d;%dH", row, col)
 }
 
-func (t *Terminal) PrintMessage(msg string) {
-	t.messages = append(t.messages, msg)
-	// Crop messages if they exceed available screen space (height - 2 lines for error + prompt)
-	maxMessages := t.height - 2
-	if len(t.messages) > maxMessages {
-		t.messages = t.messages[len(t.messages)-maxMessages:]
-	}
-	t.render()
-}
-
-func (t *Terminal) PrintError(msg string) {
-	t.errorMessage = "\033[31m" + msg + "\033[0m" // red colored error message
-	t.render()
-}
-
-func (t *Terminal) ClearError() {
-	t.errorMessage = ""
-	t.render()
-}
-
-func (t *Terminal) render() {
+func (t *Terminal) Render() {
 	t.ClearScreen()
 
-	// Center the welcome message horizontally on the top row (row=1)
+	// Welcome message
 	welcome := "Welcome to S.L.A.M Client"
 	col := max((t.width-len(welcome))/2, 1)
-
-	// Move cursor to top row and centered column, then print welcome message
 	t.moveCursor(1, col)
 	fmt.Print(welcome)
 
-	// Start printing messages from row 3 to leave space for the welcome banner
+	// Start messages
 	msgStartRow := 3
-
-	// Calculate max number of messages that fit in remaining space
-	maxMessages := t.height - msgStartRow - 2 // reserving 2 lines for error message and prompt
-
-	// Crop old messages if there are too many to fit the screen
+	maxMessages := t.height - msgStartRow - 2
 	if len(t.messages) > maxMessages {
 		t.messages = t.messages[len(t.messages)-maxMessages:]
 	}
 
-	// Print each message line by line starting at msgStartRow
 	for i, msg := range t.messages {
 		t.moveCursor(msgStartRow+i, 1)
 		fmt.Print(msg)
 	}
 
-	// If an error message exists, print it one line above the prompt (second last line)
-	if t.errorMessage != "" {
+	// Print outputMessage (error or notification) on line above prompt (height-1)
+	if t.output.Message != "" {
 		t.moveCursor(t.height-1, 1)
-		fmt.Print(t.errorMessage)
+
+		if t.output.Code == "error" {
+			fmt.Printf("\033[31m%s\033[0m", t.output.Message)
+		} else {
+			fmt.Printf("\033[32m%s\033[0m", t.output.Message)
+		}
+	}
+
+	// Print prompt at bottom line (this requires promptLabel to be stored)
+	if t.promptLabel != "" {
+		t.moveCursor(t.height, 1)
+		fmt.Print(t.promptLabel)
 	}
 }
 
-func (t *Terminal) Prompt(label, nickname string) (string, error) {
-	t.render()
-
-	var promptLabel string
-	if nickname != "" {
-		promptLabel = "\033[31m[" + nickname + "]\033[0m " + label
-	} else {
-		promptLabel = "\033[34m[Unknown]\033[0m " + label
-	}
-
+func (t *Terminal) Prompt() (string, error) {
 	t.moveCursor(t.height, 1)
-	fmt.Print(promptLabel)
+	fmt.Print(t.promptLabel)
 
 	input, err := t.reader.ReadString('\n')
 	if err != nil {
@@ -115,4 +92,61 @@ func (t *Terminal) Prompt(label, nickname string) (string, error) {
 	}
 
 	return strings.TrimSpace(input), nil
+}
+
+// Setter
+func (t *Terminal) SetPromptLabel(label, nickname string) {
+	var promptLabel string
+	if nickname != "" {
+		promptLabel = "\033[31m[" + nickname + "]\033[0m " + label + ""
+	} else {
+		promptLabel = "\033[34m[Unknown]\033[0m " + label + " "
+	}
+
+	t.promptLabel = promptLabel
+}
+
+// Clears
+func (t *Terminal) ClearScreen() {
+	fmt.Print("\033[2J") // Clear entire screen
+	fmt.Print("\033[H")  // Move cursor to top-left
+}
+
+func (t *Terminal) ClearOutput() {
+	t.output.Code = ""
+	t.output.Message = ""
+	t.Render()
+}
+
+// Prints
+func (t *Terminal) PrintMessage(msg string) {
+	t.messages = append(t.messages, msg)
+	// Crop messages if they exceed available screen space (height - 2 lines for error + prompt)
+	maxMessages := t.height - 2
+	if len(t.messages) > maxMessages {
+		t.messages = t.messages[len(t.messages)-maxMessages:]
+	}
+	t.Render()
+}
+
+func (t *Terminal) PrintError(msg string) {
+	t.output.Message = msg
+	t.output.Code = "error"
+	t.Render()
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		t.ClearOutput()
+	}()
+}
+
+func (t *Terminal) PrintNotification(msg string) {
+	t.output.Message = msg
+	t.output.Code = "info"
+	t.Render()
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		t.ClearOutput()
+	}()
 }

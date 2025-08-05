@@ -42,8 +42,11 @@ func NewController(
 }
 
 func (c *Controller) Run() {
+	c.terminal.Render()
+
 	for {
-		input, err := c.terminal.Prompt("-> ", c.store.Nickname)
+		c.terminal.SetPromptLabel("->", c.store.Nickname)
+		input, err := c.terminal.Prompt()
 		if err != nil {
 			c.logger.Error("Error reading input: " + err.Error())
 			continue
@@ -56,7 +59,7 @@ func (c *Controller) Run() {
 
 		if input == "clear" {
 			c.terminal.ClearScreen()
-			c.terminal.ClearError()
+			c.terminal.ClearOutput()
 			continue
 		}
 

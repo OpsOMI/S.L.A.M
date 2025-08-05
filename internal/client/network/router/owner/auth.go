@@ -1,8 +1,6 @@
 package owner
 
 import (
-	"fmt"
-
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
@@ -20,7 +18,7 @@ func (r *Router) HandleRegister(
 		return err
 	}
 
-	fmt.Println(id, "SADA")
+	r.terminal.PrintNotification("New User Created: " + id.String())
 
 	return nil
 }
