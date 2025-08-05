@@ -10,7 +10,7 @@ type BaseResponse struct {
 	Message string `json:"message"`
 	Code    string `json:"code"`
 	Errors  any    `json:"errors,omitempty"`
-	Data    any    `json:"details,omitempty"`
+	Data    any    `json:"data,omitempty"`
 }
 
 // Error implements the error interface for BaseResponse.

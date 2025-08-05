@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
-	"github.com/OpsOMI/S.L.A.M/internal/server/network/mappers/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/users"
 )
 
 func (p *Controller) InitAuthRoutes() {
@@ -37,5 +37,5 @@ func (p *Controller) HandleLogin(
 		return err
 	}
 
-	return response.Response(commons.StatusOK, "Login successful", jwt)
+	return response.Response(commons.StatusOK, "Login successful", users.ToLoginResponse(jwt))
 }

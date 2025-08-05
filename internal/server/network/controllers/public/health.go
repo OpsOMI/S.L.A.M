@@ -9,7 +9,6 @@ import (
 )
 
 func (p *Controller) InitHealthRoutes() {
-	p.routes["/ping"] = p.HandlePing
 	p.routes["/"] = p.HandleRoot
 }
 
@@ -19,12 +18,4 @@ func (p *Controller) HandleRoot(
 	jwtToken *string,
 ) error {
 	return response.Response(commons.StatusOK, "Welcome To The Public Controller", nil)
-}
-
-func (p *Controller) HandlePing(
-	conn net.Conn,
-	args json.RawMessage,
-	jwtToken *string,
-) error {
-	return response.Response(commons.StatusOK, "PONG", nil)
 }
