@@ -21,13 +21,17 @@ func NewConnectionManager() *ConnectionManager {
 	}
 }
 
-func (cm *ConnectionManager) Register(clientID string, conn net.Conn) {
+func (cm *ConnectionManager) Register(
+	clientID string,
+	conn net.Conn,
+) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	cm.clients[clientID] = &ClientInfo{
 		Conn:   conn,
 		RoomID: "",
 	}
+
 }
 
 func (cm *ConnectionManager) SetClientRoom(clientID, roomID string) {

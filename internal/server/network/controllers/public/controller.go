@@ -6,6 +6,7 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
+	"github.com/OpsOMI/S.L.A.M/internal/server/infrastructure/connection"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/types"
@@ -13,22 +14,25 @@ import (
 )
 
 type Controller struct {
-	logger   logger.ILogger
-	routes   map[string]types.HandlerFunc
-	store    store.IJwtManager
-	services services.IServices
+	logger     logger.ILogger
+	routes     map[string]types.HandlerFunc
+	store      store.IJwtManager
+	services   services.IServices
+	connecions *connection.ConnectionManager
 }
 
 func NewController(
 	logger logger.ILogger,
 	store store.IJwtManager,
 	services services.IServices,
+	connections *connection.ConnectionManager,
 ) *Controller {
 	pc := &Controller{
-		logger:   logger,
-		routes:   make(map[string]types.HandlerFunc),
-		store:    store,
-		services: services,
+		logger:     logger,
+		routes:     make(map[string]types.HandlerFunc),
+		store:      store,
+		services:   services,
+		connecions: connections,
 	}
 
 	pc.InitHealthRoutes()

@@ -23,7 +23,7 @@ type Controller struct {
 	logger      logger.ILogger
 	config      config.Configs
 	store       store.IJwtManager
-	connmanager *connection.ConnectionManager
+	connections *connection.ConnectionManager
 }
 
 func NewController(
@@ -32,20 +32,20 @@ func NewController(
 	config config.Configs,
 ) *Controller {
 	tokenstore := store.NewManager(config.Server.Jwt.Issuer, config.Server.Jwt.Secret)
-	connmanager := connection.NewConnectionManager()
+	connections := connection.NewConnectionManager()
 
 	return &Controller{
 		listener:    listener,
 		logger:      logger,
 		config:      config,
 		store:       tokenstore,
-		connmanager: connmanager,
+		connections: connections,
 	}
 }
 func (c *Controller) Start(
 	services services.IServices,
 ) error {
-	public := public.NewController(c.logger, c.store, services)
+	public := public.NewController(c.logger, c.store, services, c.connections)
 	private := private.NewController(c.logger, c.store, services)
 	owner := owner.NewController(c.logger, c.store, services)
 

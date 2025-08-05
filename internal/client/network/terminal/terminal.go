@@ -115,7 +115,7 @@ func (t *Terminal) SetConnected(status bool) {
 func (t *Terminal) SetPromptLabel(label, nickname string) {
 	var promptLabel string
 	if nickname != "" {
-		promptLabel = "\033[31m[" + nickname + "]\033[0m " + label + ""
+		promptLabel = "\033[31m[" + nickname + "]\033[0m " + label + " "
 	} else {
 		promptLabel = "\033[34m[Unknown]\033[0m " + label + " "
 	}
