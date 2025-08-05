@@ -14,7 +14,4 @@ const (
 	// Domain Errors
 	ErrOwnerIDRequired  = "rooms.owner_id_required"
 	ErrRoomCodeRequired = "rooms.room_code_required"
-
-	// Service Errors
-	ErrRoomCodeAlreadyBeingUsed = "rooms.room_code_already_being_used"
 )

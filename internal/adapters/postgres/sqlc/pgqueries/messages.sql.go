@@ -12,6 +12,57 @@ import (
 	"github.com/google/uuid"
 )
 
+const countMessagesByRoomCode = `-- name: CountMessagesByRoomCode :one
+SELECT
+    COUNT(*)
+FROM
+    messages AS m
+JOIN users AS s ON m.sender_id = s.id
+JOIN rooms AS r ON m.room_id = r.id
+WHERE
+    r.code = $1
+ORDER BY
+    m.created_at ASC
+`
+
+func (q *Queries) CountMessagesByRoomCode(ctx context.Context, roomCode string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countMessagesByRoomCode, roomCode)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const createMessage = `-- name: CreateMessage :exec
+INSERT INTO messages (
+    sender_id,
+    receiver_id,
+    room_id,
+    content_enc
+) VALUES (
+    $1,
+    $2,
+    $3,
+    $4
+)
+`
+
+type CreateMessageParams struct {
+	SenderID   uuid.UUID
+	ReceiverID uuid.NullUUID
+	RoomID     uuid.NullUUID
+	Content    string
+}
+
+func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) error {
+	_, err := q.db.ExecContext(ctx, createMessage,
+		arg.SenderID,
+		arg.ReceiverID,
+		arg.RoomID,
+		arg.Content,
+	)
+	return err
+}
+
 const getMessagesByReceiver = `-- name: GetMessagesByReceiver :many
 SELECT
     s.nickname AS sender_nickname,
@@ -43,6 +94,48 @@ func (q *Queries) GetMessagesByReceiver(ctx context.Context, receiverID uuid.UUI
 	for rows.Next() {
 		var i GetMessagesByReceiverRow
 		if err := rows.Scan(&i.SenderNickname, &i.RoomCode, &i.ContentEnc); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMessagesByRoomCode = `-- name: GetMessagesByRoomCode :many
+SELECT
+    s.nickname AS sender_nickname,
+    m.content_enc
+FROM
+    messages AS m
+JOIN users AS s ON m.sender_id = s.id
+JOIN rooms AS r ON m.room_id = r.id
+WHERE
+    r.code = $1
+ORDER BY
+    m.created_at ASC
+`
+
+type GetMessagesByRoomCodeRow struct {
+	SenderNickname string
+	ContentEnc     string
+}
+
+func (q *Queries) GetMessagesByRoomCode(ctx context.Context, roomCode string) ([]GetMessagesByRoomCodeRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMessagesByRoomCode, roomCode)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMessagesByRoomCodeRow
+	for rows.Next() {
+		var i GetMessagesByRoomCodeRow
+		if err := rows.Scan(&i.SenderNickname, &i.ContentEnc); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
