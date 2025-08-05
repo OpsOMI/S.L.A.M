@@ -46,6 +46,4 @@ FROM
 JOIN users AS s ON m.sender_id = s.id
 JOIN rooms AS r ON m.room_id = r.id
 WHERE
-    r.code = @room_code
-ORDER BY
-    m.created_at ASC;
+    r.code = @room_code;

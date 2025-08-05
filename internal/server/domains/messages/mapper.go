@@ -52,8 +52,8 @@ func (m *mapper) One(dbModel *pgqueries.Message) *Message {
 	return &Message{
 		ID:         dbModel.ID,
 		SenderID:   dbModel.SenderID,
-		ReceiverID: dbModel.ReceiverID,
-		RoomID:     dbModel.RoomID,
+		ReceiverID: dbModel.ReceiverID.UUID,
+		RoomID:     dbModel.RoomID.UUID,
 		ContentEnc: dbModel.ContentEnc,
 		CreatedAt:  dbModel.CreatedAt.Time,
 	}

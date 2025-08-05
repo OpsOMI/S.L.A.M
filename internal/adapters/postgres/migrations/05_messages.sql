@@ -3,8 +3,8 @@
 CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     sender_id UUID NOT NULL,
-    receiver_id UUID NOT NULL,
-    room_id UUID NOT NULL,
+    receiver_id UUID DEFAULT NULL,
+    room_id UUID DEFAULT NULL,
     content_enc TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 

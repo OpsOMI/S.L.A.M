@@ -21,8 +21,6 @@ JOIN users AS s ON m.sender_id = s.id
 JOIN rooms AS r ON m.room_id = r.id
 WHERE
     r.code = $1
-ORDER BY
-    m.created_at ASC
 `
 
 func (q *Queries) CountMessagesByRoomCode(ctx context.Context, roomCode string) (int64, error) {
@@ -84,7 +82,7 @@ type GetMessagesByReceiverRow struct {
 	ContentEnc     string
 }
 
-func (q *Queries) GetMessagesByReceiver(ctx context.Context, receiverID uuid.UUID) ([]GetMessagesByReceiverRow, error) {
+func (q *Queries) GetMessagesByReceiver(ctx context.Context, receiverID uuid.NullUUID) ([]GetMessagesByReceiverRow, error) {
 	rows, err := q.db.QueryContext(ctx, getMessagesByReceiver, receiverID)
 	if err != nil {
 		return nil, err

@@ -45,6 +45,7 @@ func NewController(
 func (c *Controller) Run() {
 	c.terminal.Render()
 	c.terminal.SetConnected(c.conn != nil)
+	c.terminal.ClearScreen()
 
 	for {
 		if !c.checkConnection() {
@@ -58,40 +59,40 @@ func (c *Controller) Run() {
 		}
 
 		c.terminal.SetPromptLabel("->", c.store.Nickname)
+
+		c.terminal.Render()
+
 		input, err := c.terminal.Prompt()
 		if err != nil {
 			c.logger.Error("Error reading input: " + err.Error())
 			continue
 		}
 
-		if input == "exit" || input == "quit" {
+		switch {
+		case input == "exit" || input == "quit":
 			c.logger.Info("User exited the client.")
-			break
-		}
+			return
 
-		if input == "clear" {
+		case input == "clear":
 			c.terminal.ClearScreen()
-			c.terminal.ClearOutput()
 			continue
-		}
 
-		if strings.HasPrefix(input, "/") {
-			// This is where the clients trying commands.
+		case strings.HasPrefix(input, "/"):
 			command, err := c.parser.Parse(input)
 			if err != nil {
-				c.logger.Warn("Invalid command syntax, ignoring parse error: " + err.Error())
+				c.logger.Warn("Invalid command syntax: " + err.Error())
+				c.terminal.PrintError("Invalid command syntax.")
 				continue
 			}
 
 			if err := c.router.Route(command); err != nil {
 				c.terminal.PrintError(err.Error())
 			}
-		} else {
-			// This is where the client trying to send a message to another client.
-			// IN THE BACKGROUND WE WILL READ MSG FROM SERVER. THIS MESSAGES WILL ADDED TO THE TERMINAL
-			// THIS IS WHERE THE CHAT IS GOING TO HAPPEN
-			// NEED MESSAGE STRUCT! SENDER NICKNAME + CONENT
-			c.terminal.PrintMessage(input) // This is for know. This messages will recived from db.
+
+		default:
+			if input != "" {
+				c.terminal.PrintMessage("You", input)
+			}
 		}
 	}
 }

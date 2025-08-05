@@ -29,7 +29,6 @@ func NewRouter(
 		terminal: terminal,
 		routes:   make(map[string]types.RouteFunc),
 	}
-
 	r.RoomRoutes()
 
 	return r

@@ -24,7 +24,7 @@ func (r *Router) HandleJoin(
 		return err
 	}
 
-	fmt.Println(messages, "2132131232132132131232112")
+	r.terminal.SetMessages(messages)
 	r.terminal.PrintNotification("Joined Successfully: " + cmd.Args[0])
 
 	return nil
