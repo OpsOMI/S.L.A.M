@@ -134,8 +134,10 @@ func (c *Controller) Run() {
 					JwtToken: c.store.JWT,
 					Scope:    "private",
 					Command:  "/send",
-				}, input); err != nil {
+				}, input,
+				); err != nil {
 					c.logger.Warn("Send Message Error: " + err.Error())
+					c.terminal.PrintError(err.Error())
 				}
 
 				if c.store.GetRoom() != "" {
