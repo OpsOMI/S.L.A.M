@@ -30,7 +30,7 @@ func (p *Controller) HandleJoin(
 		return nil
 	}
 
-	room, err := p.services.Rooms().GetByCode(ctx, req.RoomCode)
+	room, err := p.services.Rooms().JoinRoom(ctx, req.RoomCode, req.Password)
 	if err != nil {
 		return err
 	}
@@ -64,42 +64,12 @@ func (p *Controller) HandleMessage(
 		return response.Response(commons.StatusBadRequest, "Enter a Room/Chat First", nil)
 	}
 
-	receiverFullInfo, isRoom, err := p.services.Rooms().IsIsRoomOrDirectChat(ctx, chatRoom)
+	room, err := p.services.Rooms().GetByCode(ctx, chatRoom)
 	if err != nil {
-		p.logger.Error("Failed to determine room or direct chat: " + err.Error())
 		return err
 	}
 
-	if !isRoom {
-		receiverConn, ok := p.connections.GetConn(receiverFullInfo.Clients.ClientKey)
-		if !ok {
-			p.logger.Info("Receiver client is not online. Message will be saved to DB.")
-
-			// Direct Chat Message
-			if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), receiverFullInfo.ID.String(), "", req.Content); err != nil {
-				p.logger.Error("Failed to save direct message: " + err.Error())
-				return err
-			}
-
-			return response.Response(commons.StatusOK, "Message Saved", nil)
-		}
-
-		request.Send(receiverConn, message.MessageResp{
-			RoomCode:       receiverFullInfo.PrivateCode,
-			SenderNickname: userInfo.Nickname,
-			Content:        req.Content,
-		})
-
-		// Direct Chat Message
-		if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), receiverFullInfo.ID.String(), "", req.Content); err != nil {
-			p.logger.Error("Failed to save direct message: " + err.Error())
-			return err
-		}
-
-		return response.Response(commons.StatusOK, "Direct Message Sent!", nil)
-	}
-
-	connections, ok := p.connections.GetConnectionsByRoomCode(chatRoom)
+	connections, ok := p.connections.GetConnectionsByRoomCode(room.Code)
 	if !ok {
 		p.logger.Info("No active clients in room. Message will be saved to DB.")
 

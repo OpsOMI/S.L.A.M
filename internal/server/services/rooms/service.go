@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
-	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/clients"
 	userservice "github.com/OpsOMI/S.L.A.M/internal/server/services/users"
@@ -48,10 +47,10 @@ type IRoomService interface {
 		ownerID string,
 	) (*bool, error)
 
-	IsIsRoomOrDirectChat(
+	JoinRoom(
 		ctx context.Context,
-		roomOrUserCode string,
-	) (*users.User, bool, error)
+		code, password string,
+	) (*rooms.Room, error)
 }
 
 type service struct {

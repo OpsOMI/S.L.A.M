@@ -16,11 +16,6 @@ type IUserRepository interface {
 		username string,
 	) (*users.User, error)
 
-	GetUserFullInfo(
-		ctx context.Context,
-		privateCode string,
-	) (*users.User, error)
-
 	GetByID(
 		ctx context.Context,
 		id uuid.UUID,
@@ -34,11 +29,6 @@ type IUserRepository interface {
 	GetByNickname(
 		ctx context.Context,
 		nickname string,
-	) (*users.User, error)
-
-	GetByPrivateCode(
-		ctx context.Context,
-		privateCode string,
 	) (*users.User, error)
 
 	CreateUser(
@@ -70,11 +60,6 @@ type IUserRepository interface {
 	IsExistByNickname(
 		ctx context.Context,
 		nickname string,
-	) (*bool, error)
-
-	IsExistByPrivateCode(
-		ctx context.Context,
-		privateCode string,
 	) (*bool, error)
 }
 

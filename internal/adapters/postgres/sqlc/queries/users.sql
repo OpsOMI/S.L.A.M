@@ -7,9 +7,6 @@ SELECT * FROM users WHERE username = @username;
 -- name: GetUserByNickname :one
 SELECT * FROM users WHERE nickname = @nickname;
 
--- name: GetUserByPrivateCode :one
-SELECT * FROM users WHERE private_code = @private_code;
-
 -- name: UserLogin :one
 SELECT
     sqlc.embed(u), sqlc.embed(c)
@@ -19,27 +16,16 @@ INNER JOIN clients AS c ON c.user_id = u.id
 WHERE
     u.username = @username;
 
--- name: GetUserFullInfo :one
-SELECT
-    sqlc.embed(u), sqlc.embed(c)
-FROM
-    users AS u
-INNER JOIN clients AS c ON c.user_id = u.id
-WHERE
-    u.private_code = @private_code;
-
 -- name: CreateUser :one
 INSERT INTO users (
     username,
     password,
     nickname,
-    private_code,
     role
 ) VALUES (
     @username,
     @password,
     @nickname,
-    @private_code,
     @role
 )
 RETURNING id;
@@ -67,9 +53,4 @@ SELECT EXISTS (
 -- name: IsUserExistByNickname :one
 SELECT EXISTS (
     SELECT 1 FROM users WHERE nickname = @nickname
-);
-
--- name: IsUserExistByPrivateCode :one
-SELECT EXISTS (
-    SELECT 1 FROM users WHERE private_code = @private_code
 );

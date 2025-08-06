@@ -16,17 +16,13 @@ type IUsersMapper interface {
 		dbModel *pgqueries.UserLoginRow,
 	) *User
 
-	OneWithPrivateCode(
-		dbModel *pgqueries.GetUserFullInfoRow,
-	) *User
-
 	Many(
 		dbModels []pgqueries.User,
 		count int64,
 	) *Users
 
 	CreateUser(
-		nickname, privateCode, username, password, role string,
+		nickname, username, password, role string,
 	) pgqueries.CreateUserParams
 
 	ChangeNickname(
@@ -58,33 +54,17 @@ func (m *mapper) One(
 	}
 
 	return &User{
-		ID:          dbModel.ID,
-		Role:        dbModel.Role,
-		Username:    dbModel.Username,
-		Password:    dbModel.Password,
-		Nickname:    dbModel.Nickname,
-		PrivateCode: dbModel.PrivateCode,
-		CreatedAt:   dbModel.CreatedAt.Time,
+		ID:        dbModel.ID,
+		Role:      dbModel.Role,
+		Username:  dbModel.Username,
+		Password:  dbModel.Password,
+		Nickname:  dbModel.Nickname,
+		CreatedAt: dbModel.CreatedAt.Time,
 	}
 }
 
 func (m *mapper) OneWithClient(
 	dbModel *pgqueries.UserLoginRow,
-) *User {
-	if dbModel == nil {
-		return nil
-	}
-
-	userModel := m.One(&dbModel.User)
-	clientModel := m.clients.One(&dbModel.Client)
-
-	userModel.Clients = clientModel
-
-	return userModel
-}
-
-func (m *mapper) OneWithPrivateCode(
-	dbModel *pgqueries.GetUserFullInfoRow,
 ) *User {
 	if dbModel == nil {
 		return nil
@@ -114,14 +94,13 @@ func (m *mapper) Many(
 }
 
 func (m *mapper) CreateUser(
-	nickname, privateCode, username, password, role string,
+	nickname, username, password, role string,
 ) pgqueries.CreateUserParams {
 	return pgqueries.CreateUserParams{
-		Nickname:    nickname,
-		PrivateCode: privateCode,
-		Username:    username,
-		Password:    password,
-		Role:        role,
+		Nickname: nickname,
+		Username: username,
+		Password: password,
+		Role:     role,
 	}
 }
 

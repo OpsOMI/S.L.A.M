@@ -68,4 +68,5 @@ func SetupDefaultAdmin(
 		return
 	}
 	log.Infof("[setup] Default owner user created successfully. ID: %v", id)
+
 }

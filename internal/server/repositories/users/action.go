@@ -6,7 +6,6 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/repoerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
-	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/google/uuid"
 )
@@ -23,20 +22,6 @@ func (r *repository) Login(
 		return nil, repoerrors.Internal(users.ErrFetchFailed, err)
 	}
 	return r.mappers.Users().OneWithClient(&dbModel), nil
-}
-
-func (r *repository) GetUserFullInfo(
-	ctx context.Context,
-	privateCode string,
-) (*users.User, error) {
-	dbModel, err := r.queries.GetUserFullInfo(ctx, privateCode)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, repoerrors.NotFound(users.ErrNotFound)
-		}
-		return nil, repoerrors.Internal(users.ErrFetchFailed, err)
-	}
-	return r.mappers.Users().OneWithPrivateCode(&dbModel), nil
 }
 
 func (r *repository) GetByID(
@@ -81,20 +66,6 @@ func (r *repository) GetByNickname(
 	return r.mappers.Users().One(&dbModel), nil
 }
 
-func (r *repository) GetByPrivateCode(
-	ctx context.Context,
-	privateCode string,
-) (*users.User, error) {
-	dbModel, err := r.queries.GetUserByPrivateCode(ctx, privateCode)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, repoerrors.NotFound(users.ErrNotFound)
-		}
-		return nil, repoerrors.Internal(users.ErrFetchFailed, err)
-	}
-	return r.mappers.Users().One(&dbModel), nil
-}
-
 func (r *repository) CreateUser(
 	ctx context.Context,
 	domainModel users.User,
@@ -106,7 +77,6 @@ func (r *repository) CreateUser(
 
 		userParams := r.mappers.Users().CreateUser(
 			domainModel.Nickname,
-			domainModel.PrivateCode,
 			domainModel.Username,
 			domainModel.Password,
 			domainModel.Role,
@@ -122,10 +92,10 @@ func (r *repository) CreateUser(
 			return repoerrors.Internal(clients.ErrCreateFailed, err)
 		}
 
-		roomParams := r.mappers.Rooms().CreateParams(uid, domainModel.PrivateCode)
-		if _, err := qtx.CreateRoom(ctx, roomParams); err != nil {
-			return repoerrors.Internal(rooms.ErrCreateFailed, err)
-		}
+		// roomParams := r.mappers.Rooms().CreateParams(uid, domainModel.PrivateCode)
+		// if _, err := qtx.CreateRoom(ctx, roomParams); err != nil {
+		// 	return repoerrors.Internal(rooms.ErrCreateFailed, err)
+		// }
 		userID = uid
 
 		return nil
@@ -186,17 +156,6 @@ func (r *repository) IsExistByNickname(
 	nickname string,
 ) (*bool, error) {
 	exists, err := r.queries.IsUserExistByNickname(ctx, nickname)
-	if err != nil {
-		return nil, repoerrors.Internal(users.ErrIsExistsFailed, err)
-	}
-	return &exists, nil
-}
-
-func (r *repository) IsExistByPrivateCode(
-	ctx context.Context,
-	privateCode string,
-) (*bool, error) {
-	exists, err := r.queries.IsUserExistByPrivateCode(ctx, privateCode)
 	if err != nil {
 		return nil, repoerrors.Internal(users.ErrIsExistsFailed, err)
 	}

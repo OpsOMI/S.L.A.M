@@ -14,4 +14,8 @@ const (
 	// Domain Errors
 	ErrOwnerIDRequired  = "rooms.owner_id_required"
 	ErrRoomCodeRequired = "rooms.room_code_required"
+
+	// Service Errors
+	ErrPasswordHashFailed = "rooms.password_hash_failed"
+	ErrInvalidCredentials = "rooms.invalid_credentials"
 )

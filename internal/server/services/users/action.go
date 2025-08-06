@@ -32,18 +32,6 @@ func (s *service) Login(
 	return domainModel, nil
 }
 
-func (s *service) FullInfo(
-	ctx context.Context,
-	privateCode string,
-) (*users.User, error) {
-	domainModel, err := s.repositories.Users().GetUserFullInfo(ctx, privateCode)
-	if err != nil {
-		return nil, err
-	}
-
-	return domainModel, nil
-}
-
 func (s *service) GetByID(
 	ctx context.Context,
 	id string,

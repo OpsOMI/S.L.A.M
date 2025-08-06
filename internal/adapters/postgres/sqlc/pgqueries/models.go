@@ -31,21 +31,15 @@ type Room struct {
 	ID        uuid.UUID
 	OwnerID   uuid.UUID
 	Code      string
+	Password  string
 	CreatedAt sql.NullTime
 }
 
-type RoomMember struct {
-	RoomID   uuid.UUID
-	UserID   uuid.UUID
-	JoinedAt sql.NullTime
-}
-
 type User struct {
-	ID          uuid.UUID
-	Username    string
-	Password    string
-	Nickname    string
-	PrivateCode string
-	Role        string
-	CreatedAt   sql.NullTime
+	ID        uuid.UUID
+	Username  string
+	Password  string
+	Nickname  string
+	Role      string
+	CreatedAt sql.NullTime
 }
