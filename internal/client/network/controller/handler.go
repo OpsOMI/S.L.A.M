@@ -65,11 +65,7 @@ func (c *Controller) Run() {
 		for msg := range c.messageChan {
 			roomCode := c.store.GetRoom()
 			if roomCode == msg.RoomCode {
-				nickname := msg.SenderNickname
-				if c.store.Nickname == msg.SenderNickname {
-					nickname = "You"
-				}
-				c.terminal.PrintMessage(nickname, msg.Content)
+				c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
 			}
 		}
 	}()
@@ -179,10 +175,11 @@ func (c *Controller) Reconnect() error {
 	if err != nil {
 		return err
 	}
-
 	c.conn = conn
 
 	api := api.NewAPI(c.conn, c.logger)
+
+	c.api = api
 	c.router = router.NewRouter(api, c.store, c.terminal)
 
 	// if c.conn != nil {
