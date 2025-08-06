@@ -75,4 +75,7 @@ func SetupDefaultAdmin(
 		return
 	}
 	log.Infof("[setup] Default room created successfully. ID: %v", roomID)
+
+	emptyrom, _ := svcs.Rooms().Create(ctx, id.String(), "")
+	log.Infof("[setup] Default room created successfully. ID: %v", emptyrom)
 }

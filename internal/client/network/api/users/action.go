@@ -147,10 +147,19 @@ func (s *module) Join(
 	req *request.ClientRequest,
 	roomCode string,
 ) (*message.MessagesReps, error) {
+	fmt.Print("Password: ")
+	bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read password: %w", err)
+	}
+	fmt.Println()
+
 	roomCode = strings.TrimSpace(roomCode)
+	password := strings.TrimSpace(string(bytePassword))
 
 	payload := rooms.JoinReq{
 		RoomCode: roomCode,
+		Password: password,
 	}
 
 	// Encode payload to JSON

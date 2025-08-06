@@ -27,11 +27,10 @@ func (r *repository) GetMessagesByRoomCode(
 
 func (r *repository) CreateMessage(
 	ctx context.Context,
-	senderID uuid.UUID,
-	receiverID, roomID *uuid.UUID,
+	senderID, roomID uuid.UUID,
 	content string,
 ) error {
-	params := r.mappers.Messages().CreateParams(senderID, receiverID, roomID, content)
+	params := r.mappers.Messages().CreateParams(senderID, roomID, content)
 
 	if err := r.queries.CreateMessage(ctx, params); err != nil {
 		return repoerrors.Internal(messages.ErrCreateFailed, err)

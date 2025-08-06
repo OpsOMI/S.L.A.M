@@ -7,7 +7,6 @@ package pgqueries
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -33,76 +32,24 @@ func (q *Queries) CountMessagesByRoomCode(ctx context.Context, roomCode string) 
 const createMessage = `-- name: CreateMessage :exec
 INSERT INTO messages (
     sender_id,
-    receiver_id,
     room_id,
     content_enc
 ) VALUES (
     $1,
     $2,
-    $3,
-    $4
+    $3
 )
 `
 
 type CreateMessageParams struct {
-	SenderID   uuid.UUID
-	ReceiverID uuid.NullUUID
-	RoomID     uuid.NullUUID
-	Content    string
+	SenderID uuid.UUID
+	RoomID   uuid.UUID
+	Content  string
 }
 
 func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) error {
-	_, err := q.db.ExecContext(ctx, createMessage,
-		arg.SenderID,
-		arg.ReceiverID,
-		arg.RoomID,
-		arg.Content,
-	)
+	_, err := q.db.ExecContext(ctx, createMessage, arg.SenderID, arg.RoomID, arg.Content)
 	return err
-}
-
-const getMessagesByReceiver = `-- name: GetMessagesByReceiver :many
-SELECT
-    s.nickname AS sender_nickname,
-    r.code AS room_code,
-    m.content_enc
-FROM
-    messages AS m
-JOIN users AS s ON m.sender_id = s.id
-LEFT JOIN rooms AS r ON m.room_id = r.id
-WHERE
-    m.receiver_id = $1
-ORDER BY
-    m.created_at ASC
-`
-
-type GetMessagesByReceiverRow struct {
-	SenderNickname string
-	RoomCode       sql.NullString
-	ContentEnc     string
-}
-
-func (q *Queries) GetMessagesByReceiver(ctx context.Context, receiverID uuid.NullUUID) ([]GetMessagesByReceiverRow, error) {
-	rows, err := q.db.QueryContext(ctx, getMessagesByReceiver, receiverID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetMessagesByReceiverRow
-	for rows.Next() {
-		var i GetMessagesByReceiverRow
-		if err := rows.Scan(&i.SenderNickname, &i.RoomCode, &i.ContentEnc); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const getMessagesByRoomCode = `-- name: GetMessagesByRoomCode :many

@@ -48,9 +48,12 @@ func (s *service) Create(
 		return nil, err
 	}
 
-	hashedPassword, err := s.packages.Hasher().HashArgon2(password)
-	if err != nil {
-		return nil, serviceerrors.Internal(rooms.ErrPasswordHashFailed, err)
+	var hashedPassword string
+	if password != "" {
+		hashedPassword, err = s.packages.Hasher().HashArgon2(password)
+		if err != nil {
+			return nil, serviceerrors.Internal(rooms.ErrPasswordHashFailed, err)
+		}
 	}
 
 	roomCode, err := s.packages.Hasher().Generate6CharPrivateCode()

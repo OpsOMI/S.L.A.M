@@ -41,6 +41,12 @@ func (p *Controller) HandleJoin(
 		return err
 	}
 
+	for i := range domainMessages.Items {
+		if domainMessages.Items[i].SenderNickname == userInfo.Nickname {
+			domainMessages.Items[i].SenderNickname = "You"
+		}
+	}
+
 	return response.Response(commons.StatusOK, "Joined Successfully", message.ManyMessage(domainMessages))
 }
 
@@ -73,8 +79,7 @@ func (p *Controller) HandleMessage(
 	if !ok {
 		p.logger.Info("No active clients in room. Message will be saved to DB.")
 
-		// Room Message
-		if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), "", chatRoom, req.Content); err != nil {
+		if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), chatRoom, req.Content); err != nil {
 			p.logger.Error("Failed to save room message: " + err.Error())
 			return err
 		}
@@ -90,8 +95,7 @@ func (p *Controller) HandleMessage(
 		})
 	}
 
-	// Room Message
-	if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), "", chatRoom, req.Content); err != nil {
+	if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), chatRoom, req.Content); err != nil {
 		p.logger.Error("Failed to save room message: " + err.Error())
 		return err
 	}

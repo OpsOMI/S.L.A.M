@@ -19,8 +19,8 @@ type IMessageService interface {
 
 	CreateMessage(
 		ctx context.Context,
-		senderID, receiverID, roomCode string,
-		conent string,
+		senderID, roomCode string,
+		content string,
 	) error
 }
 

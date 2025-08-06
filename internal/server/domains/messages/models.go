@@ -10,7 +10,6 @@ import (
 type Message struct {
 	ID         uuid.UUID
 	SenderID   uuid.UUID
-	ReceiverID uuid.UUID
 	RoomID     uuid.UUID
 	ContentEnc string
 	CreatedAt  time.Time
@@ -32,12 +31,11 @@ type RoomMessages struct {
 }
 
 func New(
-	senderID, receiverID, roomID uuid.UUID,
+	senderID, roomID uuid.UUID,
 	contentEnc string,
 ) Message {
 	return Message{
 		SenderID:   senderID,
-		ReceiverID: receiverID,
 		RoomID:     roomID,
 		ContentEnc: contentEnc,
 	}
@@ -47,8 +45,8 @@ func (m *Message) ValidateCreate() error {
 	if m.SenderID == uuid.Nil {
 		return domainerrors.BadRequest(ErrSenderIDRequired)
 	}
-	if m.ReceiverID == uuid.Nil && m.RoomID == uuid.Nil {
-		return domainerrors.BadRequest(ErrReciverOrRoomIDRequired)
+	if m.RoomID == uuid.Nil {
+		return domainerrors.BadRequest(ErrRoomIDRequired)
 	}
 
 	return nil

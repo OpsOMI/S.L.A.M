@@ -16,7 +16,7 @@ func (r *Router) HandleJoin(
 	req *request.ClientRequest,
 ) error {
 	if len(cmd.Args) != 1 {
-		return fmt.Errorf("Hata")
+		return fmt.Errorf("usage: /join [roomcode]")
 	}
 
 	messages, err := r.api.Users().Join(req, cmd.Args[0])

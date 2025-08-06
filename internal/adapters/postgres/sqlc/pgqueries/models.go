@@ -21,8 +21,7 @@ type Client struct {
 type Message struct {
 	ID         uuid.UUID
 	SenderID   uuid.UUID
-	ReceiverID uuid.NullUUID
-	RoomID     uuid.NullUUID
+	RoomID     uuid.UUID
 	ContentEnc string
 	CreatedAt  sql.NullTime
 }

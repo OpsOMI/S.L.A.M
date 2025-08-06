@@ -12,6 +12,6 @@ const (
 	ErrNotFound       = "messages.not_found"
 
 	// Domain Errors
-	ErrSenderIDRequired        = "messages.sender_id_required"
-	ErrReciverOrRoomIDRequired = "messages.reciver_or_room_id_required"
+	ErrSenderIDRequired = "messages.sender_id_required"
+	ErrRoomIDRequired   = "messages.room_id_required"
 )
