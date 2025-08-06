@@ -48,7 +48,7 @@ func (r *Router) Route(
 		return fmt.Errorf("unauthorized: command %q", command.Name)
 	}
 	r.store.ParseJWT()
-	if r.store.Role != "user" {
+	if r.store.Role != "user" && r.store.Role != "owner" {
 		return fmt.Errorf("unauthorized: command %q", command.Name)
 	}
 	req.Scope = "private"
