@@ -65,9 +65,9 @@ func (c *Controller) Run() {
 	c.messageChan = make(chan message.MessageResp, 100)
 	c.inputChan = make(chan string)
 
-	// if c.conn != nil {
-	// 	c.ListenServerMessages()
-	// }
+	if c.conn != nil {
+		c.ListenServerMessages()
+	}
 
 	go c.handleIncomingMessages()
 
