@@ -5,6 +5,7 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/serviceerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
+	"github.com/google/uuid"
 )
 
 func (s *service) GetByID(
@@ -36,6 +37,33 @@ func (s *service) GetByOwnerID(
 	}
 
 	return s.repositories.Rooms().GetByOwnerID(ctx, uid)
+}
+
+func (s *service) Create(
+	ctx context.Context,
+	ownerID, password string,
+) (*uuid.UUID, error) {
+	owner, err := s.users.GetByID(ctx, ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	hashedPassword, err := s.packages.Hasher().HashArgon2(password)
+	if err != nil {
+		return nil, serviceerrors.Internal(rooms.ErrPasswordHashFailed, err)
+	}
+
+	roomCode, err := s.packages.Hasher().Generate6CharPrivateCode()
+	if err != nil {
+		return nil, serviceerrors.Internal(rooms.ErrCodeGenerateFailed, err)
+	}
+
+	id, err := s.repositories.Rooms().Create(ctx, owner.ID, roomCode, hashedPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return id, nil
 }
 
 func (s *service) DeleteByID(

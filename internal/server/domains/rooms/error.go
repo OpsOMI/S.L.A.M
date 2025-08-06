@@ -18,4 +18,5 @@ const (
 	// Service Errors
 	ErrPasswordHashFailed = "rooms.password_hash_failed"
 	ErrInvalidCredentials = "rooms.invalid_credentials"
+	ErrCodeGenerateFailed = "rooms.code_generate_failed"
 )
