@@ -18,7 +18,7 @@ type IRoomsMapper interface {
 
 	CreateParams(
 		ownerID uuid.UUID,
-		code string,
+		code, password string,
 	) pgqueries.CreateRoomParams
 }
 
@@ -67,10 +67,11 @@ func (m *mapper) Many(
 
 func (m *mapper) CreateParams(
 	ownerID uuid.UUID,
-	code string,
+	code, password string,
 ) pgqueries.CreateRoomParams {
 	return pgqueries.CreateRoomParams{
-		OwnerID: ownerID,
-		Code:    code,
+		OwnerID:  ownerID,
+		Code:     code,
+		Password: password,
 	}
 }

@@ -11,6 +11,7 @@ type Room struct {
 	ID        uuid.UUID
 	OwnerID   uuid.UUID
 	Code      string
+	Password  string
 	CreatedAt time.Time
 }
 
@@ -22,11 +23,12 @@ type Rooms struct {
 // New constructs a new Room instance.
 func New(
 	ownerID uuid.UUID,
-	code string,
+	code, password string,
 ) Room {
 	return Room{
-		OwnerID: ownerID,
-		Code:    code,
+		OwnerID:  ownerID,
+		Code:     code,
+		Password: password,
 	}
 }
 

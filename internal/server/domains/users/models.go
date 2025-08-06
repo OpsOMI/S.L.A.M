@@ -10,14 +10,13 @@ import (
 )
 
 type User struct {
-	ID          uuid.UUID
-	Username    string
-	Password    string
-	Nickname    string
-	PrivateCode string
-	Role        string
-	Clients     *clients.Client
-	CreatedAt   time.Time
+	ID        uuid.UUID
+	Username  string
+	Password  string
+	Nickname  string
+	Role      string
+	Clients   *clients.Client
+	CreatedAt time.Time
 }
 
 type Users struct {
@@ -30,11 +29,10 @@ func New(
 	nickname, privateCode, username, password, role string,
 ) User {
 	return User{
-		Nickname:    strings.TrimSpace(nickname),
-		Username:    strings.TrimSpace(username),
-		Password:    strings.TrimSpace(password),
-		PrivateCode: strings.TrimSpace(privateCode),
-		Role:        strings.TrimSpace(role),
+		Nickname: strings.TrimSpace(nickname),
+		Username: strings.TrimSpace(username),
+		Password: strings.TrimSpace(password),
+		Role:     strings.TrimSpace(role),
 	}
 }
 

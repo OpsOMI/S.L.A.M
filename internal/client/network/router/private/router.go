@@ -44,8 +44,14 @@ func (r *Router) Route(
 	req *request.ClientRequest,
 ) error {
 	req.JwtToken = r.store.JWT
-	req.Scope = "private"
+	if req.JwtToken == "" {
+		return fmt.Errorf("unauthorized: command %q", command.Name)
+	}
 	r.store.ParseJWT()
+	if r.store.Role != "user" && r.store.Role != "owner" {
+		return fmt.Errorf("unauthorized: command %q", command.Name)
+	}
+	req.Scope = "private"
 
 	if handler, ok := r.routes[command.Name]; ok {
 		return handler(command, req)

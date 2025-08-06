@@ -10,10 +10,12 @@ SELECT * FROM rooms WHERE owner_id = @owner_id ORDER BY created_at DESC;
 -- name: CreateRoom :one
 INSERT INTO rooms (
     owner_id,
-    code
+    code,
+    password
 ) VALUES (
     @owner_id,
-    @code
+    @code,
+    @password
 )
 RETURNING id;
 

@@ -54,6 +54,20 @@ func (r *repository) GetByOwnerID(
 	return r.mappers.Rooms().Many(dbModels, count), nil
 }
 
+func (r *repository) Create(
+	ctx context.Context,
+	ownerID uuid.UUID,
+	code, hashedPassword string,
+) (*uuid.UUID, error) {
+	params := r.mappers.Rooms().CreateParams(ownerID, code, hashedPassword)
+	id, err := r.queries.CreateRoom(ctx, params)
+	if err != nil {
+		return nil, repoerrors.Internal(rooms.ErrCreateFailed, err)
+	}
+
+	return &id, nil
+}
+
 func (r *repository) DeleteByID(
 	ctx context.Context,
 	id uuid.UUID,

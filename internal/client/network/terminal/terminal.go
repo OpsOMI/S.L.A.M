@@ -98,8 +98,7 @@ func (t *Terminal) Render() {
 
 	// Print prompt at bottom line (this requires promptLabel to be stored)
 	if t.label != "" {
-		t.moveCursor(t.height, 1)
-		fmt.Print(t.label)
+		t.PrintLabel()
 	}
 }
 
@@ -148,6 +147,21 @@ func (t *Terminal) ClearScreen() {
 	fmt.Print("\033[H")  // Move cursor to top-left
 }
 
+func (t *Terminal) ClearLine(line int) {
+	// Save current cursor position
+	fmt.Print("\0337") // or \033[s
+
+	// Move to the specified line and clear it
+	fmt.Printf("\033[%d;1H", line)
+	fmt.Print("\033[2K")
+
+	// Redraw the input label (e.g., ":")
+	t.PrintLabel()
+
+	// Restore previous cursor position
+	fmt.Print("\0338") // or \033[u
+}
+
 func (t *Terminal) ClearOutput() {
 	t.output.Code = ""
 	t.output.Message = ""
@@ -170,14 +184,18 @@ func (t *Terminal) PrintError(msg string) {
 
 	go func() {
 		time.Sleep(1 * time.Second)
-		t.ClearOutput()
+		t.ClearLine(t.height - 1)
 	}()
+}
+
+func (t *Terminal) PrintLabel() {
+	t.moveCursor(t.height, 1)
+	fmt.Print(t.label)
 }
 
 func (t *Terminal) PrintNotification(msg string) {
 	t.output.Message = msg
 	t.output.Code = "info"
-	fmt.Println("printedNotification")
 	t.Render()
 
 	go func() {

@@ -2,10 +2,10 @@ package rooms
 
 import (
 	"context"
-	"strings"
 
+	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/serviceerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
-	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
+	"github.com/google/uuid"
 )
 
 func (s *service) GetByID(
@@ -37,6 +37,36 @@ func (s *service) GetByOwnerID(
 	}
 
 	return s.repositories.Rooms().GetByOwnerID(ctx, uid)
+}
+
+func (s *service) Create(
+	ctx context.Context,
+	ownerID, password string,
+) (*uuid.UUID, error) {
+	owner, err := s.users.GetByID(ctx, ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	var hashedPassword string
+	if password != "" {
+		hashedPassword, err = s.packages.Hasher().HashArgon2(password)
+		if err != nil {
+			return nil, serviceerrors.Internal(rooms.ErrPasswordHashFailed, err)
+		}
+	}
+
+	roomCode, err := s.packages.Hasher().Generate6CharPrivateCode()
+	if err != nil {
+		return nil, serviceerrors.Internal(rooms.ErrCodeGenerateFailed, err)
+	}
+
+	id, err := s.repositories.Rooms().Create(ctx, owner.ID, roomCode, hashedPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return id, nil
 }
 
 func (s *service) DeleteByID(
@@ -82,22 +112,25 @@ func (s *service) IsExistByOwnerID(
 	return s.repositories.Rooms().IsExistByOwnerID(ctx, uid)
 }
 
-func (s *service) IsIsRoomOrDirectChat(
+func (s *service) JoinRoom(
 	ctx context.Context,
-	roomOrUserCode string,
-) (*users.User, bool, error) {
-	room, err := s.GetByCode(ctx, roomOrUserCode)
-	if err != nil && !strings.Contains(err.Error(), "not_found") {
-		return nil, false, err
-	}
-	if room != nil {
-		return nil, true, nil
-	}
-
-	fullInfo, err := s.users.FullInfo(ctx, roomOrUserCode)
+	code, password string,
+) (*rooms.Room, error) {
+	room, err := s.GetByCode(ctx, code)
 	if err != nil {
-		return nil, false, err
+		return nil, err
+	}
+	if room.Password != "" {
+		ok, err := s.packages.Hasher().CompareArgon2(room.Password, password)
+		if err != nil {
+			return nil, serviceerrors.Internal(rooms.ErrPasswordHashFailed, err)
+		}
+		if !ok {
+			return nil, serviceerrors.Internal(rooms.ErrInvalidCredentials, err)
+		}
+
+		return room, nil
 	}
 
-	return fullInfo, false, nil
+	return room, nil
 }

@@ -25,21 +25,24 @@ func (q *Queries) CountRoomsByOwnerID(ctx context.Context, ownerID uuid.UUID) (i
 const createRoom = `-- name: CreateRoom :one
 INSERT INTO rooms (
     owner_id,
-    code
+    code,
+    password
 ) VALUES (
     $1,
-    $2
+    $2,
+    $3
 )
 RETURNING id
 `
 
 type CreateRoomParams struct {
-	OwnerID uuid.UUID
-	Code    string
+	OwnerID  uuid.UUID
+	Code     string
+	Password string
 }
 
 func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, createRoom, arg.OwnerID, arg.Code)
+	row := q.db.QueryRowContext(ctx, createRoom, arg.OwnerID, arg.Code, arg.Password)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
@@ -55,7 +58,7 @@ func (q *Queries) DeleteRoomByID(ctx context.Context, id uuid.UUID) error {
 }
 
 const getRoomByCode = `-- name: GetRoomByCode :one
-SELECT id, owner_id, code, created_at FROM rooms WHERE code = $1
+SELECT id, owner_id, code, password, created_at FROM rooms WHERE code = $1
 `
 
 func (q *Queries) GetRoomByCode(ctx context.Context, code string) (Room, error) {
@@ -65,13 +68,14 @@ func (q *Queries) GetRoomByCode(ctx context.Context, code string) (Room, error) 
 		&i.ID,
 		&i.OwnerID,
 		&i.Code,
+		&i.Password,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getRoomByID = `-- name: GetRoomByID :one
-SELECT id, owner_id, code, created_at FROM rooms WHERE id = $1
+SELECT id, owner_id, code, password, created_at FROM rooms WHERE id = $1
 `
 
 func (q *Queries) GetRoomByID(ctx context.Context, id uuid.UUID) (Room, error) {
@@ -81,13 +85,14 @@ func (q *Queries) GetRoomByID(ctx context.Context, id uuid.UUID) (Room, error) {
 		&i.ID,
 		&i.OwnerID,
 		&i.Code,
+		&i.Password,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getRoomsByOwnerID = `-- name: GetRoomsByOwnerID :many
-SELECT id, owner_id, code, created_at FROM rooms WHERE owner_id = $1 ORDER BY created_at DESC
+SELECT id, owner_id, code, password, created_at FROM rooms WHERE owner_id = $1 ORDER BY created_at DESC
 `
 
 func (q *Queries) GetRoomsByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]Room, error) {
@@ -103,6 +108,7 @@ func (q *Queries) GetRoomsByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]R
 			&i.ID,
 			&i.OwnerID,
 			&i.Code,
+			&i.Password,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err

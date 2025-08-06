@@ -34,24 +34,21 @@ INSERT INTO users (
     username,
     password,
     nickname,
-    private_code,
     role
 ) VALUES (
     $1,
     $2,
     $3,
-    $4,
-    $5
+    $4
 )
 RETURNING id
 `
 
 type CreateUserParams struct {
-	Username    string
-	Password    string
-	Nickname    string
-	PrivateCode string
-	Role        string
+	Username string
+	Password string
+	Nickname string
+	Role     string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
@@ -59,7 +56,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 		arg.Username,
 		arg.Password,
 		arg.Nickname,
-		arg.PrivateCode,
 		arg.Role,
 	)
 	var id uuid.UUID
@@ -77,7 +73,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, password, nickname, private_code, role, created_at FROM users WHERE id = $1
+SELECT id, username, password, nickname, role, created_at FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
@@ -88,7 +84,6 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Username,
 		&i.Password,
 		&i.Nickname,
-		&i.PrivateCode,
 		&i.Role,
 		&i.CreatedAt,
 	)
@@ -96,7 +91,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserByNickname = `-- name: GetUserByNickname :one
-SELECT id, username, password, nickname, private_code, role, created_at FROM users WHERE nickname = $1
+SELECT id, username, password, nickname, role, created_at FROM users WHERE nickname = $1
 `
 
 func (q *Queries) GetUserByNickname(ctx context.Context, nickname string) (User, error) {
@@ -107,26 +102,6 @@ func (q *Queries) GetUserByNickname(ctx context.Context, nickname string) (User,
 		&i.Username,
 		&i.Password,
 		&i.Nickname,
-		&i.PrivateCode,
-		&i.Role,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const getUserByPrivateCode = `-- name: GetUserByPrivateCode :one
-SELECT id, username, password, nickname, private_code, role, created_at FROM users WHERE private_code = $1
-`
-
-func (q *Queries) GetUserByPrivateCode(ctx context.Context, privateCode string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByPrivateCode, privateCode)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Password,
-		&i.Nickname,
-		&i.PrivateCode,
 		&i.Role,
 		&i.CreatedAt,
 	)
@@ -134,7 +109,7 @@ func (q *Queries) GetUserByPrivateCode(ctx context.Context, privateCode string) 
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, password, nickname, private_code, role, created_at FROM users WHERE username = $1
+SELECT id, username, password, nickname, role, created_at FROM users WHERE username = $1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
@@ -145,44 +120,8 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.Username,
 		&i.Password,
 		&i.Nickname,
-		&i.PrivateCode,
 		&i.Role,
 		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const getUserFullInfo = `-- name: GetUserFullInfo :one
-SELECT
-    u.id, u.username, u.password, u.nickname, u.private_code, u.role, u.created_at, c.id, c.user_id, c.client_key, c.revoked_at, c.created_at
-FROM
-    users AS u
-INNER JOIN clients AS c ON c.user_id = u.id
-WHERE
-    u.private_code = $1
-`
-
-type GetUserFullInfoRow struct {
-	User   User
-	Client Client
-}
-
-func (q *Queries) GetUserFullInfo(ctx context.Context, privateCode string) (GetUserFullInfoRow, error) {
-	row := q.db.QueryRowContext(ctx, getUserFullInfo, privateCode)
-	var i GetUserFullInfoRow
-	err := row.Scan(
-		&i.User.ID,
-		&i.User.Username,
-		&i.User.Password,
-		&i.User.Nickname,
-		&i.User.PrivateCode,
-		&i.User.Role,
-		&i.User.CreatedAt,
-		&i.Client.ID,
-		&i.Client.UserID,
-		&i.Client.ClientKey,
-		&i.Client.RevokedAt,
-		&i.Client.CreatedAt,
 	)
 	return i, err
 }
@@ -213,19 +152,6 @@ func (q *Queries) IsUserExistByNickname(ctx context.Context, nickname string) (b
 	return exists, err
 }
 
-const isUserExistByPrivateCode = `-- name: IsUserExistByPrivateCode :one
-SELECT EXISTS (
-    SELECT 1 FROM users WHERE private_code = $1
-)
-`
-
-func (q *Queries) IsUserExistByPrivateCode(ctx context.Context, privateCode string) (bool, error) {
-	row := q.db.QueryRowContext(ctx, isUserExistByPrivateCode, privateCode)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
 const isUserExistByUsername = `-- name: IsUserExistByUsername :one
 SELECT EXISTS (
     SELECT 1 FROM users WHERE username = $1
@@ -241,7 +167,7 @@ func (q *Queries) IsUserExistByUsername(ctx context.Context, username string) (b
 
 const userLogin = `-- name: UserLogin :one
 SELECT
-    u.id, u.username, u.password, u.nickname, u.private_code, u.role, u.created_at, c.id, c.user_id, c.client_key, c.revoked_at, c.created_at
+    u.id, u.username, u.password, u.nickname, u.role, u.created_at, c.id, c.user_id, c.client_key, c.revoked_at, c.created_at
 FROM
     users AS u
 INNER JOIN clients AS c ON c.user_id = u.id
@@ -262,7 +188,6 @@ func (q *Queries) UserLogin(ctx context.Context, username string) (UserLoginRow,
 		&i.User.Username,
 		&i.User.Password,
 		&i.User.Nickname,
-		&i.User.PrivateCode,
 		&i.User.Role,
 		&i.User.CreatedAt,
 		&i.Client.ID,

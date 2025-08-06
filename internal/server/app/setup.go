@@ -68,4 +68,14 @@ func SetupDefaultAdmin(
 		return
 	}
 	log.Infof("[setup] Default owner user created successfully. ID: %v", id)
+
+	roomID, err := svcs.Rooms().Create(ctx, id.String(), "room")
+	if err != nil {
+		log.Warnf("[setup] Default room creation failed: %v", err)
+		return
+	}
+	log.Infof("[setup] Default room created successfully. ID: %v", roomID)
+
+	emptyrom, _ := svcs.Rooms().Create(ctx, id.String(), "")
+	log.Infof("[setup] Default room created successfully. ID: %v", emptyrom)
 }

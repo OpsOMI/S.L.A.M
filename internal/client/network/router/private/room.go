@@ -11,12 +11,14 @@ func (r *Router) RoomRoutes() {
 	r.routes["/join"] = r.HandleJoin
 }
 
+// TODO: MAKE CUSTOM ERROR FOR CLIENT. BEACUSE WE CANNOT CHOOSE NOTIFICATION OR ERROR MSG.
+// THIS USAGE SHOULD BE NOTIFICATION.
 func (r *Router) HandleJoin(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
 	if len(cmd.Args) != 1 {
-		return fmt.Errorf("Hata")
+		return fmt.Errorf("usage: /join [roomcode]")
 	}
 
 	messages, err := r.api.Users().Join(req, cmd.Args[0])

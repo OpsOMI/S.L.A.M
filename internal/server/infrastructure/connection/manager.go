@@ -51,10 +51,12 @@ func (cm *ConnectionManager) SetClientRoom(
 func (cm *ConnectionManager) GetClientRoom(clientID uuid.UUID) (string, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
-	if client, ok := cm.clients[clientID]; ok {
-		return client.RoomCode, true
+
+	client, ok := cm.clients[clientID]
+	if !ok || client.RoomCode == "" {
+		return "", false
 	}
-	return "", false
+	return client.RoomCode, true
 }
 
 func (cm *ConnectionManager) GetConnectionsByRoomCode(roomCode string) ([]net.Conn, bool) {

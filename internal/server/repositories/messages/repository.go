@@ -18,8 +18,7 @@ type IMessagesRepository interface {
 
 	CreateMessage(
 		ctx context.Context,
-		senderID uuid.UUID,
-		receiverID, roomID *uuid.UUID,
+		senderID, roomID uuid.UUID,
 		content string,
 	) error
 }

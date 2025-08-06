@@ -71,8 +71,6 @@ func (c *Controller) HandleConnection(
 
 	c.logger.Info("New connection accepted: " + conn.RemoteAddr().String())
 
-	// _ = request.Send(conn, map[string]string{"message": "Welcome to SLAM!"})
-
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
 		line := scanner.Text()

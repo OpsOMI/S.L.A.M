@@ -26,9 +26,8 @@ type IMessagesMapper interface {
 	) *RoomMessages
 
 	CreateParams(
-		senderID uuid.UUID,
-		receiverID, roomID *uuid.UUID,
-		contentEnc string,
+		senderID, roomID uuid.UUID,
+		content string,
 	) pgqueries.CreateMessageParams
 }
 
@@ -44,7 +43,9 @@ func NewMapper(utils utils.IUtilMapper) *mapper {
 }
 
 // One maps a pgqueries.Message to a domain Message.
-func (m *mapper) One(dbModel *pgqueries.Message) *Message {
+func (m *mapper) One(
+	dbModel *pgqueries.Message,
+) *Message {
 	if dbModel == nil {
 		return nil
 	}
@@ -52,15 +53,16 @@ func (m *mapper) One(dbModel *pgqueries.Message) *Message {
 	return &Message{
 		ID:         dbModel.ID,
 		SenderID:   dbModel.SenderID,
-		ReceiverID: dbModel.ReceiverID.UUID,
-		RoomID:     dbModel.RoomID.UUID,
+		RoomID:     dbModel.RoomID,
 		ContentEnc: dbModel.ContentEnc,
 		CreatedAt:  dbModel.CreatedAt.Time,
 	}
 }
 
-// Many maps a slice of pgqueries.Message to a domain Messages slice with count.
-func (m *mapper) Many(dbModels []pgqueries.Message, count int64) *Messages {
+func (m *mapper) Many(
+	dbModels []pgqueries.Message,
+	count int64,
+) *Messages {
 	var appModels []Message
 	for _, dbModel := range dbModels {
 		appModels = append(appModels, *m.One(&dbModel))
@@ -100,16 +102,13 @@ func (m *mapper) ManyRoomMessages(
 	}
 }
 
-// CreateParams maps domain input values to pgqueries.CreateMessageParams.
 func (m *mapper) CreateParams(
-	senderID uuid.UUID,
-	receiverID, roomID *uuid.UUID,
+	senderID, roomID uuid.UUID,
 	content string,
 ) pgqueries.CreateMessageParams {
 	return pgqueries.CreateMessageParams{
-		SenderID:   senderID,
-		ReceiverID: m.utils.FromUUIDPtrToUUIDNull(receiverID),
-		RoomID:     m.utils.FromUUIDPtrToUUIDNull(roomID),
-		Content:    content,
+		SenderID: senderID,
+		RoomID:   roomID,
+		Content:  content,
 	}
 }

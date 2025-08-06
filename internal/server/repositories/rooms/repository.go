@@ -26,6 +26,12 @@ type IRoomsRepository interface {
 		ownerID uuid.UUID,
 	) (*rooms.Rooms, error)
 
+	Create(
+		ctx context.Context,
+		ownerID uuid.UUID,
+		code, hashedPassword string,
+	) (*uuid.UUID, error)
+
 	DeleteByID(
 		ctx context.Context,
 		id uuid.UUID,
