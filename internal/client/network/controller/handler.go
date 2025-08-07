@@ -65,9 +65,9 @@ func (c *Controller) Run() {
 	c.messageChan = make(chan message.MessageResp, 100)
 	c.inputChan = make(chan string)
 
-	if c.conn != nil {
-		c.ListenServerMessages()
-	}
+	// if c.conn != nil {
+	// 	c.ListenServerMessages()
+	// }
 
 	go c.handleIncomingMessages()
 
@@ -167,7 +167,7 @@ func (c *Controller) handleInput(input string) {
 			return
 		}
 		if err := c.router.Route(command); err != nil {
-			c.terminal.PrintError(err.Error())
+			c.terminal.Print(err)
 		}
 
 	default:

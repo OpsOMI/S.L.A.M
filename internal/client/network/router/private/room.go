@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
@@ -62,7 +63,6 @@ func (r *Router) HandleCreate(
 	if err != nil {
 		return err
 	}
-	r.terminal.PrintNotification("Room Created Successfully, Code: = " + code)
 
-	return nil
+	return apperrors.New(apperrors.CodeNotification, "Room Created Successfully, Code: "+code)
 }
