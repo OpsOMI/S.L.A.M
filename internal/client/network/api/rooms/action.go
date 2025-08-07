@@ -58,26 +58,31 @@ func (s *module) MyRooms(
 
 func (s *module) Create(
 	req *request.ClientRequest,
+	isSecure bool,
 ) (string, error) {
-	fmt.Print("Password: ")
-	bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		return "", fmt.Errorf("failed to read password: %w", err)
-	}
-	fmt.Println()
+	var password string
+	if isSecure {
 
-	fmt.Print("Confirm Password: ")
-	byteConfirmPassword, err := term.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		return "", fmt.Errorf("failed to read password: %w", err)
-	}
-	fmt.Println()
+		fmt.Print("Password: ")
+		bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+		if err != nil {
+			return "", fmt.Errorf("failed to read password: %w", err)
+		}
+		fmt.Println()
 
-	confirmPassword := strings.TrimSpace(string(byteConfirmPassword))
-	password := strings.TrimSpace(string(bytePassword))
+		fmt.Print("Confirm Password: ")
+		byteConfirmPassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+		if err != nil {
+			return "", fmt.Errorf("failed to read password: %w", err)
+		}
+		fmt.Println()
 
-	if password != confirmPassword {
-		return "", fmt.Errorf("passwords do not match")
+		confirmPassword := strings.TrimSpace(string(byteConfirmPassword))
+		password = strings.TrimSpace(string(bytePassword))
+
+		if password != confirmPassword {
+			return "", fmt.Errorf("passwords do not match")
+		}
 	}
 
 	payload := rooms.CreateReq{

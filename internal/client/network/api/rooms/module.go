@@ -15,6 +15,7 @@ type IRoomModule interface {
 
 	Create(
 		req *request.ClientRequest,
+		isSecure bool,
 	) (string, error)
 }
 
