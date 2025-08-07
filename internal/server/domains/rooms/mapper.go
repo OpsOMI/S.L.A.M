@@ -16,6 +16,11 @@ type IRoomsMapper interface {
 		count int64,
 	) *Rooms
 
+	GetByOwnerID(
+		ownerID uuid.UUID,
+		lim, off int32,
+	) pgqueries.GetRoomsByOwnerIDParams
+
 	CreateParams(
 		ownerID uuid.UUID,
 		code, password string,
@@ -62,6 +67,17 @@ func (m *mapper) Many(
 	return &Rooms{
 		Items:      appModels,
 		TotalCount: count,
+	}
+}
+
+func (m *mapper) GetByOwnerID(
+	ownerID uuid.UUID,
+	lim, off int32,
+) pgqueries.GetRoomsByOwnerIDParams {
+	return pgqueries.GetRoomsByOwnerIDParams{
+		OwnerID: ownerID,
+		Lim:     lim,
+		Off:     off,
 	}
 }
 

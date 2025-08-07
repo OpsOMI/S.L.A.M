@@ -40,8 +40,10 @@ func (r *repository) GetByCode(
 func (r *repository) GetByOwnerID(
 	ctx context.Context,
 	ownerID uuid.UUID,
+	lim, off int32,
 ) (*rooms.Rooms, error) {
-	dbModels, err := r.queries.GetRoomsByOwnerID(ctx, ownerID)
+	params := r.mappers.Rooms().GetByOwnerID(ownerID, lim, off)
+	dbModels, err := r.queries.GetRoomsByOwnerID(ctx, params)
 	if err != nil {
 		return nil, repoerrors.Internal(rooms.ErrFetchFailed, err)
 	}
