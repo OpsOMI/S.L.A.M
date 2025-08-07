@@ -1,7 +1,6 @@
 package private
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
@@ -14,14 +13,12 @@ func (r *Router) RoomRoutes() {
 	r.routes["/room/create"] = r.HandleCreate
 }
 
-// TODO: MAKE CUSTOM ERROR FOR CLIENT. BEACUSE WE CANNOT CHOOSE NOTIFICATION OR ERROR MSG.
-// THIS USAGE SHOULD BE NOTIFICATION.
 func (r *Router) HandleJoin(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
 	if len(cmd.Args) != 1 {
-		return fmt.Errorf("usage: /join [roomcode]")
+		return apperrors.NewNotification("usage: /join [roomcode]")
 	}
 
 	messages, err := r.api.Users().Join(req, cmd.Args[0])
@@ -31,9 +28,8 @@ func (r *Router) HandleJoin(
 
 	r.store.SetRoom(cmd.Args[0])
 	r.terminal.SetMessages(messages)
-	r.terminal.PrintNotification("Joined Successfully: " + cmd.Args[0])
 
-	return nil
+	return apperrors.NewNotification("Joined Successfully: " + cmd.Args[0])
 }
 
 func (r *Router) HandleCreate(
@@ -41,11 +37,11 @@ func (r *Router) HandleCreate(
 	req *request.ClientRequest,
 ) error {
 	if len(cmd.Args) != 1 {
-		return fmt.Errorf("usage: /room/create [isSecure]:[True/False]") // eksik ya da fazla argüman
+		return apperrors.NewNotification("usage: /room/create [isSecure]:[True/False]")
 	}
 
 	if cmd.Args[0] == "help" {
-		return fmt.Errorf("usage: /room/create [isSecure]:[True/False]")
+		return apperrors.NewNotification("usage: /room/create [isSecure]:[True/False]")
 	}
 
 	isSecureStr := strings.ToLower(cmd.Args[0])
@@ -56,7 +52,7 @@ func (r *Router) HandleCreate(
 	case "false":
 		isSecure = false
 	default:
-		return fmt.Errorf("invalid argument: use 'True' or 'False'")
+		return apperrors.NewError("invalid argument: use 'True' or 'False'")
 	}
 
 	code, err := r.api.Rooms().Create(req, isSecure)
@@ -64,5 +60,5 @@ func (r *Router) HandleCreate(
 		return err
 	}
 
-	return apperrors.New(apperrors.CodeNotification, "Room Created Successfully, Code: "+code)
+	return apperrors.NewNotification("Room Created Successfully, Code: " + code)
 }

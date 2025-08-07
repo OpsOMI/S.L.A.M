@@ -1,8 +1,7 @@
 package public
 
 import (
-	"fmt"
-
+	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
@@ -51,5 +50,5 @@ func (r *Router) Route(
 		return handler(command, req)
 	}
 
-	return fmt.Errorf("unknown public command: %s", command.Name)
+	return apperrors.NewError("unknown public command:" + command.Name)
 }
