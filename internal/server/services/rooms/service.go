@@ -9,7 +9,6 @@ import (
 	userservice "github.com/OpsOMI/S.L.A.M/internal/server/services/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/utils"
 	"github.com/OpsOMI/S.L.A.M/pkg"
-	"github.com/google/uuid"
 )
 
 type IRoomService interface {
@@ -26,12 +25,13 @@ type IRoomService interface {
 	GetByOwnerID(
 		ctx context.Context,
 		ownerID string,
+		page, limit int32,
 	) (*rooms.Rooms, error)
 
 	Create(
 		ctx context.Context,
 		ownerID, password string,
-	) (*uuid.UUID, error)
+	) (*string, error)
 
 	DeleteByID(
 		ctx context.Context,

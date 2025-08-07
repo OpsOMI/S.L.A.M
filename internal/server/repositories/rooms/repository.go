@@ -24,6 +24,7 @@ type IRoomsRepository interface {
 	GetByOwnerID(
 		ctx context.Context,
 		ownerID uuid.UUID,
+		lim, off int32,
 	) (*rooms.Rooms, error)
 
 	Create(

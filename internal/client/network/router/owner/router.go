@@ -1,8 +1,7 @@
 package owner
 
 import (
-	"fmt"
-
+	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
@@ -46,11 +45,11 @@ func (r *Router) Route(
 ) error {
 	req.JwtToken = r.store.JWT
 	if req.JwtToken == "" {
-		return fmt.Errorf("unauthorized: command %q", command.Name)
+		return apperrors.NewError("unauthorized: command " + command.Name)
 	}
 	r.store.ParseJWT()
 	if r.store.Role != "owner" {
-		return fmt.Errorf("unauthorized: command %q", command.Name)
+		return apperrors.NewError("unauthorized: command " + command.Name)
 	}
 	req.Scope = "owner"
 
@@ -58,5 +57,5 @@ func (r *Router) Route(
 		return handler(command, req)
 	}
 
-	return fmt.Errorf("unknown public command: %s", command.Name)
+	return apperrors.NewError("unknown owner command:" + command.Name)
 }

@@ -5,7 +5,7 @@ SELECT * FROM rooms WHERE id = @id;
 SELECT * FROM rooms WHERE code = @code;
 
 -- name: GetRoomsByOwnerID :many
-SELECT * FROM rooms WHERE owner_id = @owner_id ORDER BY created_at DESC;
+SELECT * FROM rooms WHERE owner_id = @owner_id ORDER BY created_at DESC LIMIT @lim OFFSET @off;
 
 -- name: CreateRoom :one
 INSERT INTO rooms (

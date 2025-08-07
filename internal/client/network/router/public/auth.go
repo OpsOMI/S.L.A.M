@@ -1,15 +1,13 @@
 package public
 
 import (
-	"fmt"
-
+	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
 func (r *Router) AuthRoutes() {
 	r.routes["/login"] = r.HandleLogin
-	r.routes["/me"] = r.HandleMe
 }
 
 func (r *Router) HandleLogin(
@@ -26,13 +24,5 @@ func (r *Router) HandleLogin(
 	r.store.ParseJWT()
 	r.terminal.Render()
 
-	return nil
-}
-
-func (r *Router) HandleMe(
-	cmd parser.Command,
-	req *request.ClientRequest,
-) error {
-	fmt.Println("me called")
-	return nil
+	return apperrors.NewNotification("Login Successful")
 }

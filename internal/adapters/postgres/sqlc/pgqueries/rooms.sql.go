@@ -92,11 +92,17 @@ func (q *Queries) GetRoomByID(ctx context.Context, id uuid.UUID) (Room, error) {
 }
 
 const getRoomsByOwnerID = `-- name: GetRoomsByOwnerID :many
-SELECT id, owner_id, code, password, created_at FROM rooms WHERE owner_id = $1 ORDER BY created_at DESC
+SELECT id, owner_id, code, password, created_at FROM rooms WHERE owner_id = $1 ORDER BY created_at DESC LIMIT $3 OFFSET $2
 `
 
-func (q *Queries) GetRoomsByOwnerID(ctx context.Context, ownerID uuid.UUID) ([]Room, error) {
-	rows, err := q.db.QueryContext(ctx, getRoomsByOwnerID, ownerID)
+type GetRoomsByOwnerIDParams struct {
+	OwnerID uuid.UUID
+	Off     int32
+	Lim     int32
+}
+
+func (q *Queries) GetRoomsByOwnerID(ctx context.Context, arg GetRoomsByOwnerIDParams) ([]Room, error) {
+	rows, err := q.db.QueryContext(ctx, getRoomsByOwnerID, arg.OwnerID, arg.Off, arg.Lim)
 	if err != nil {
 		return nil, err
 	}

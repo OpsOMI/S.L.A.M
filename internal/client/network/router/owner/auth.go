@@ -1,6 +1,7 @@
 package owner
 
 import (
+	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
@@ -18,7 +19,5 @@ func (r *Router) HandleRegister(
 		return err
 	}
 
-	r.terminal.PrintNotification("New User Created: " + id.String())
-
-	return nil
+	return apperrors.NewNotification("New User Created: " + id.String())
 }

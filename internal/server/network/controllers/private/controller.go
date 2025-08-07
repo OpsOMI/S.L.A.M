@@ -41,6 +41,7 @@ func NewController(
 
 	pc.Use(middlewares.JWTAuthMiddleware(store))
 	pc.InitUserRoutes()
+	pc.InitRoomRoutes()
 
 	return pc
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"golang.org/x/term"
 )
@@ -169,12 +170,19 @@ func (t *Terminal) ClearOutput() {
 }
 
 // Prints
-func (t *Terminal) PrintMessage(nickname, content string) {
-	t.messages = append(t.messages, Messages{
-		SenderNickname: nickname,
-		Content:        content,
-	})
-	t.Render()
+func (t *Terminal) Print(err error) {
+	if appErr, ok := err.(*apperrors.AppError); ok {
+		switch appErr.Code {
+		case "Error":
+			t.PrintError(appErr.Message)
+		case "Notification":
+			t.PrintNotification(appErr.Message)
+		default:
+			t.PrintError(appErr.Message) // default fallback
+		}
+	} else {
+		t.PrintError(err.Error())
+	}
 }
 
 func (t *Terminal) PrintError(msg string) {
@@ -188,11 +196,6 @@ func (t *Terminal) PrintError(msg string) {
 	}()
 }
 
-func (t *Terminal) PrintLabel() {
-	t.moveCursor(t.height, 1)
-	fmt.Print(t.label)
-}
-
 func (t *Terminal) PrintNotification(msg string) {
 	t.output.Message = msg
 	t.output.Code = "info"
@@ -202,4 +205,17 @@ func (t *Terminal) PrintNotification(msg string) {
 		time.Sleep(1 * time.Second)
 		t.ClearOutput()
 	}()
+}
+
+func (t *Terminal) PrintLabel() {
+	t.moveCursor(t.height, 1)
+	fmt.Print(t.label)
+}
+
+func (t *Terminal) PrintMessage(nickname, content string) {
+	t.messages = append(t.messages, Messages{
+		SenderNickname: nickname,
+		Content:        content,
+	})
+	t.Render()
 }

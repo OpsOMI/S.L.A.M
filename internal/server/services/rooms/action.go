@@ -5,7 +5,6 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/serviceerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
-	"github.com/google/uuid"
 )
 
 func (s *service) GetByID(
@@ -30,19 +29,29 @@ func (s *service) GetByCode(
 func (s *service) GetByOwnerID(
 	ctx context.Context,
 	ownerID string,
+	page, limit int32,
 ) (*rooms.Rooms, error) {
+	if page <= 0 {
+		page = 1
+	}
+	if limit <= 0 {
+		limit = 10
+	}
+
+	offset := (page - 1) * limit
+
 	uid, err := s.utils.Parse().ParseRequiredUUID(ownerID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.repositories.Rooms().GetByOwnerID(ctx, uid)
+	return s.repositories.Rooms().GetByOwnerID(ctx, uid, limit, offset)
 }
 
 func (s *service) Create(
 	ctx context.Context,
 	ownerID, password string,
-) (*uuid.UUID, error) {
+) (*string, error) {
 	owner, err := s.users.GetByID(ctx, ownerID)
 	if err != nil {
 		return nil, err
@@ -61,12 +70,11 @@ func (s *service) Create(
 		return nil, serviceerrors.Internal(rooms.ErrCodeGenerateFailed, err)
 	}
 
-	id, err := s.repositories.Rooms().Create(ctx, owner.ID, roomCode, hashedPassword)
-	if err != nil {
+	if _, err := s.repositories.Rooms().Create(ctx, owner.ID, roomCode, hashedPassword); err != nil {
 		return nil, err
 	}
 
-	return id, nil
+	return &roomCode, nil
 }
 
 func (s *service) DeleteByID(
