@@ -60,7 +60,7 @@ func Run(cfg config.Configs) {
 
 	// Initialize cron job manager and register jobs
 	cronManager := cronpkg.New()
-	jobs.Register(cronManager, logg)
+	jobs.Register(cronManager, logg, services)
 	cronManager.Start()
 	logg.Info("Cron jobs started")
 

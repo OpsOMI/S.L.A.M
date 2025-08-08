@@ -52,6 +52,27 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) er
 	return err
 }
 
+const deleteMessages = `-- name: DeleteMessages :exec
+DELETE FROM messages
+`
+
+func (q *Queries) DeleteMessages(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteMessages)
+	return err
+}
+
+const deleteMessagesByRoomCode = `-- name: DeleteMessagesByRoomCode :exec
+DELETE FROM messages
+WHERE room_id = (
+    SELECT id FROM rooms WHERE code = $1
+)
+`
+
+func (q *Queries) DeleteMessagesByRoomCode(ctx context.Context, roomCode string) error {
+	_, err := q.db.ExecContext(ctx, deleteMessagesByRoomCode, roomCode)
+	return err
+}
+
 const getMessagesByRoomCode = `-- name: GetMessagesByRoomCode :many
 SELECT
     s.nickname AS sender_nickname,

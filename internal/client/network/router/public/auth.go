@@ -8,12 +8,17 @@ import (
 
 func (r *Router) AuthRoutes() {
 	r.routes["/login"] = r.HandleLogin
+	r.routes["/logout"] = r.HandleLogout
 }
 
 func (r *Router) HandleLogin(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
+	if r.store.JWT != "" {
+		return apperrors.NewNotification("Already logged in")
+	}
+
 	jwt, err := r.api.Users().Login(req)
 	if err != nil {
 		return err
@@ -25,4 +30,14 @@ func (r *Router) HandleLogin(
 	r.terminal.Render()
 
 	return apperrors.NewNotification("Login Successful")
+}
+
+func (r *Router) HandleLogout(
+	cmd parser.Command,
+	req *request.ClientRequest,
+) error {
+	r.store.Logout()
+	r.terminal.Render()
+
+	return apperrors.NewNotification("Logout Successful")
 }

@@ -47,3 +47,9 @@ func (s *SessionStore) ParseJWT() error {
 
 	return nil
 }
+
+func (s *SessionStore) Logout() {
+	s.JWT = ""
+	s.Room = ""
+	s.TokenInfo = store.TokenInfo{}
+}

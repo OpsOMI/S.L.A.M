@@ -21,6 +21,15 @@ type IMessagesRepository interface {
 		senderID, roomID uuid.UUID,
 		content string,
 	) error
+
+	DeleteMessages(
+		ctx context.Context,
+	) error
+
+	DeleteMessagesByRoomCode(
+		ctx context.Context,
+		roomCode string,
+	) error
 }
 
 type repository struct {

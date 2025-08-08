@@ -8,12 +8,46 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 )
 
 func (p *Controller) InitRoomRoutes() {
+	p.routes["/join"] = p.HandleJoin
 	p.routes["/room/create"] = p.CreateRoom
 	p.routes["/room/myrooms"] = p.MyRooms
+}
+
+func (p *Controller) HandleJoin(
+	conn net.Conn,
+	args json.RawMessage,
+	jwtToken *string,
+) error {
+	ctx := context.Background()
+	userInfo := p.store.ParseToken(jwtToken)
+	var req rooms.JoinReq
+	if err := utils.ParseJSON(args, &req); err != nil {
+		return nil
+	}
+
+	room, err := p.services.Rooms().JoinRoom(ctx, req.RoomCode, req.Password)
+	if err != nil {
+		return err
+	}
+	p.connections.SetClientRoom(userInfo.ClientID, room.Code)
+
+	domainMessages, err := p.services.Messages().GetMessagesByRoomCode(ctx, room.Code)
+	if err != nil {
+		return err
+	}
+
+	for i := range domainMessages.Items {
+		if domainMessages.Items[i].SenderNickname == userInfo.Nickname {
+			domainMessages.Items[i].SenderNickname = "You"
+		}
+	}
+
+	return response.Response(commons.StatusOK, "Joined Successfully", message.ManyMessage(domainMessages))
 }
 
 func (p *Controller) CreateRoom(
