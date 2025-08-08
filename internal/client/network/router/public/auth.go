@@ -8,6 +8,7 @@ import (
 
 func (r *Router) AuthRoutes() {
 	r.routes["/login"] = r.HandleLogin
+	r.routes["/logout"] = r.HandleLogout
 }
 
 func (r *Router) HandleLogin(
@@ -25,4 +26,14 @@ func (r *Router) HandleLogin(
 	r.terminal.Render()
 
 	return apperrors.NewNotification("Login Successful")
+}
+
+func (r *Router) HandleLogout(
+	cmd parser.Command,
+	req *request.ClientRequest,
+) error {
+	r.store.Logout()
+	r.terminal.Render()
+
+	return apperrors.NewNotification("Logout Successful")
 }
