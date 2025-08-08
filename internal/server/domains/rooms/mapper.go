@@ -50,6 +50,7 @@ func (m *mapper) One(
 	return &Room{
 		ID:        dbModel.ID,
 		OwnerID:   dbModel.OwnerID,
+		Password:  dbModel.Password,
 		Code:      dbModel.Code,
 		CreatedAt: dbModel.CreatedAt.Time,
 	}
