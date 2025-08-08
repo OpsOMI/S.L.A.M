@@ -15,6 +15,10 @@ func (r *Router) HandleLogin(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
+	if r.store.JWT != "" {
+		return apperrors.NewNotification("Already logged in")
+	}
+
 	jwt, err := r.api.Users().Login(req)
 	if err != nil {
 		return err
