@@ -35,3 +35,16 @@ func (s *service) CreateMessage(
 
 	return nil
 }
+
+func (s *service) DeleteMessages(
+	ctx context.Context,
+) error {
+	return s.repositories.Messages().DeleteMessages(ctx)
+}
+
+func (s *service) DeleteMessageByRoomCode(
+	ctx context.Context,
+	roomCode string,
+) error {
+	return s.repositories.Messages().DeleteMessagesByRoomCode(ctx, roomCode)
+}

@@ -22,6 +22,15 @@ INSERT INTO messages (
     @content
 );
 
+-- name: DeleteMessages :exec
+DELETE FROM messages;
+
+-- name: DeleteMessagesByRoomCode :exec
+DELETE FROM messages
+WHERE room_id = (
+    SELECT id FROM rooms WHERE code = @room_code
+);
+
 -- name: CountMessagesByRoomCode :one
 SELECT
     COUNT(*)

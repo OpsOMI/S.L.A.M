@@ -38,3 +38,24 @@ func (r *repository) CreateMessage(
 
 	return nil
 }
+
+func (r *repository) DeleteMessages(
+	ctx context.Context,
+) error {
+	if err := r.queries.DeleteMessages(ctx); err != nil {
+		return repoerrors.Internal(messages.ErrDeleteFailed, err)
+	}
+
+	return nil
+}
+
+func (r *repository) DeleteMessagesByRoomCode(
+	ctx context.Context,
+	roomCode string,
+) error {
+	if err := r.queries.DeleteMessagesByRoomCode(ctx, roomCode); err != nil {
+		return repoerrors.Internal(messages.ErrDeleteFailed, err)
+	}
+
+	return nil
+}

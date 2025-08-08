@@ -22,6 +22,15 @@ type IMessageService interface {
 		senderID, roomCode string,
 		content string,
 	) error
+
+	DeleteMessages(
+		ctx context.Context,
+	) error
+
+	DeleteMessageByRoomCode(
+		ctx context.Context,
+		roomCode string,
+	) error
 }
 
 type service struct {
