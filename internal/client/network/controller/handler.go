@@ -96,8 +96,6 @@ func (c *Controller) Run() {
 			if roomCode == msg.RoomCode {
 				c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
 			}
-		case <-time.After(2 * time.Second):
-			c.terminal.SetConnected(c.conn != nil)
 		default:
 			c.handleInput(input)
 		}

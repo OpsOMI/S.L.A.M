@@ -29,10 +29,3 @@ func NewNotification(message string) *AppError {
 		Message: message,
 	}
 }
-
-func New(code, message string) *AppError {
-	return &AppError{
-		Code:    code,
-		Message: message,
-	}
-}

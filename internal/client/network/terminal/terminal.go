@@ -13,13 +13,14 @@ import (
 )
 
 type Terminal struct {
-	reader    *bufio.Reader
-	messages  []Messages
-	output    Notification
-	label     string
-	connected bool
-	height    int
-	width     int
+	reader          *bufio.Reader
+	messages        []Messages
+	output          Notification
+	label           string
+	connected       bool
+	currentRoomCode string
+	height          int
+	width           int
 }
 
 type Messages struct {
@@ -55,11 +56,23 @@ func (t *Terminal) moveCursor(row, col int) {
 func (t *Terminal) Render() {
 	t.ClearScreen()
 
-	// Welcome message
-	welcome := "Welcome to S.L.A.M Client"
-	col := max((t.width-len(welcome))/2, 1)
+	// Welcome message with colored "S.L.A.M"
+	welcomePrefix := "Welcome to "
+	welcomeColored := "\033[34mS.L.A.M\033[0m"
+	welcomeSuffix := " Client"
+	welcome := welcomePrefix + welcomeColored + welcomeSuffix
+	col := max((t.width-len("Welcome to S.L.A.M Client"))/2, 1)
 	t.moveCursor(1, col)
 	fmt.Print(welcome)
+
+	// Joined Room with green colored code
+	if t.currentRoomCode != "" {
+		maskedCode := t.currentRoomCode[:2] + "****"
+		roomCodeMsg := "In Room " + maskedCode
+		col = max((t.width-len(roomCodeMsg))/2, 1)
+		t.moveCursor(2, col)
+		fmt.Printf("\033[32m%s\033[0m", roomCodeMsg)
+	}
 
 	// Connected Dot
 	dotCol := t.width
@@ -142,6 +155,10 @@ func (t *Terminal) SetPromptLabel(label, nickname string) {
 	t.label = promptLabel
 }
 
+func (t *Terminal) SetCurrentRoom(code string) {
+	t.currentRoomCode = code
+}
+
 // Clears
 func (t *Terminal) ClearScreen() {
 	fmt.Print("\033[2J") // Clear entire screen
@@ -203,7 +220,7 @@ func (t *Terminal) PrintNotification(msg string) {
 
 	go func() {
 		time.Sleep(1 * time.Second)
-		t.ClearOutput()
+		t.ClearLine(t.height - 1)
 	}()
 }
 

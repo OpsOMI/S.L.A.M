@@ -27,6 +27,7 @@ func (r *Router) HandleJoin(
 	}
 
 	r.store.SetRoom(cmd.Args[0])
+	r.terminal.SetCurrentRoom(cmd.Args[0])
 	r.terminal.SetMessages(messages)
 
 	return apperrors.NewNotification("Joined Successfully: " + cmd.Args[0])
