@@ -11,11 +11,11 @@ import (
 type IUserModule interface {
 	Login(
 		req *request.ClientRequest,
-	) (string, error)
+	) (*string, error)
 
 	Register(
 		req *request.ClientRequest,
-	) (uuid.UUID, error)
+	) (*uuid.UUID, error)
 
 	Join(
 		req *request.ClientRequest,

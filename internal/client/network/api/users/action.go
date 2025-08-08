@@ -2,198 +2,127 @@ package users
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
-	"golang.org/x/term"
-
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
+	"github.com/OpsOMI/S.L.A.M/internal/client/utils"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/users"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
-	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 	"github.com/google/uuid"
 )
 
 func (s *module) Login(
 	req *request.ClientRequest,
-) (string, error) {
+) (*string, error) {
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Print("Username: ")
-	username, _ := reader.ReadString('\n')
-
-	fmt.Print("Password: ")
-	bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+	username, err := utils.Read(reader, "Username")
 	if err != nil {
-		return "", fmt.Errorf("failed to read password: %w", err)
+		return nil, err
 	}
-	fmt.Println()
 
-	username = strings.TrimSpace(username)
-	password := strings.TrimSpace(string(bytePassword))
+	password, err := utils.ReadPassword("Password")
+	if err != nil {
+		return nil, err
+	}
 
 	payload := users.LoginReq{
 		Username: username,
 		Password: password,
 	}
 
-	payloadBytes, err := json.Marshal(payload)
+	baseResp, err := utils.SendRequest(s.conn, req, payload)
 	if err != nil {
-		return "", fmt.Errorf("failed to encode payload: %w", err)
+		return nil, err
 	}
 
-	req.Payload = payloadBytes
-
-	if err := request.Send(s.conn, req); err != nil {
-		return "", fmt.Errorf("failed to send login message: %w", err)
-	}
-
-	resp, err := response.Read(s.conn)
-	if err != nil {
-		return "", fmt.Errorf("failed to read login response: %w", err)
-	}
-
-	baseResp := resp
-	if baseResp.Code != "OK" {
-		return "", fmt.Errorf("server error: %s", baseResp.Message)
-	}
-
-	dataBytes, err := json.Marshal(baseResp.Data)
-	if err != nil {
-		return "", fmt.Errorf("failed to re-marshal login response data: %w", err)
+	if err := utils.CheckBaseResponse(baseResp); err != nil {
+		return nil, err
 	}
 
 	var data users.LoginResp
-	if err := json.Unmarshal(dataBytes, &data); err != nil {
-		return "", fmt.Errorf("failed to unmarshal login response data: %w", err)
+	if err := utils.LoadData(baseResp.Data, &data); err != nil {
+		return nil, err
 	}
 
-	return data.Token, nil
+	return &data.Token, nil
 }
 
 func (s *module) Register(
 	req *request.ClientRequest,
-) (uuid.UUID, error) {
+) (*uuid.UUID, error) {
 	reader := bufio.NewReader(os.Stdin)
 
-	// Get Nickname
-	fmt.Print("Nickname: ")
-	nickname, _ := reader.ReadString('\n')
-
-	// Get Username
-	fmt.Print("Username: ")
-	username, _ := reader.ReadString('\n')
-
-	// Get Password (hidden input)
-	fmt.Print("Password: ")
-	bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+	nickname, err := utils.Read(reader, "Nickname")
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to read password: %w", err)
+		return nil, err
 	}
-	fmt.Println()
 
-	// Trim inputs
-	nickname = strings.TrimSpace(nickname)
-	username = strings.TrimSpace(username)
-	password := strings.TrimSpace(string(bytePassword))
+	username, err := utils.Read(reader, "Username")
+	if err != nil {
+		return nil, err
+	}
 
-	// Create RegisterReq payload
+	password, err := utils.ReadPassword("Password")
+	if err != nil {
+		return nil, err
+	}
+
 	payload := users.RegisterReq{
 		Nickname: nickname,
 		Username: username,
 		Password: password,
 	}
 
-	// Encode payload to JSON
-	payloadBytes, err := json.Marshal(payload)
+	baseResp, err := utils.SendRequest(s.conn, req, payload)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to encode payload: %w", err)
+		return nil, err
 	}
 
-	// Set payload into request and send
-	req.Payload = payloadBytes
-	if err := request.Send(s.conn, req); err != nil {
-		return uuid.Nil, fmt.Errorf("failed to send register message: %w", err)
-	}
-
-	// Read response from server
-	resp, err := response.Read(s.conn)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to read register response: %w", err)
-	}
-
-	baseResp := resp
-	if baseResp.Code != "OK" {
-		return uuid.Nil, fmt.Errorf("server error: %s", baseResp.Message)
-	}
-
-	dataBytes, err := json.Marshal(baseResp.Data)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to re-marshal register response data: %w", err)
+	if err := utils.CheckBaseResponse(baseResp); err != nil {
+		return nil, err
 	}
 
 	var data users.RegisterResp
-	if err := json.Unmarshal(dataBytes, &data); err != nil {
-		return uuid.Nil, fmt.Errorf("failed to unmarshal register response data: %w", err)
+	if err := utils.LoadData(baseResp.Data, &data); err != nil {
+		return nil, err
 	}
 
-	return data.ID, nil
+	return &data.ID, nil
 }
 
 func (s *module) Join(
 	req *request.ClientRequest,
 	roomCode string,
 ) (*message.MessagesReps, error) {
-	fmt.Print("Password: ")
-	bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+	password, err := utils.ReadPassword("Password")
 	if err != nil {
-		return nil, fmt.Errorf("failed to read password: %w", err)
+		return nil, err
 	}
-	fmt.Println()
 
 	roomCode = strings.TrimSpace(roomCode)
-	password := strings.TrimSpace(string(bytePassword))
 
 	payload := rooms.JoinReq{
 		RoomCode: roomCode,
 		Password: password,
 	}
 
-	// Encode payload to JSON
-	payloadBytes, err := json.Marshal(payload)
+	baseResp, err := utils.SendRequest(s.conn, req, payload)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode payload: %w", err)
+		return nil, err
 	}
 
-	// Set payload into request and send
-	req.Payload = payloadBytes
-	if err := request.Send(s.conn, req); err != nil {
-		return nil, fmt.Errorf("failed to send join message: %w", err)
-	}
-
-	// Read response from server
-	resp, err := response.Read(s.conn)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read join response: %w", err)
-	}
-
-	baseResp := resp
-	if baseResp.Code != "OK" {
-		return nil, fmt.Errorf("server error: %s", baseResp.Message)
-	}
-
-	dataBytes, err := json.Marshal(baseResp.Data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to re-marshal join response data: %w", err)
+	if err := utils.CheckBaseResponse(baseResp); err != nil {
+		return nil, err
 	}
 
 	var data message.MessagesReps
-	if err := json.Unmarshal(dataBytes, &data); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal join response data: %w", err)
+	if err := utils.LoadData(baseResp.Data, &data); err != nil {
+		return nil, err
 	}
 
 	return &data, nil
@@ -209,25 +138,11 @@ func (s *module) SendMessage(
 		Content: content,
 	}
 
-	// Encode payload to JSON
-	payloadBytes, err := json.Marshal(payload)
+	baseResp, err := utils.SendRequest(s.conn, req, payload)
 	if err != nil {
-		return fmt.Errorf("failed to encode payload: %w", err)
+		return err
 	}
 
-	// Set payload into request and send
-	req.Payload = payloadBytes
-	if err := request.Send(s.conn, req); err != nil {
-		return fmt.Errorf("failed to send message: %w", err)
-	}
-
-	// Read response from server
-	resp, err := response.Read(s.conn)
-	if err != nil {
-		return fmt.Errorf("failed to read server response: %w", err)
-	}
-
-	baseResp := resp
 	if baseResp.Code != "OK" && baseResp.Message != "" {
 		return fmt.Errorf("server error: %s ", baseResp.Message)
 	}

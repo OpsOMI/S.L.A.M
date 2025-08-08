@@ -203,7 +203,7 @@ func (t *Terminal) PrintNotification(msg string) {
 
 	go func() {
 		time.Sleep(1 * time.Second)
-		t.ClearOutput()
+		t.ClearLine(t.height - 1)
 	}()
 }
 
