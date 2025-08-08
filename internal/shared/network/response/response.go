@@ -3,6 +3,7 @@ package response
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"net"
 )
 
@@ -24,6 +25,8 @@ func Read(conn net.Conn) (*BaseResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("LINE: ", string(line), "dsadsa")
 
 	var resp BaseResponse
 	err = json.Unmarshal(line, &resp)

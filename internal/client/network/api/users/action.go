@@ -9,6 +9,7 @@ import (
 
 	"golang.org/x/term"
 
+	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/users"
@@ -132,12 +133,12 @@ func (s *module) Register(
 
 	dataBytes, err := json.Marshal(baseResp.Data)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to re-marshal login response data: %w", err)
+		return uuid.Nil, fmt.Errorf("failed to re-marshal register response data: %w", err)
 	}
 
 	var data users.RegisterResp
 	if err := json.Unmarshal(dataBytes, &data); err != nil {
-		return uuid.Nil, fmt.Errorf("failed to unmarshal login response data: %w", err)
+		return uuid.Nil, fmt.Errorf("failed to unmarshal register response data: %w", err)
 	}
 
 	return data.ID, nil
@@ -171,13 +172,13 @@ func (s *module) Join(
 	// Set payload into request and send
 	req.Payload = payloadBytes
 	if err := request.Send(s.conn, req); err != nil {
-		return nil, fmt.Errorf("failed to send register message: %w", err)
+		return nil, fmt.Errorf("failed to send join message: %w", err)
 	}
 
 	// Read response from server
 	resp, err := response.Read(s.conn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read register response: %w", err)
+		return nil, fmt.Errorf("failed to read join response: %w", err)
 	}
 
 	baseResp := resp
@@ -187,12 +188,12 @@ func (s *module) Join(
 
 	dataBytes, err := json.Marshal(baseResp.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to re-marshal login response data: %w", err)
+		return nil, fmt.Errorf("failed to re-marshal join response data: %w", err)
 	}
 
 	var data message.MessagesReps
 	if err := json.Unmarshal(dataBytes, &data); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal login response data: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal join response data: %w", err)
 	}
 
 	return &data, nil
@@ -217,19 +218,19 @@ func (s *module) SendMessage(
 	// Set payload into request and send
 	req.Payload = payloadBytes
 	if err := request.Send(s.conn, req); err != nil {
-		return fmt.Errorf("failed to send register message: %w", err)
+		return fmt.Errorf("failed to send message: %w", err)
 	}
 
 	// Read response from server
 	resp, err := response.Read(s.conn)
 	if err != nil {
-		return fmt.Errorf("failed to read register response: %w", err)
+		return fmt.Errorf("failed to read server response: %w", err)
 	}
 
 	baseResp := resp
-	if baseResp.Code != "OK" {
-		return fmt.Errorf("server error: %s", baseResp.Message)
+	if baseResp.Code != "OK" && baseResp.Message != "" {
+		return fmt.Errorf("server error: %s ", baseResp.Message)
 	}
 
-	return nil
+	return apperrors.NewNotification("Sent!")
 }

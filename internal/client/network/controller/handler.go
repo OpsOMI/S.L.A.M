@@ -20,17 +20,22 @@ import (
 )
 
 type Controller struct {
-	conn        net.Conn
-	done        chan struct{}
-	messageChan chan message.MessageResp
-	inputChan   chan string
-	config      config.Configs
-	logger      logger.ILogger
-	terminal    *terminal.Terminal
-	parser      parser.IParser
-	router      router.Router
-	store       *store.SessionStore
-	api         api.IAPI
+	// Mutablable connection and related structures
+	conn   net.Conn
+	api    api.IAPI
+	router router.Router
+
+	// Immutable Deps
+	logger   logger.ILogger
+	terminal *terminal.Terminal
+	parser   parser.IParser
+	store    *store.SessionStore
+	config   config.Configs
+
+	// Channels
+	done        chan struct{}            // Close to stop everything
+	messageChan chan message.MessageResp // Server - ui messages
+	inputChan   chan string              // Stdin lines
 }
 
 func NewController(
@@ -45,15 +50,17 @@ func NewController(
 	router := router.NewRouter(api, store, terminal)
 
 	return &Controller{
-		conn:     conn,
-		config:   config,
-		logger:   logger,
-		terminal: terminal,
-		parser:   parser,
-		router:   router,
-		store:    store,
-		api:      api,
-		done:     make(chan struct{}),
+		conn:        conn,
+		config:      config,
+		logger:      logger,
+		terminal:    terminal,
+		parser:      parser,
+		router:      router,
+		store:       store,
+		api:         api,
+		done:        make(chan struct{}),
+		messageChan: make(chan message.MessageResp, 200),
+		inputChan:   make(chan string),
 	}
 }
 
@@ -61,9 +68,6 @@ func (c *Controller) Run() {
 	c.terminal.Render()
 	c.terminal.SetConnected(c.conn != nil)
 	c.terminal.ClearScreen()
-
-	c.messageChan = make(chan message.MessageResp, 100)
-	c.inputChan = make(chan string)
 
 	// if c.conn != nil {
 	// 	c.ListenServerMessages()
@@ -79,12 +83,8 @@ func (c *Controller) Run() {
 		default:
 		}
 
-		if !c.checkConnection() {
+		if !c.isConnected() {
 			c.terminal.SetConnected(false)
-			if c.conn != nil {
-				c.conn.Close()
-				c.conn = nil
-			}
 		} else {
 			c.terminal.SetConnected(true)
 		}
@@ -96,6 +96,8 @@ func (c *Controller) Run() {
 			if roomCode == msg.RoomCode {
 				c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
 			}
+		case <-time.After(2 * time.Second):
+			c.terminal.SetConnected(c.conn != nil)
 		default:
 			c.handleInput(input)
 		}
@@ -176,14 +178,15 @@ func (c *Controller) handleInput(input string) {
 				JwtToken: c.store.JWT,
 				Scope:    "private",
 				Command:  "/send",
-			}, input); err != nil {
+			}, input,
+			); err != nil {
 				c.logger.Warn("Send error: " + err.Error())
 				/*
 					FIXME
 					You will see that this error message is triggered
 					when you receive something from the user in special / commands.
-					c.terminal.PrintError(err.Error())
 				*/
+				c.terminal.Print(err)
 			}
 			if c.store.GetRoom() != "" {
 				c.terminal.PrintMessage("You", input)
@@ -192,7 +195,7 @@ func (c *Controller) handleInput(input string) {
 	}
 }
 
-func (c *Controller) checkConnection() bool {
+func (c *Controller) isConnected() bool {
 	if c.conn == nil {
 		return false
 	}
