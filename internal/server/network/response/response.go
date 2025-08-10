@@ -16,7 +16,7 @@ func Handle(conn net.Conn, err error, requestID string) error {
 
 	// If error is already a BaseResponse (value or pointer), send it directly
 	if respPtr, ok := err.(*response.BaseResponse); ok {
-		respPtr.ReponseID = requestID
+		respPtr.ResponseID = requestID
 		return request.Send(conn, *respPtr)
 	}
 
@@ -24,9 +24,9 @@ func Handle(conn net.Conn, err error, requestID string) error {
 	var appErr *apperrors.AppError
 	if errors.As(err, &appErr) {
 		resp := response.BaseResponse{
-			ReponseID: requestID,
-			Message:   appErr.Message,
-			Code:      appErr.Code,
+			ResponseID: requestID,
+			Message:    appErr.Message,
+			Code:       appErr.Code,
 		}
 
 		// Hide internal details if error source is repository
@@ -41,10 +41,10 @@ func Handle(conn net.Conn, err error, requestID string) error {
 
 	// For unknown error types, send generic internal server error
 	resp := response.BaseResponse{
-		ReponseID: requestID,
-		Message:   "Internal Server Error",
-		Code:      "status.internal_server_error",
-		Data:      nil,
+		ResponseID: requestID,
+		Message:    "Internal Server Error",
+		Code:       "status.internal_server_error",
+		Data:       nil,
 	}
 	return request.Send(conn, resp)
 }

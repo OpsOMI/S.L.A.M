@@ -3,30 +3,30 @@ package owner
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
-	"github.com/OpsOMI/S.L.A.M/internal/client/network/types"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
-type Router struct {
+type Requester struct {
 	api      api.IAPI
 	terminal *terminal.Terminal
 	store    *store.SessionStore
-	routes   map[string]types.RouteFunc
+	routes   map[string]commons.RouteFunc
 }
 
-func NewRouter(
+func NewRequester(
 	terminal *terminal.Terminal,
 	store *store.SessionStore,
 	api api.IAPI,
-) Router {
-	r := Router{
+) Requester {
+	r := Requester{
 		api:      api,
 		store:    store,
 		terminal: terminal,
-		routes:   make(map[string]types.RouteFunc),
+		routes:   make(map[string]commons.RouteFunc),
 	}
 
 	r.AuthRoutes()
@@ -34,12 +34,12 @@ func NewRouter(
 	return r
 }
 
-func (r *Router) Supports(name string) bool {
+func (r *Requester) Supports(name string) bool {
 	_, exists := r.routes[name]
 	return exists
 }
 
-func (r *Router) Route(
+func (r *Requester) Route(
 	command parser.Command,
 	req *request.ClientRequest,
 ) error {

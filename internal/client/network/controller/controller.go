@@ -3,7 +3,6 @@ package controller
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -13,7 +12,8 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/infrastructure/network"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
-	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/requester"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/responder"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
@@ -22,10 +22,11 @@ import (
 
 type Controller struct {
 	// Mutablable connection and related structures
-	conn     net.Conn
-	listener net.Conn
-	api      api.IAPI
-	router   router.Router
+	conn      net.Conn
+	listener  net.Conn
+	api       api.IAPI
+	requester requester.Requesters
+	responder responder.Responder
 
 	// Immutable Deps
 	logger   logger.ILogger
@@ -50,7 +51,8 @@ func NewController(
 	parser := parser.NewParser()
 	api := api.NewAPI(conn, logger)
 	store := store.NewSessionStore()
-	router := router.NewRouter(api, store, terminal)
+	requester := requester.NewRequesters(api, store, terminal)
+	responder := responder.NewResponder(store, terminal)
 
 	return &Controller{
 		conn:      conn,
@@ -59,7 +61,8 @@ func NewController(
 		logger:    logger,
 		terminal:  terminal,
 		parser:    parser,
-		router:    router,
+		requester: requester,
+		responder: responder,
 		store:     store,
 		api:       api,
 		done:      make(chan struct{}),
@@ -77,7 +80,7 @@ func (c *Controller) Run() {
 		c.ListenServerMessages()
 	}
 
-	go c.handleIncomingResponses()
+	go c.responder.Listen(c.responses)
 
 	for {
 		select {
@@ -125,45 +128,6 @@ func (c *Controller) HandleUserInput() string {
 	return input
 }
 
-func (c *Controller) handleIncomingResponses() {
-	for baseResponse := range c.responses {
-
-		fmt.Println(baseResponse)
-		c.terminal.PrintNotification(baseResponse.ReponseID + "dsadsa")
-		// if baseResponse.ReponseID == commons.ResponseIDLogin {
-		// 	if err := utils.CheckBaseResponse(&baseResponse); err != nil {
-		// 		c.terminal.PrintError(err.Error())
-		// 		return
-		// 	}
-
-		// 	var data users.LoginResp
-		// 	if err := utils.LoadData(baseResponse.Data, &data); err != nil {
-		// 		c.terminal.PrintError("Invalid Data")
-		// 		return
-		// 	}
-
-		// 	c.store.SetToken(data.Token)
-		// 	c.store.ParseJWT()
-		// 	c.terminal.Render()
-		// }
-
-		// if baseResponse.ReponseID == commons.ResponseIDJustMessage {
-		// 	if err := utils.CheckBaseResponse(&baseResponse); err != nil {
-		// 		c.terminal.PrintError(err.Error())
-		// 		return
-		// 	}
-		// 	c.terminal.PrintNotification(baseResponse.Message)
-		// }
-
-		// c.terminal.PrintNotification(fmt.Sprintf("%v", baseResponse.ReponseID))
-
-		// roomCode := c.store.GetRoom()
-		// if roomCode == msg.RoomCode {
-		// 	c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
-		// }
-	}
-}
-
 func (c *Controller) handleInput(input string) {
 	switch {
 	case input == "/exit" || input == "/quit":
@@ -192,16 +156,17 @@ func (c *Controller) handleInput(input string) {
 			c.terminal.PrintError("Invalid command syntax.")
 			return
 		}
-		if err := c.router.Route(command); err != nil {
+		if err := c.requester.SendRequest(command); err != nil {
 			c.terminal.Print(err)
 		}
 
 	default:
 		if input != "" {
 			if err := c.api.Users().SendMessage(&request.ClientRequest{
-				JwtToken: c.store.JWT,
-				Scope:    "private",
-				Command:  "/send",
+				RequestID: "SEND_MESSAGE",
+				JwtToken:  c.store.JWT,
+				Scope:     "private",
+				Command:   "/send",
 			}, input,
 			); err != nil {
 				c.logger.Warn("Send error: " + err.Error())
@@ -248,9 +213,7 @@ func (c *Controller) Reconnect() error {
 	}
 	c.conn = conn
 	c.api = api.NewAPI(c.conn, c.logger)
-	c.router = router.NewRouter(c.api, c.store, c.terminal)
-
-	// c.ListenServerMessages()
+	c.requester = requester.NewRequesters(c.api, c.store, c.terminal)
 
 	return nil
 }

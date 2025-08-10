@@ -7,11 +7,11 @@ import (
 )
 
 type BaseResponse struct {
-	ReponseID string `json:"response_id"`
-	Message   string `json:"message"`
-	Code      string `json:"code"`
-	Errors    any    `json:"errors,omitempty"`
-	Data      any    `json:"data,omitempty"`
+	ResponseID string `json:"response_id"`
+	Message    string `json:"message"`
+	Code       string `json:"code"`
+	Errors     any    `json:"errors,omitempty"`
+	Data       any    `json:"data,omitempty"`
 }
 
 // Error implements the error interface for BaseResponse.

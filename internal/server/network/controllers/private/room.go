@@ -8,7 +8,6 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
-	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 )
 
@@ -47,7 +46,7 @@ func (p *Controller) HandleJoin(
 		}
 	}
 
-	return response.Response(commons.StatusOK, "Joined Successfully", message.ManyMessage(domainMessages))
+	return response.Response(commons.StatusOK, "Joined Successfully", rooms.OneJoin(req.RoomCode, domainMessages))
 }
 
 func (p *Controller) CreateRoom(

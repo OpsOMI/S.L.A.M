@@ -5,38 +5,35 @@ import (
 	"strings"
 
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
-func (r *Router) RoomRoutes() {
+func (r *Requester) RoomRoutes() {
 	r.routes["/join"] = r.HandleJoin
 	r.routes["/hidden"] = r.HandleHidden
 	r.routes["/room/create"] = r.HandleCreate
 	r.routes["/room/list"] = r.HandleList
 }
 
-func (r *Router) HandleJoin(
+func (r *Requester) HandleJoin(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
+	req.RequestID = commons.RequestIDJoin
 	if len(cmd.Args) != 1 {
 		return apperrors.NewNotification("usage: /join [roomcode]")
 	}
 
-	messages, err := r.api.Users().Join(req, cmd.Args[0])
-	if err != nil {
+	if err := r.api.Users().Join(req, cmd.Args[0]); err != nil {
 		return err
 	}
 
-	r.store.SetRoom(cmd.Args[0])
-	r.terminal.SetCurrentRoom(cmd.Args[0])
-	r.terminal.SetMessages(messages)
-
-	return apperrors.NewNotification("Joined Successfully: " + cmd.Args[0])
+	return nil
 }
 
-func (r *Router) HandleCreate(
+func (r *Requester) HandleCreate(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
@@ -67,7 +64,7 @@ func (r *Router) HandleCreate(
 	return apperrors.NewNotification("Room Created Successfully, Code: " + *code)
 }
 
-func (r *Router) HandleList(
+func (r *Requester) HandleList(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
@@ -101,7 +98,7 @@ func (r *Router) HandleList(
 	return apperrors.NewNotification("Your Rooms Listed!")
 }
 
-func (r *Router) HandleHidden(
+func (r *Requester) HandleHidden(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
