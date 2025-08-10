@@ -74,6 +74,28 @@ func (q *Queries) GetRoomByCode(ctx context.Context, code string) (Room, error) 
 	return i, err
 }
 
+const getRoomByCodeAndOwnerID = `-- name: GetRoomByCodeAndOwnerID :one
+SELECT id, owner_id, code, password, created_at FROM rooms WHERE code = $1 AND owner_id = $2
+`
+
+type GetRoomByCodeAndOwnerIDParams struct {
+	Code    string
+	OwnerID uuid.UUID
+}
+
+func (q *Queries) GetRoomByCodeAndOwnerID(ctx context.Context, arg GetRoomByCodeAndOwnerIDParams) (Room, error) {
+	row := q.db.QueryRowContext(ctx, getRoomByCodeAndOwnerID, arg.Code, arg.OwnerID)
+	var i Room
+	err := row.Scan(
+		&i.ID,
+		&i.OwnerID,
+		&i.Code,
+		&i.Password,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getRoomByID = `-- name: GetRoomByID :one
 SELECT id, owner_id, code, password, created_at FROM rooms WHERE id = $1
 `

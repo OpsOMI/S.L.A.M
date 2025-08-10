@@ -2,9 +2,12 @@ package messages
 
 import (
 	"context"
+	"strings"
 
-	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/repoerrors"
+	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/serviceerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/messages"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
+	"github.com/google/uuid"
 )
 
 func (s *service) GetMessagesByRoomCode(
@@ -30,7 +33,7 @@ func (s *service) CreateMessage(
 	}
 
 	if err := s.repositories.Messages().CreateMessage(ctx, sender.ID, rooms.ID, content); err != nil {
-		return repoerrors.Internal(messages.ErrCreateFailed, err)
+		return serviceerrors.Internal(messages.ErrCreateFailed, err)
 	}
 
 	return nil
@@ -40,6 +43,21 @@ func (s *service) DeleteMessages(
 	ctx context.Context,
 ) error {
 	return s.repositories.Messages().DeleteMessages(ctx)
+}
+
+func (s *service) DeleteMessageInRoom(
+	ctx context.Context,
+	ownerID uuid.UUID,
+	roomCode string,
+) error {
+	if _, err := s.rooms.GetByCodeAndOwnerID(ctx, ownerID.String(), roomCode); err != nil {
+		if strings.Contains(err.Error(), "not_found") {
+			return serviceerrors.Forbidden(rooms.ErrNotYourRoom)
+		}
+		return err
+	}
+
+	return s.repositories.Messages().DeleteMessagesByRoomCode(ctx, roomCode)
 }
 
 func (s *service) DeleteMessageByRoomCode(

@@ -9,6 +9,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/utils"
 	"github.com/OpsOMI/S.L.A.M/pkg"
+	"github.com/google/uuid"
 )
 
 type IMessageService interface {
@@ -29,6 +30,12 @@ type IMessageService interface {
 
 	DeleteMessageByRoomCode(
 		ctx context.Context,
+		roomCode string,
+	) error
+
+	DeleteMessageInRoom(
+		ctx context.Context,
+		ownerID uuid.UUID,
 		roomCode string,
 	) error
 }

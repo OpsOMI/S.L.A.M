@@ -4,6 +4,9 @@ SELECT * FROM rooms WHERE id = @id;
 -- name: GetRoomByCode :one
 SELECT * FROM rooms WHERE code = @code;
 
+-- name: GetRoomByCodeAndOwnerID :one
+SELECT * FROM rooms WHERE code = @code AND owner_id = @owner_id;
+
 -- name: GetRoomsByOwnerID :many
 SELECT * FROM rooms WHERE owner_id = @owner_id ORDER BY created_at DESC LIMIT @lim OFFSET @off;
 

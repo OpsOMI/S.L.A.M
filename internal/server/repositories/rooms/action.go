@@ -37,6 +37,23 @@ func (r *repository) GetByCode(
 	return r.mappers.Rooms().One(&dbModel), nil
 }
 
+func (r *repository) GetByCodeAndOwnerID(
+	ctx context.Context,
+	ownerID uuid.UUID,
+	code string,
+) (*rooms.Room, error) {
+	params := r.mappers.Rooms().GetByCodeAndOwnerID(ownerID, code)
+	dbModels, err := r.queries.GetRoomByCodeAndOwnerID(ctx, params)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, repoerrors.NotFound(rooms.ErrNotFound)
+		}
+		return nil, repoerrors.Internal(rooms.ErrFetchFailed, err)
+	}
+
+	return r.mappers.Rooms().One(&dbModels), nil
+}
+
 func (r *repository) GetByOwnerID(
 	ctx context.Context,
 	ownerID uuid.UUID,

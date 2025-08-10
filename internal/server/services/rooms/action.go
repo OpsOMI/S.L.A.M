@@ -26,6 +26,18 @@ func (s *service) GetByCode(
 	return s.repositories.Rooms().GetByCode(ctx, code)
 }
 
+func (s *service) GetByCodeAndOwnerID(
+	ctx context.Context,
+	ownerID, code string,
+) (*rooms.Room, error) {
+	uid, err := s.utils.Parse().ParseRequiredUUID(ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.repositories.Rooms().GetByCodeAndOwnerID(ctx, uid, code)
+}
+
 func (s *service) GetByOwnerID(
 	ctx context.Context,
 	ownerID string,

@@ -13,3 +13,7 @@ type ListRoomReq struct {
 	Page  int32 `json:"page"`
 	Limit int32 `json:"limit"`
 }
+
+type CleanRoom struct {
+	RoomCode string `json:"roomCode"`
+}

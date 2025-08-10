@@ -22,6 +22,11 @@ type IRoomService interface {
 		code string,
 	) (*rooms.Room, error)
 
+	GetByCodeAndOwnerID(
+		ctx context.Context,
+		ownerID, code string,
+	) (*rooms.Room, error)
+
 	GetByOwnerID(
 		ctx context.Context,
 		ownerID string,
