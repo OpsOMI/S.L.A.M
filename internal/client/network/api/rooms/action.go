@@ -11,7 +11,7 @@ func (s *module) List(
 	req *request.ClientRequest,
 	page, limit int32,
 ) (*rooms.RoomsResp, error) {
-	payload := rooms.MyRoomReq{
+	payload := rooms.ListRoomReq{
 		Page:  page,
 		Limit: limit,
 	}

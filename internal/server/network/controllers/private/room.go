@@ -77,7 +77,7 @@ func (p *Controller) List(
 ) error {
 	ctx := context.Background()
 	userInfo := p.store.ParseToken(jwtToken)
-	var req rooms.MyRoomReq
+	var req rooms.ListRoomReq
 	if err := utils.ParseJSON(args, &req); err != nil {
 		return nil
 	}
