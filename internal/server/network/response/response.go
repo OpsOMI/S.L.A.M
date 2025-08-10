@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
@@ -30,7 +31,7 @@ func Handle(conn net.Conn, err error, requestID string) error {
 		}
 
 		// Hide internal details if error source is repository
-		if appErr.Source == apperrors.SourceRepo {
+		if appErr.Source == apperrors.SourceRepo && appErr.Code == commons.StatusInternalServerError {
 			resp.Message = "Something Went Wrong"
 			resp.Code = "Internal Server Error"
 			resp.Data = nil
