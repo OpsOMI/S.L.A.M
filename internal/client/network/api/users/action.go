@@ -39,17 +39,18 @@ func (s *module) Login(
 	if err != nil {
 		return nil, err
 	}
+	_ = baseResp
 
-	if err := utils.CheckBaseResponse(baseResp); err != nil {
-		return nil, err
-	}
+	// if err := utils.CheckBaseResponse(baseResp); err != nil {
+	// 	return nil, err
+	// // }
 
-	var data users.LoginResp
-	if err := utils.LoadData(baseResp.Data, &data); err != nil {
-		return nil, err
-	}
+	// var data users.LoginResp
+	// if err := utils.LoadData(baseResp.Data, &data); err != nil {
+	// 	return nil, err
+	// }
 
-	return &data.Token, nil
+	return nil, nil
 }
 
 func (s *module) Register(

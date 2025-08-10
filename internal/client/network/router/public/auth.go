@@ -19,15 +19,15 @@ func (r *Router) HandleLogin(
 		return apperrors.NewNotification("Already logged in")
 	}
 
-	jwt, err := r.api.Users().Login(req)
+	_, err := r.api.Users().Login(req)
 	if err != nil {
 		return err
 	}
 
-	// Logged In.
-	r.store.SetToken(*jwt)
-	r.store.ParseJWT()
-	r.terminal.Render()
+	// // Logged In.
+	// r.store.SetToken(*jwt)
+	// r.store.ParseJWT()
+	// r.terminal.Render()
 
 	return apperrors.NewNotification("Login Successful")
 }

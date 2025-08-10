@@ -31,5 +31,5 @@ func (p *Controller) HandleRegister(
 		return err
 	}
 
-	return response.Response(commons.ResponseIDRegister, commons.StatusOK, "User Created!", users.ToRegisterResponse(*id))
+	return response.Response(commons.StatusOK, "User Created!", users.ToRegisterResponse(*id))
 }

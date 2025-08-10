@@ -33,7 +33,7 @@ func (p *Controller) HandleMessage(
 	chatRoom, ok := p.connections.GetClientRoom(userInfo.ClientID)
 	if !ok {
 		p.logger.Warn("User tried to send message without joining a room")
-		return response.Response(commons.ResponseIDJustMessage, commons.StatusBadRequest, "Enter a Room/Chat First", nil)
+		return response.Response(commons.StatusBadRequest, "Enter a Room/Chat First", nil)
 	}
 
 	room, err := p.services.Rooms().GetByCode(ctx, chatRoom)
@@ -50,7 +50,7 @@ func (p *Controller) HandleMessage(
 			return err
 		}
 
-		return response.Response(commons.ResponseIDJustMessage, commons.StatusOK, "Message Saved", nil)
+		return response.Response(commons.StatusOK, "Message Saved", nil)
 	}
 
 	for _, conn := range connections {
@@ -66,5 +66,5 @@ func (p *Controller) HandleMessage(
 		return err
 	}
 
-	return response.Response(commons.ResponseIDJustMessage, commons.StatusOK, "Message Sent into Room!", nil)
+	return response.Response(commons.StatusOK, "Message Sent into Room!", nil)
 }

@@ -8,7 +8,6 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
-	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/infrastructure/connection"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/owner"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/controllers/private"
@@ -95,10 +94,10 @@ func (c *Controller) HandleConnection(
 		case "owner":
 			routeMsg = owner.Route(conn, msg.JwtToken, msg.Command, msg.Payload)
 		default:
-			routeMsg = response.Response(commons.ResponseIDUnkownCommand, "status.internal", "Invalid Scope", nil)
+			routeMsg = response.Response("status.internal", "Invalid Scope", nil)
 		}
 
-		_ = response.Handle(conn, routeMsg)
+		_ = response.Handle(conn, routeMsg, msg.RequestID)
 		c.logger.Info("Command received from " + conn.RemoteAddr().String() + ": " + msg.Command)
 	}
 

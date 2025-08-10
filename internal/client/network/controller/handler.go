@@ -3,6 +3,7 @@ package controller
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -15,8 +16,8 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
-	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
 
 type Controller struct {
@@ -34,9 +35,9 @@ type Controller struct {
 	config   config.Configs
 
 	// Channels
-	done        chan struct{}            // Close to stop everything
-	messageChan chan message.MessageResp // Server - ui messages
-	inputChan   chan string              // Stdin lines
+	done      chan struct{}              // Close to stop everything
+	responses chan response.BaseResponse // Server - ui messages
+	inputChan chan string                // Stdin lines
 }
 
 func NewController(
@@ -52,18 +53,18 @@ func NewController(
 	router := router.NewRouter(api, store, terminal)
 
 	return &Controller{
-		conn:        conn,
-		listener:    listener,
-		config:      config,
-		logger:      logger,
-		terminal:    terminal,
-		parser:      parser,
-		router:      router,
-		store:       store,
-		api:         api,
-		done:        make(chan struct{}),
-		messageChan: make(chan message.MessageResp, 200),
-		inputChan:   make(chan string),
+		conn:      conn,
+		listener:  listener,
+		config:    config,
+		logger:    logger,
+		terminal:  terminal,
+		parser:    parser,
+		router:    router,
+		store:     store,
+		api:       api,
+		done:      make(chan struct{}),
+		responses: make(chan response.BaseResponse, 200),
+		inputChan: make(chan string),
 	}
 }
 
@@ -72,11 +73,11 @@ func (c *Controller) Run() {
 	c.terminal.SetConnected(c.conn != nil)
 	c.terminal.ClearScreen()
 
-	// if c.listener != nil {
-	// 	c.ListenServerMessages()
-	// }
+	if c.conn != nil {
+		c.ListenServerMessages()
+	}
 
-	go c.handleIncomingMessages()
+	go c.handleIncomingResponses()
 
 	for {
 		select {
@@ -93,15 +94,7 @@ func (c *Controller) Run() {
 		}
 
 		input := c.HandleUserInput()
-		select {
-		case msg := <-c.messageChan:
-			roomCode := c.store.GetRoom()
-			if roomCode == msg.RoomCode {
-				c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
-			}
-		default:
-			c.handleInput(input)
-		}
+		c.handleInput(input)
 	}
 }
 
@@ -132,12 +125,42 @@ func (c *Controller) HandleUserInput() string {
 	return input
 }
 
-func (c *Controller) handleIncomingMessages() {
-	for msg := range c.messageChan {
-		roomCode := c.store.GetRoom()
-		if roomCode == msg.RoomCode {
-			c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
-		}
+func (c *Controller) handleIncomingResponses() {
+	for baseResponse := range c.responses {
+
+		fmt.Println(baseResponse)
+		c.terminal.PrintNotification(baseResponse.ReponseID + "dsadsa")
+		// if baseResponse.ReponseID == commons.ResponseIDLogin {
+		// 	if err := utils.CheckBaseResponse(&baseResponse); err != nil {
+		// 		c.terminal.PrintError(err.Error())
+		// 		return
+		// 	}
+
+		// 	var data users.LoginResp
+		// 	if err := utils.LoadData(baseResponse.Data, &data); err != nil {
+		// 		c.terminal.PrintError("Invalid Data")
+		// 		return
+		// 	}
+
+		// 	c.store.SetToken(data.Token)
+		// 	c.store.ParseJWT()
+		// 	c.terminal.Render()
+		// }
+
+		// if baseResponse.ReponseID == commons.ResponseIDJustMessage {
+		// 	if err := utils.CheckBaseResponse(&baseResponse); err != nil {
+		// 		c.terminal.PrintError(err.Error())
+		// 		return
+		// 	}
+		// 	c.terminal.PrintNotification(baseResponse.Message)
+		// }
+
+		// c.terminal.PrintNotification(fmt.Sprintf("%v", baseResponse.ReponseID))
+
+		// roomCode := c.store.GetRoom()
+		// if roomCode == msg.RoomCode {
+		// 	c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
+		// }
 	}
 }
 
@@ -234,14 +257,14 @@ func (c *Controller) Reconnect() error {
 
 func (c *Controller) ListenServerMessages() {
 	go func() {
-		reader := bufio.NewReader(c.listener)
+		reader := bufio.NewReader(c.conn)
 
 		for {
-			_ = c.listener.SetReadDeadline(time.Now().Add(1 * time.Second))
+			_ = c.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
 
 			msg, err := reader.ReadString('\n')
 
-			_ = c.listener.SetReadDeadline(time.Time{})
+			_ = c.conn.SetReadDeadline(time.Time{})
 
 			if err != nil {
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
@@ -252,13 +275,13 @@ func (c *Controller) ListenServerMessages() {
 				break
 			}
 
-			var serverMsg message.MessageResp
-			if err := json.Unmarshal([]byte(msg), &serverMsg); err != nil {
+			var serverResp response.BaseResponse
+			if err := json.Unmarshal([]byte(msg), &serverResp); err != nil {
 				c.logger.Warn("Invalid server message format: " + err.Error())
 				continue
 			}
 
-			c.messageChan <- serverMsg
+			c.responses <- serverResp
 		}
 	}()
 }

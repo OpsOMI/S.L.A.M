@@ -9,13 +9,14 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
 
-func Handle(conn net.Conn, err error) error {
+func Handle(conn net.Conn, err error, requestID string) error {
 	if err == nil {
 		return nil
 	}
 
 	// If error is already a BaseResponse (value or pointer), send it directly
 	if respPtr, ok := err.(*response.BaseResponse); ok {
+		respPtr.ReponseID = requestID
 		return request.Send(conn, *respPtr)
 	}
 
@@ -23,7 +24,7 @@ func Handle(conn net.Conn, err error) error {
 	var appErr *apperrors.AppError
 	if errors.As(err, &appErr) {
 		resp := response.BaseResponse{
-			ReponseID: appErr.ResponseID,
+			ReponseID: requestID,
 			Message:   appErr.Message,
 			Code:      appErr.Code,
 		}
@@ -40,7 +41,7 @@ func Handle(conn net.Conn, err error) error {
 
 	// For unknown error types, send generic internal server error
 	resp := response.BaseResponse{
-		ReponseID: appErr.ResponseID,
+		ReponseID: requestID,
 		Message:   "Internal Server Error",
 		Code:      "status.internal_server_error",
 		Data:      nil,
@@ -48,12 +49,11 @@ func Handle(conn net.Conn, err error) error {
 	return request.Send(conn, resp)
 }
 
-func Response(responseID int, code, message string, data any) error {
+func Response(code, message string, data any) error {
 	return &response.BaseResponse{
-		ReponseID: responseID,
-		Code:      code,
-		Message:   message,
-		Data:      data,
-		Errors:    nil,
+		Code:    code,
+		Message: message,
+		Data:    data,
+		Errors:  nil,
 	}
 }

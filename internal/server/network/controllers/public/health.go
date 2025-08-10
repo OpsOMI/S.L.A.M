@@ -17,5 +17,5 @@ func (p *Controller) HandleRoot(
 	args json.RawMessage,
 	jwtToken *string,
 ) error {
-	return response.Response(commons.ResponseIDJustMessage, commons.StatusOK, "Welcome To The Public Controller", nil)
+	return response.Response(commons.StatusOK, "Welcome To The Public Controller", nil)
 }

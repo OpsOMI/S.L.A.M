@@ -31,6 +31,15 @@ func SendRequest(
 		return nil, apperrors.NewError("failed to send message: " + err.Error())
 	}
 
+	// resp, err := response.Read(conn)
+	// if err != nil {
+	// 	return nil, apperrors.NewError("failed to read server response: " + err.Error())
+	// }
+
+	return nil, nil
+}
+
+func ResponseRead(conn net.Conn) (*response.BaseResponse, error) {
 	resp, err := response.Read(conn)
 	if err != nil {
 		return nil, apperrors.NewError("failed to read server response: " + err.Error())
@@ -54,9 +63,9 @@ func LoadData[T any](data any, target *T) error {
 
 // If the code OK returns nil.
 func CheckBaseResponse(resp *response.BaseResponse) error {
-	if resp == nil {
-		return apperrors.NewError("empty server response")
-	}
+	// if resp == nil {
+	// 	return apperrors.NewError("empty server response")
+	// }
 
 	switch resp.Code {
 	case "OK":

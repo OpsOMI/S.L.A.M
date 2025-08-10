@@ -7,7 +7,7 @@ import (
 )
 
 type BaseResponse struct {
-	ReponseID int    `json:"responseID"`
+	ReponseID string `json:"response_id"`
 	Message   string `json:"message"`
 	Code      string `json:"code"`
 	Errors    any    `json:"errors,omitempty"`
