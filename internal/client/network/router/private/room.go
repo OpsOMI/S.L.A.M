@@ -11,6 +11,7 @@ import (
 
 func (r *Router) RoomRoutes() {
 	r.routes["/join"] = r.HandleJoin
+	r.routes["/hidden"] = r.HandleHidden
 	r.routes["/room/create"] = r.HandleCreate
 	r.routes["/room/list"] = r.HandleList
 }
@@ -98,4 +99,13 @@ func (r *Router) HandleList(
 	r.terminal.SetRooms(myRooms)
 
 	return apperrors.NewNotification("Your Rooms Listed!")
+}
+
+func (r *Router) HandleHidden(
+	cmd parser.Command,
+	req *request.ClientRequest,
+) error {
+	r.terminal.SetRooms(nil)
+
+	return apperrors.NewNotification("Rooms were hidden!")
 }

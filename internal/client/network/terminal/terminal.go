@@ -205,6 +205,11 @@ func (t *Terminal) SetRooms(
 ) {
 	t.rooms = nil
 
+	if rooms == nil {
+		t.Render()
+		return
+	}
+
 	for _, r := range rooms.Items {
 		t.rooms = append(t.rooms, Rooms{
 			Code:     r.Code,
