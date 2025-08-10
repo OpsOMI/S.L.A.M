@@ -95,7 +95,7 @@ func (r *Router) HandleList(
 	if err != nil {
 		return err
 	}
-	_ = myRooms
+	r.terminal.SetRooms(myRooms)
 
 	return apperrors.NewNotification("Your Rooms Listed!")
 }
