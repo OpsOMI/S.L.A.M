@@ -14,6 +14,6 @@ type ListRoomReq struct {
 	Limit int32 `json:"limit"`
 }
 
-type CleanRoom struct {
+type CleanRoomReq struct {
 	RoomCode string `json:"roomCode"`
 }

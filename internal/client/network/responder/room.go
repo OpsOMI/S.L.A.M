@@ -40,3 +40,8 @@ func (r *Responder) HandleListRoom(response response.BaseResponse) {
 	r.terminal.SetRooms(&data)
 	r.terminal.PrintNotification("Your Rooms Listed!")
 }
+
+func (r *Responder) HandleCleanRoom(response response.BaseResponse) {
+	r.terminal.SetMessages(nil)
+	r.terminal.PrintNotification(response.Message)
+}

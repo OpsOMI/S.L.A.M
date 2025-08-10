@@ -16,6 +16,11 @@ type IRoomModule interface {
 		req *request.ClientRequest,
 		isSecure bool,
 	) error
+
+	Clean(
+		req *request.ClientRequest,
+		roomCode string,
+	) error
 }
 
 type module struct {

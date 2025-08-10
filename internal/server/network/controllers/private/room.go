@@ -97,7 +97,7 @@ func (p *Controller) Clean(
 ) error {
 	ctx := context.Background()
 	userInfo := p.store.ParseToken(jwtToken)
-	var req rooms.CleanRoom
+	var req rooms.CleanRoomReq
 	if err := utils.ParseJSON(args, &req); err != nil {
 		return nil
 	}

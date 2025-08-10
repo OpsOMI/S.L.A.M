@@ -15,6 +15,7 @@ func (r *Requester) RoomRoutes() {
 	r.routes["/hidden"] = r.HandleHidden
 	r.routes["/room/create"] = r.HandleCreate
 	r.routes["/room/list"] = r.HandleList
+	r.routes["/room/clean"] = r.HandleClean
 }
 
 func (r *Requester) HandleJoin(
@@ -92,6 +93,19 @@ func (r *Requester) HandleList(
 	}
 
 	if err := r.api.Rooms().List(req, page, limit); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Requester) HandleClean(
+	cmd parser.Command,
+	req *request.ClientRequest,
+) error {
+	req.RequestID = commons.RequestIDCleanRoom
+
+	if err := r.api.Rooms().Clean(req, r.store.Room); err != nil {
 		return err
 	}
 

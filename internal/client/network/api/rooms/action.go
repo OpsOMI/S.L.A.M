@@ -58,3 +58,18 @@ func (s *module) Create(
 
 	return nil
 }
+
+func (s *module) Clean(
+	req *request.ClientRequest,
+	roomCode string,
+) error {
+	payload := rooms.CleanRoomReq{
+		RoomCode: roomCode,
+	}
+
+	if err := utils.SendRequest(s.conn, req, payload); err != nil {
+		return err
+	}
+
+	return nil
+}
