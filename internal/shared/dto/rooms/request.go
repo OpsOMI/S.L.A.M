@@ -9,7 +9,7 @@ type CreateReq struct {
 	Password string `json:"password"`
 }
 
-type MyRoomReq struct {
+type ListRoomReq struct {
 	Page  int32 `json:"page"`
 	Limit int32 `json:"limit"`
 }

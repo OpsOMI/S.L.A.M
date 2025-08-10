@@ -1,6 +1,7 @@
 package private
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
@@ -10,7 +11,9 @@ import (
 
 func (r *Router) RoomRoutes() {
 	r.routes["/join"] = r.HandleJoin
+	r.routes["/hidden"] = r.HandleHidden
 	r.routes["/room/create"] = r.HandleCreate
+	r.routes["/room/list"] = r.HandleList
 }
 
 func (r *Router) HandleJoin(
@@ -61,5 +64,48 @@ func (r *Router) HandleCreate(
 		return err
 	}
 
-	return apperrors.NewNotification("Room Created Successfully, Code: " + code)
+	return apperrors.NewNotification("Room Created Successfully, Code: " + *code)
+}
+
+func (r *Router) HandleList(
+	cmd parser.Command,
+	req *request.ClientRequest,
+) error {
+	var page, limit int32
+	if len(cmd.Args) != 0 {
+		if cmd.Args[0] == "help" {
+			return apperrors.NewNotification("usage: /room/list [page:(optional)] [limit:(optional)]")
+		}
+
+		p, err := strconv.Atoi(cmd.Args[0])
+		if err != nil {
+			return apperrors.NewError("page must be an integer value.")
+		}
+		page = int32(p)
+
+		if len(cmd.Args) > 1 {
+			lim, err := strconv.Atoi(cmd.Args[1])
+			if err != nil {
+				return apperrors.NewError("page must be an integer value.")
+			}
+			limit = int32(lim)
+		}
+	}
+
+	myRooms, err := r.api.Rooms().List(req, page, limit)
+	if err != nil {
+		return err
+	}
+	r.terminal.SetRooms(myRooms)
+
+	return apperrors.NewNotification("Your Rooms Listed!")
+}
+
+func (r *Router) HandleHidden(
+	cmd parser.Command,
+	req *request.ClientRequest,
+) error {
+	r.terminal.SetRooms(nil)
+
+	return apperrors.NewNotification("Rooms were hidden!")
 }

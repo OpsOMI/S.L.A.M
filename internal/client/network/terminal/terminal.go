@@ -9,12 +9,14 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 	"golang.org/x/term"
 )
 
 type Terminal struct {
 	reader          *bufio.Reader
 	messages        []Messages
+	rooms           []Rooms
 	output          Notification
 	label           string
 	connected       bool
@@ -33,6 +35,11 @@ type Notification struct {
 	Message string
 }
 
+type Rooms struct {
+	Code     string
+	IsLocked bool
+}
+
 func NewTerminal() *Terminal {
 	width, height, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
@@ -43,6 +50,7 @@ func NewTerminal() *Terminal {
 	return &Terminal{
 		reader:    bufio.NewReader(os.Stdin),
 		messages:  make([]Messages, 0),
+		rooms:     make([]Rooms, 0),
 		connected: true,
 		height:    height,
 		width:     width,
@@ -87,16 +95,64 @@ func (t *Terminal) Render() {
 	// Start messages
 	msgStartRow := 3
 	maxMessages := t.height - msgStartRow - 2
-
 	start := 0
 	if len(t.messages) > maxMessages {
 		start = len(t.messages) - maxMessages
 	}
 	visibleMessages := t.messages[start:]
 
-	for i, message := range visibleMessages {
-		t.moveCursor(msgStartRow+i, 1)
-		fmt.Print(message.SenderNickname + ": " + message.Content)
+	// 20 is the length of the room messages.
+	msgLastColumn := t.width - 20
+	roomsColStart := msgLastColumn + 5
+
+	row := msgStartRow
+	for _, message := range visibleMessages {
+		msgLabel := message.SenderNickname + ": "
+		msgContent := message.Content
+		labelLen := len(msgLabel)
+
+		firstLine := true
+		for {
+			var segment string
+			if firstLine {
+				end := min(len(msgContent), msgLastColumn-labelLen)
+				segment = msgLabel + msgContent[:end]
+				msgContent = msgContent[end:]
+			} else {
+				end := min(len(msgContent), msgLastColumn-labelLen)
+				segment = strings.Repeat(" ", labelLen) + msgContent[:end]
+				msgContent = msgContent[end:]
+			}
+
+			t.moveCursor(row, 1)
+			fmt.Print(segment)
+			if len(segment) < msgLastColumn {
+				fmt.Print(strings.Repeat(" ", msgLastColumn-len(segment)))
+			}
+
+			row++
+			firstLine = false
+			if len(msgContent) == 0 {
+				break
+			}
+		}
+	}
+
+	// Room
+	row = msgStartRow
+	for _, room := range t.rooms {
+		var icon, color string
+		if room.IsLocked {
+			icon = "[LOCK]"
+			color = "\033[31m"
+		} else {
+			icon = "[OPEN]"
+			color = "\033[32m"
+		}
+
+		t.moveCursor(row, roomsColStart)
+		fmt.Printf("%s%s %s\033[0m", color, icon, room.Code)
+		row++
 	}
 
 	// Print outputMessage (error or notification) on line above prompt (height-1)
@@ -139,6 +195,25 @@ func (t *Terminal) SetMessages(
 		t.messages = append(t.messages, Messages{
 			SenderNickname: m.SenderNickname,
 			Content:        m.Content,
+		})
+	}
+	t.Render()
+}
+
+func (t *Terminal) SetRooms(
+	rooms *rooms.RoomsResp,
+) {
+	t.rooms = nil
+
+	if rooms == nil {
+		t.Render()
+		return
+	}
+
+	for _, r := range rooms.Items {
+		t.rooms = append(t.rooms, Rooms{
+			Code:     r.Code,
+			IsLocked: r.IsLocked,
 		})
 	}
 	t.Render()

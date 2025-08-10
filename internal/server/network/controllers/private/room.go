@@ -15,7 +15,7 @@ import (
 func (p *Controller) InitRoomRoutes() {
 	p.routes["/join"] = p.HandleJoin
 	p.routes["/room/create"] = p.CreateRoom
-	p.routes["/room/myrooms"] = p.MyRooms
+	p.routes["/room/list"] = p.List
 }
 
 func (p *Controller) HandleJoin(
@@ -70,14 +70,14 @@ func (p *Controller) CreateRoom(
 	return response.Response(commons.StatusOK, "Joined Successfully", rooms.OneCreate(*code))
 }
 
-func (p *Controller) MyRooms(
+func (p *Controller) List(
 	conn net.Conn,
 	args json.RawMessage,
 	jwtToken *string,
 ) error {
 	ctx := context.Background()
 	userInfo := p.store.ParseToken(jwtToken)
-	var req rooms.MyRoomReq
+	var req rooms.ListRoomReq
 	if err := utils.ParseJSON(args, &req); err != nil {
 		return nil
 	}
