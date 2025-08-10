@@ -6,10 +6,11 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
-	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
+	responseserver "github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
 
 func (p *Controller) InitUserRoutes() {
@@ -33,7 +34,7 @@ func (p *Controller) HandleMessage(
 	chatRoom, ok := p.connections.GetClientRoom(userInfo.ClientID)
 	if !ok {
 		p.logger.Warn("User tried to send message without joining a room")
-		return response.Response(commons.StatusBadRequest, "Enter a Room/Chat First", nil)
+		return responseserver.Response(commons.StatusBadRequest, "Enter a Room/Chat First", nil)
 	}
 
 	room, err := p.services.Rooms().GetByCode(ctx, chatRoom)
@@ -50,15 +51,27 @@ func (p *Controller) HandleMessage(
 			return err
 		}
 
-		return response.Response(commons.StatusOK, "Message Saved", nil)
+		return responseserver.Response(commons.StatusOK, "Message Saved", nil)
 	}
 
-	for _, conn := range connections {
-		request.Send(conn, message.MessageResp{
+	for _, c := range connections {
+		if c == conn {
+			continue
+		}
+
+		payload := message.MessageResp{
 			RoomCode:       chatRoom,
 			SenderNickname: userInfo.Nickname,
 			Content:        req.Content,
+		}
+
+		request.Send(c, response.BaseResponse{
+			ResponseID: "INCOMING_MESSAGE",
+			Code:       commons.StatusOK,
+			Message:    "Message Sent!",
+			Data:       payload,
 		})
+
 	}
 
 	if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), chatRoom, req.Content); err != nil {
@@ -66,5 +79,5 @@ func (p *Controller) HandleMessage(
 		return err
 	}
 
-	return response.Response(commons.StatusOK, "Message Sent into Room!", nil)
+	return responseserver.Response(commons.StatusOK, "Message Sent into Room!", nil)
 }

@@ -3,15 +3,15 @@ package response
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"net"
 )
 
 type BaseResponse struct {
-	Message string `json:"message"`
-	Code    string `json:"code"`
-	Errors  any    `json:"errors,omitempty"`
-	Data    any    `json:"data,omitempty"`
+	ResponseID string `json:"response_id"`
+	Message    string `json:"message"`
+	Code       string `json:"code"`
+	Errors     any    `json:"errors,omitempty"`
+	Data       any    `json:"data,omitempty"`
 }
 
 // Error implements the error interface for BaseResponse.
@@ -25,8 +25,6 @@ func Read(conn net.Conn) (*BaseResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("LINE: ", string(line), "dsadsa")
 
 	var resp BaseResponse
 	err = json.Unmarshal(line, &resp)

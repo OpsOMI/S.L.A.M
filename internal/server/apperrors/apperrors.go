@@ -16,11 +16,12 @@ const (
 
 // AppError represents an application-specific error with additional metadata.
 type AppError struct {
-	Code      string //  Frobidden, OK,
-	Message   string
-	Source    ErrorSource
-	Cause     error
-	Timestamp time.Time
+	ResponseID int
+	Code       string //  Frobidden, OK,
+	Message    string
+	Source     ErrorSource
+	Cause      error
+	Timestamp  time.Time
 }
 
 // Error formats the error message, including the source, status code, message, and underlying cause if any.
@@ -37,12 +38,13 @@ func (e *AppError) Unwrap() error {
 }
 
 // New creates a new AppError with the given status code, message, optional cause, and source.
-func New(code string, message string, cause error, source ErrorSource) error {
+func New(resposeID int, code string, message string, cause error, source ErrorSource) error {
 	return &AppError{
-		Code:      code,
-		Message:   message,
-		Cause:     cause,
-		Source:    source,
-		Timestamp: time.Now(),
+		ResponseID: resposeID,
+		Code:       code,
+		Message:    message,
+		Cause:      cause,
+		Source:     source,
+		Timestamp:  time.Now(),
 	}
 }

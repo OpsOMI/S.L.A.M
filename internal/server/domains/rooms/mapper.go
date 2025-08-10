@@ -21,6 +21,11 @@ type IRoomsMapper interface {
 		lim, off int32,
 	) pgqueries.GetRoomsByOwnerIDParams
 
+	GetByCodeAndOwnerID(
+		ownerID uuid.UUID,
+		code string,
+	) pgqueries.GetRoomByCodeAndOwnerIDParams
+
 	CreateParams(
 		ownerID uuid.UUID,
 		code, password string,
@@ -79,6 +84,16 @@ func (m *mapper) GetByOwnerID(
 		OwnerID: ownerID,
 		Lim:     lim,
 		Off:     off,
+	}
+}
+
+func (m *mapper) GetByCodeAndOwnerID(
+	ownerID uuid.UUID,
+	code string,
+) pgqueries.GetRoomByCodeAndOwnerIDParams {
+	return pgqueries.GetRoomByCodeAndOwnerIDParams{
+		OwnerID: ownerID,
+		Code:    code,
 	}
 }
 

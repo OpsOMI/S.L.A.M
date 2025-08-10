@@ -6,10 +6,11 @@ import (
 )
 
 type ClientRequest struct {
-	JwtToken string          `json:"jwt_token"`
-	Scope    string          `json:"scope"`
-	Command  string          `json:"command"`
-	Payload  json.RawMessage `json:"payload"`
+	RequestID string          `json:"request_id"`
+	JwtToken  string          `json:"jwt_token"`
+	Scope     string          `json:"scope"`
+	Command   string          `json:"command"`
+	Payload   json.RawMessage `json:"payload"`
 }
 
 func Send(conn net.Conn, payload any) error {

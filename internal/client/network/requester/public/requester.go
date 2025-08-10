@@ -1,60 +1,54 @@
-package private
+package public
 
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
-	"github.com/OpsOMI/S.L.A.M/internal/client/network/types"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
-type Router struct {
+type Requester struct {
 	api      api.IAPI
 	terminal *terminal.Terminal
 	store    *store.SessionStore
-	routes   map[string]types.RouteFunc
+	routes   map[string]commons.RouteFunc
 }
 
-func NewRouter(
+func NewRequester(
 	terminal *terminal.Terminal,
 	store *store.SessionStore,
 	api api.IAPI,
-) Router {
-	r := Router{
+) Requester {
+	r := Requester{
 		api:      api,
 		store:    store,
 		terminal: terminal,
-		routes:   make(map[string]types.RouteFunc),
+		routes:   make(map[string]commons.RouteFunc),
 	}
-	r.RoomRoutes()
+
+	r.AuthRoutes()
 
 	return r
 }
 
-func (r *Router) Supports(name string) bool {
+func (r *Requester) Supports(name string) bool {
 	_, exists := r.routes[name]
 	return exists
 }
 
-func (r *Router) Route(
+func (r *Requester) Route(
 	command parser.Command,
 	req *request.ClientRequest,
 ) error {
-	req.JwtToken = r.store.JWT
-	if req.JwtToken == "" {
-		return apperrors.NewError("unauthorized: command " + command.Name)
-	}
-	r.store.ParseJWT()
-	if r.store.Role != "user" && r.store.Role != "owner" {
-		return apperrors.NewError("unauthorized: command " + command.Name)
-	}
-	req.Scope = "private"
+	req.JwtToken = ""
+	req.Scope = "public"
 
 	if handler, ok := r.routes[command.Name]; ok {
 		return handler(command, req)
 	}
 
-	return apperrors.NewError("unknown private command:" + command.Name)
+	return apperrors.NewError("unknown public command:" + command.Name)
 }

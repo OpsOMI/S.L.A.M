@@ -21,6 +21,12 @@ type IRoomsRepository interface {
 		code string,
 	) (*rooms.Room, error)
 
+	GetByCodeAndOwnerID(
+		ctx context.Context,
+		ownerID uuid.UUID,
+		code string,
+	) (*rooms.Room, error)
+
 	GetByOwnerID(
 		ctx context.Context,
 		ownerID uuid.UUID,

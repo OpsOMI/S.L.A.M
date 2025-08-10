@@ -5,41 +5,41 @@ import (
 	"strings"
 
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
-func (r *Router) RoomRoutes() {
+func (r *Requester) RoomRoutes() {
 	r.routes["/join"] = r.HandleJoin
 	r.routes["/hidden"] = r.HandleHidden
 	r.routes["/room/create"] = r.HandleCreate
 	r.routes["/room/list"] = r.HandleList
+	r.routes["/room/clean"] = r.HandleClean
 }
 
-func (r *Router) HandleJoin(
+func (r *Requester) HandleJoin(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
+	req.RequestID = commons.RequestIDJoinRoom
 	if len(cmd.Args) != 1 {
 		return apperrors.NewNotification("usage: /join [roomcode]")
 	}
 
-	messages, err := r.api.Users().Join(req, cmd.Args[0])
-	if err != nil {
+	if err := r.api.Users().Join(req, cmd.Args[0]); err != nil {
 		return err
 	}
 
-	r.store.SetRoom(cmd.Args[0])
-	r.terminal.SetCurrentRoom(cmd.Args[0])
-	r.terminal.SetMessages(messages)
-
-	return apperrors.NewNotification("Joined Successfully: " + cmd.Args[0])
+	return nil
 }
 
-func (r *Router) HandleCreate(
+func (r *Requester) HandleCreate(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
+	req.RequestID = commons.RequestIDCreateRoom
+
 	if len(cmd.Args) != 1 {
 		return apperrors.NewNotification("usage: /room/create [isSecure]:[True/False]")
 	}
@@ -59,18 +59,18 @@ func (r *Router) HandleCreate(
 		return apperrors.NewError("invalid argument: use 'True' or 'False'")
 	}
 
-	code, err := r.api.Rooms().Create(req, isSecure)
-	if err != nil {
+	if err := r.api.Rooms().Create(req, isSecure); err != nil {
 		return err
 	}
 
-	return apperrors.NewNotification("Room Created Successfully, Code: " + *code)
+	return nil
 }
 
-func (r *Router) HandleList(
+func (r *Requester) HandleList(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
+	req.RequestID = commons.RequestIDListRoom
 	var page, limit int32
 	if len(cmd.Args) != 0 {
 		if cmd.Args[0] == "help" {
@@ -92,16 +92,27 @@ func (r *Router) HandleList(
 		}
 	}
 
-	myRooms, err := r.api.Rooms().List(req, page, limit)
-	if err != nil {
+	if err := r.api.Rooms().List(req, page, limit); err != nil {
 		return err
 	}
-	r.terminal.SetRooms(myRooms)
 
-	return apperrors.NewNotification("Your Rooms Listed!")
+	return nil
 }
 
-func (r *Router) HandleHidden(
+func (r *Requester) HandleClean(
+	cmd parser.Command,
+	req *request.ClientRequest,
+) error {
+	req.RequestID = commons.RequestIDCleanRoom
+
+	if err := r.api.Rooms().Clean(req, r.store.Room); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Requester) HandleHidden(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {

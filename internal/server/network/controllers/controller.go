@@ -97,7 +97,7 @@ func (c *Controller) HandleConnection(
 			routeMsg = response.Response("status.internal", "Invalid Scope", nil)
 		}
 
-		_ = response.Handle(conn, routeMsg)
+		_ = response.Handle(conn, routeMsg, msg.RequestID)
 		c.logger.Info("Command received from " + conn.RemoteAddr().String() + ": " + msg.Command)
 	}
 

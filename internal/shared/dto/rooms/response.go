@@ -1,6 +1,10 @@
 package rooms
 
-import "github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
+import (
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/messages"
+	"github.com/OpsOMI/S.L.A.M/internal/server/domains/rooms"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
+)
 
 type CreateResp struct {
 	Code string `json:"code"`
@@ -44,5 +48,20 @@ func ManyRoom(
 	return RoomsResp{
 		Items:      items,
 		TotalCount: rooms.TotalCount,
+	}
+}
+
+type JoinResp struct {
+	RoomCode string               `json:"roomCode"`
+	Messages message.MessagesReps `json:"messages"`
+}
+
+func OneJoin(
+	RoomCode string,
+	domainModel *messages.RoomMessages,
+) JoinResp {
+	return JoinResp{
+		RoomCode: RoomCode,
+		Messages: message.ManyMessage(domainModel),
 	}
 }

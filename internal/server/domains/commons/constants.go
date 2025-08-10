@@ -42,4 +42,16 @@ const (
 	LogResendVerificationFailed = "Failed to resend verification email for [%s]: %v"
 	LogSend2FACodeFailed        = "Failed to send 2FA code to [%s]: %v"
 	LogSendPasswordResetFailed  = "Failed to send password reset email to [%s]: %v"
+
+	// Response IDs
+	ResponseIDUnkownCommand = 1000
+	ResponseIDMiddleware    = 1001
+	ResponseIDJustMessage   = 1002
+
+	// Controllers
+	ResponseIDJoin       = 1003
+	ResponseIDCreateRoom = 1004
+	ResponseIDListRoom   = 1004
+	ResponseIDLogin      = 1005
+	ResponseIDRegister   = 1006
 )

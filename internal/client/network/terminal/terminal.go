@@ -191,12 +191,33 @@ func (t *Terminal) SetMessages(
 	messages *message.MessagesReps,
 ) {
 	t.messages = nil
+
+	if messages == nil {
+		t.Render()
+		return
+	}
+
 	for _, m := range messages.Items {
 		t.messages = append(t.messages, Messages{
 			SenderNickname: m.SenderNickname,
 			Content:        m.Content,
 		})
 	}
+	t.Render()
+}
+
+func (t *Terminal) AppendMessage(
+	message *message.MessageResp,
+) {
+	if message == nil {
+		return
+	}
+
+	t.messages = append(t.messages, Messages{
+		SenderNickname: message.SenderNickname,
+		Content:        message.Content,
+	})
+
 	t.Render()
 }
 

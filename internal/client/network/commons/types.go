@@ -1,4 +1,4 @@
-package types
+package commons
 
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"

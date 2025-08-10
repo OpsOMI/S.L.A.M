@@ -11,19 +11,22 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/config"
 	"github.com/OpsOMI/S.L.A.M/internal/client/infrastructure/network"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
-	"github.com/OpsOMI/S.L.A.M/internal/client/network/router"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/requester"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/responder"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/store"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/terminal"
-	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
 
 type Controller struct {
 	// Mutablable connection and related structures
-	conn   net.Conn
-	api    api.IAPI
-	router router.Router
+	conn      net.Conn
+	api       api.IAPI
+	requester requester.Requesters
+	responder responder.Responder
 
 	// Immutable Deps
 	logger   logger.ILogger
@@ -33,9 +36,9 @@ type Controller struct {
 	config   config.Configs
 
 	// Channels
-	done        chan struct{}            // Close to stop everything
-	messageChan chan message.MessageResp // Server - ui messages
-	inputChan   chan string              // Stdin lines
+	done      chan struct{}
+	responses chan response.BaseResponse
+	inputChan chan string
 }
 
 func NewController(
@@ -43,24 +46,26 @@ func NewController(
 	logger logger.ILogger,
 	config config.Configs,
 ) *Controller {
-	terminal := terminal.NewTerminal()
-	parser := parser.NewParser()
 	api := api.NewAPI(conn, logger)
+	parser := parser.NewParser()
+	terminal := terminal.NewTerminal()
 	store := store.NewSessionStore()
-	router := router.NewRouter(api, store, terminal)
+	requester := requester.NewRequesters(api, store, terminal)
+	responder := responder.NewResponder(store, terminal)
 
 	return &Controller{
-		conn:        conn,
-		config:      config,
-		logger:      logger,
-		terminal:    terminal,
-		parser:      parser,
-		router:      router,
-		store:       store,
-		api:         api,
-		done:        make(chan struct{}),
-		messageChan: make(chan message.MessageResp, 200),
-		inputChan:   make(chan string),
+		api:       api,
+		conn:      conn,
+		store:     store,
+		config:    config,
+		logger:    logger,
+		parser:    parser,
+		terminal:  terminal,
+		requester: requester,
+		responder: responder,
+		done:      make(chan struct{}),
+		inputChan: make(chan string),
+		responses: make(chan response.BaseResponse, 200),
 	}
 }
 
@@ -69,11 +74,11 @@ func (c *Controller) Run() {
 	c.terminal.SetConnected(c.conn != nil)
 	c.terminal.ClearScreen()
 
-	// if c.conn != nil {
-	// 	c.ListenServerMessages()
-	// }
+	if c.conn != nil {
+		c.ListenServerMessages()
+	}
 
-	go c.handleIncomingMessages()
+	go c.responder.Listen(c.responses)
 
 	for {
 		select {
@@ -90,30 +95,7 @@ func (c *Controller) Run() {
 		}
 
 		input := c.HandleUserInput()
-		select {
-		case msg := <-c.messageChan:
-			roomCode := c.store.GetRoom()
-			if roomCode == msg.RoomCode {
-				c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
-			}
-		default:
-			c.handleInput(input)
-		}
-	}
-}
-
-// Use this later.
-func (c *Controller) HandleUserInputGorutine() {
-	for {
-		c.terminal.SetPromptLabel("->", c.store.Nickname)
-		c.terminal.Render()
-
-		input, err := c.terminal.Prompt()
-		if err != nil {
-			c.logger.Error("Error reading input: " + err.Error())
-			continue
-		}
-		c.inputChan <- input
+		c.handleInput(input)
 	}
 }
 
@@ -129,15 +111,6 @@ func (c *Controller) HandleUserInput() string {
 	return input
 }
 
-func (c *Controller) handleIncomingMessages() {
-	for msg := range c.messageChan {
-		roomCode := c.store.GetRoom()
-		if roomCode == msg.RoomCode {
-			c.terminal.PrintMessage(msg.SenderNickname, msg.Content)
-		}
-	}
-}
-
 func (c *Controller) handleInput(input string) {
 	switch {
 	case input == "/exit" || input == "/quit":
@@ -149,6 +122,12 @@ func (c *Controller) handleInput(input string) {
 	case input == "/clear":
 		c.terminal.ClearScreen()
 		return
+
+	case input == "/logout":
+		c.store.Logout()
+		c.terminal.SetMessages(nil)
+		c.terminal.SetRooms(nil)
+		c.terminal.Render()
 
 	case input == "/reconnect":
 		if err := c.Reconnect(); err != nil {
@@ -166,29 +145,22 @@ func (c *Controller) handleInput(input string) {
 			c.terminal.PrintError("Invalid command syntax.")
 			return
 		}
-		if err := c.router.Route(command); err != nil {
+		if err := c.requester.SendRequest(command); err != nil {
 			c.terminal.Print(err)
 		}
 
 	default:
-		if input != "" {
+		if input != "" && c.store.Room != "" {
 			if err := c.api.Users().SendMessage(&request.ClientRequest{
-				JwtToken: c.store.JWT,
-				Scope:    "private",
-				Command:  "/send",
+				RequestID: commons.RequestIDSendMessage,
+				JwtToken:  c.store.JWT,
+				Scope:     "private",
+				Command:   "/send",
 			}, input,
 			); err != nil {
-				c.logger.Warn("Send error: " + err.Error())
-				/*
-					FIXME
-					You will see that this error message is triggered
-					when you receive something from the user in special / commands.
-				*/
 				c.terminal.Print(err)
 			}
-			if c.store.GetRoom() != "" {
-				c.terminal.PrintMessage("You", input)
-			}
+			c.terminal.PrintMessage("You", input)
 		}
 	}
 }
@@ -222,9 +194,7 @@ func (c *Controller) Reconnect() error {
 	}
 	c.conn = conn
 	c.api = api.NewAPI(c.conn, c.logger)
-	c.router = router.NewRouter(c.api, c.store, c.terminal)
-
-	// c.ListenServerMessages()
+	c.requester = requester.NewRequesters(c.api, c.store, c.terminal)
 
 	return nil
 }
@@ -234,12 +204,7 @@ func (c *Controller) ListenServerMessages() {
 		reader := bufio.NewReader(c.conn)
 
 		for {
-			_ = c.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
-
 			msg, err := reader.ReadString('\n')
-
-			_ = c.conn.SetReadDeadline(time.Time{})
-
 			if err != nil {
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 					continue
@@ -249,13 +214,13 @@ func (c *Controller) ListenServerMessages() {
 				break
 			}
 
-			var serverMsg message.MessageResp
-			if err := json.Unmarshal([]byte(msg), &serverMsg); err != nil {
+			var serverResp response.BaseResponse
+			if err := json.Unmarshal([]byte(msg), &serverResp); err != nil {
 				c.logger.Warn("Invalid server message format: " + err.Error())
 				continue
 			}
 
-			c.messageChan <- serverMsg
+			c.responses <- serverResp
 		}
 	}()
 }

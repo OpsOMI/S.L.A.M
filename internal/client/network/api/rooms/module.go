@@ -3,7 +3,6 @@ package rooms
 import (
 	"net"
 
-	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 )
 
@@ -11,12 +10,17 @@ type IRoomModule interface {
 	List(
 		req *request.ClientRequest,
 		page, limit int32,
-	) (*rooms.RoomsResp, error)
+	) error
 
 	Create(
 		req *request.ClientRequest,
 		isSecure bool,
-	) (*string, error)
+	) error
+
+	Clean(
+		req *request.ClientRequest,
+		roomCode string,
+	) error
 }
 
 type module struct {

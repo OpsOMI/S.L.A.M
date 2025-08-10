@@ -8,7 +8,6 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
-	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 )
 
@@ -16,6 +15,7 @@ func (p *Controller) InitRoomRoutes() {
 	p.routes["/join"] = p.HandleJoin
 	p.routes["/room/create"] = p.CreateRoom
 	p.routes["/room/list"] = p.List
+	p.routes["/room/clean"] = p.Clean
 }
 
 func (p *Controller) HandleJoin(
@@ -47,7 +47,7 @@ func (p *Controller) HandleJoin(
 		}
 	}
 
-	return response.Response(commons.StatusOK, "Joined Successfully", message.ManyMessage(domainMessages))
+	return response.Response(commons.StatusOK, "Joined Successfully", rooms.OneJoin(req.RoomCode, domainMessages))
 }
 
 func (p *Controller) CreateRoom(
@@ -67,7 +67,7 @@ func (p *Controller) CreateRoom(
 		return err
 	}
 
-	return response.Response(commons.StatusOK, "Joined Successfully", rooms.OneCreate(*code))
+	return response.Response(commons.StatusOK, "Created Successfully", rooms.OneCreate(*code))
 }
 
 func (p *Controller) List(
@@ -87,5 +87,24 @@ func (p *Controller) List(
 		return err
 	}
 
-	return response.Response(commons.StatusOK, "Joined Successfully", rooms.ManyRoom(dbModels))
+	return response.Response(commons.StatusOK, "Listed Successfully", rooms.ManyRoom(dbModels))
+}
+
+func (p *Controller) Clean(
+	conn net.Conn,
+	args json.RawMessage,
+	jwtToken *string,
+) error {
+	ctx := context.Background()
+	userInfo := p.store.ParseToken(jwtToken)
+	var req rooms.CleanRoomReq
+	if err := utils.ParseJSON(args, &req); err != nil {
+		return nil
+	}
+
+	if err := p.services.Messages().DeleteMessageInRoom(ctx, userInfo.UserID, req.RoomCode); err != nil {
+		return err
+	}
+
+	return response.Response(commons.StatusOK, "Messages Deleted Successfully", nil)
 }
