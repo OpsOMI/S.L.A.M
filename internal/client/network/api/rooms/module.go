@@ -8,7 +8,7 @@ import (
 )
 
 type IRoomModule interface {
-	MyRooms(
+	List(
 		req *request.ClientRequest,
 		page, limit int32,
 	) (*rooms.RoomsResp, error)
@@ -16,7 +16,7 @@ type IRoomModule interface {
 	Create(
 		req *request.ClientRequest,
 		isSecure bool,
-	) (string, error)
+	) (*string, error)
 }
 
 type module struct {

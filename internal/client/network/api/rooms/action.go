@@ -1,19 +1,13 @@
 package rooms
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"strings"
-
-	"golang.org/x/term"
-
+	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
+	"github.com/OpsOMI/S.L.A.M/internal/client/utils"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
-	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
 
-func (s *module) MyRooms(
+func (s *module) List(
 	req *request.ClientRequest,
 	page, limit int32,
 ) (*rooms.RoomsResp, error) {
@@ -22,35 +16,18 @@ func (s *module) MyRooms(
 		Limit: limit,
 	}
 
-	payloadBytes, err := json.Marshal(payload)
+	baseResp, err := utils.SendRequest(s.conn, req, payload)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode payload: %w", err)
+		return nil, err
 	}
 
-	req.Payload = payloadBytes
-
-	if err := request.Send(s.conn, req); err != nil {
-		return nil, fmt.Errorf("failed to send login message: %w", err)
-	}
-
-	resp, err := response.Read(s.conn)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read login response: %w", err)
-	}
-
-	baseResp := resp
-	if baseResp.Code != "OK" {
-		return nil, fmt.Errorf("server error: %s", baseResp.Message)
-	}
-
-	dataBytes, err := json.Marshal(baseResp.Data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to re-marshal login response data: %w", err)
+	if err := utils.CheckBaseResponse(baseResp); err != nil {
+		return nil, err
 	}
 
 	var data rooms.RoomsResp
-	if err := json.Unmarshal(dataBytes, &data); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal login response data: %w", err)
+	if err := utils.LoadData(baseResp.Data, &data); err != nil {
+		return nil, err
 	}
 
 	return &data, nil
@@ -59,29 +36,22 @@ func (s *module) MyRooms(
 func (s *module) Create(
 	req *request.ClientRequest,
 	isSecure bool,
-) (string, error) {
+) (*string, error) {
 	var password string
 	if isSecure {
 
-		fmt.Print("Password: ")
-		bytePassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+		password, err := utils.ReadPassword("Password")
 		if err != nil {
-			return "", fmt.Errorf("failed to read password: %w", err)
+			return nil, err
 		}
-		fmt.Println()
 
-		fmt.Print("Confirm Password: ")
-		byteConfirmPassword, err := term.ReadPassword(int(os.Stdin.Fd()))
+		confirmPassword, err := utils.ReadPassword("Confirm Password")
 		if err != nil {
-			return "", fmt.Errorf("failed to read password: %w", err)
+			return nil, err
 		}
-		fmt.Println()
-
-		confirmPassword := strings.TrimSpace(string(byteConfirmPassword))
-		password = strings.TrimSpace(string(bytePassword))
 
 		if password != confirmPassword {
-			return "", fmt.Errorf("passwords do not match")
+			return nil, apperrors.NewNotification("Passwords do not match!")
 		}
 	}
 
@@ -89,36 +59,19 @@ func (s *module) Create(
 		Password: password,
 	}
 
-	payloadBytes, err := json.Marshal(payload)
+	baseResp, err := utils.SendRequest(s.conn, req, payload)
 	if err != nil {
-		return "", fmt.Errorf("failed to encode payload: %w", err)
+		return nil, err
 	}
 
-	req.Payload = payloadBytes
-
-	if err := request.Send(s.conn, req); err != nil {
-		return "", fmt.Errorf("failed to send login message: %w", err)
-	}
-
-	resp, err := response.Read(s.conn)
-	if err != nil {
-		return "", fmt.Errorf("failed to read login response: %w", err)
-	}
-
-	baseResp := resp
-	if baseResp.Code != "OK" {
-		return "", fmt.Errorf("server error: %s", baseResp.Message)
-	}
-
-	dataBytes, err := json.Marshal(baseResp.Data)
-	if err != nil {
-		return "", fmt.Errorf("failed to re-marshal login response data: %w", err)
+	if err := utils.CheckBaseResponse(baseResp); err != nil {
+		return nil, err
 	}
 
 	var data rooms.CreateResp
-	if err := json.Unmarshal(dataBytes, &data); err != nil {
-		return "", fmt.Errorf("failed to unmarshal login response data: %w", err)
+	if err := utils.LoadData(baseResp.Data, &data); err != nil {
+		return nil, err
 	}
 
-	return data.Code, nil
+	return &data.Code, nil
 }

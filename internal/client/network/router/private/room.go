@@ -61,5 +61,5 @@ func (r *Router) HandleCreate(
 		return err
 	}
 
-	return apperrors.NewNotification("Room Created Successfully, Code: " + code)
+	return apperrors.NewNotification("Room Created Successfully, Code: " + *code)
 }
