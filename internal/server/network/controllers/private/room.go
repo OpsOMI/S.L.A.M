@@ -47,7 +47,7 @@ func (p *Controller) HandleJoin(
 		}
 	}
 
-	return response.Response(commons.StatusOK, "Joined Successfully", message.ManyMessage(domainMessages))
+	return response.Response(commons.ResponseIDJoin, commons.StatusOK, "Joined Successfully", message.ManyMessage(domainMessages))
 }
 
 func (p *Controller) CreateRoom(
@@ -67,7 +67,7 @@ func (p *Controller) CreateRoom(
 		return err
 	}
 
-	return response.Response(commons.StatusOK, "Joined Successfully", rooms.OneCreate(*code))
+	return response.Response(commons.ResponseIDCreateRoom, commons.StatusOK, "Joined Successfully", rooms.OneCreate(*code))
 }
 
 func (p *Controller) List(
@@ -87,5 +87,5 @@ func (p *Controller) List(
 		return err
 	}
 
-	return response.Response(commons.StatusOK, "Joined Successfully", rooms.ManyRoom(dbModels))
+	return response.Response(commons.ResponseIDListRoom, commons.StatusOK, "Joined Successfully", rooms.ManyRoom(dbModels))
 }

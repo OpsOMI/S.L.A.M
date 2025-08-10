@@ -64,6 +64,7 @@ func (m *manager) GenerateToken(
 	signedToken, err := token.SignedString(m.secret)
 	if err != nil {
 		return "", response.Response(
+			commons.ResponseIDMiddleware,
 			commons.StatusInternalServerError,
 			"Failed to sign JWT token",
 			nil,
@@ -75,25 +76,25 @@ func (m *manager) GenerateToken(
 
 func (m *manager) ValidateToken(tokenStr *string) (*store.Claims, error) {
 	if tokenStr == nil {
-		return nil, response.Response(commons.StatusUnauthorized, "JWT token is required", nil)
+		return nil, response.Response(commons.ResponseIDMiddleware, commons.StatusUnauthorized, "JWT token is required", nil)
 	}
 	if *tokenStr == "" {
-		return nil, response.Response(commons.StatusUnauthorized, "Unauthorized", nil)
+		return nil, response.Response(commons.ResponseIDMiddleware, commons.StatusUnauthorized, "Unauthorized", nil)
 	}
 
 	token, err := jwt.ParseWithClaims(*tokenStr, &store.Claims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, response.Response(commons.StatusUnauthorized, "Unexpected signing method", nil)
+			return nil, response.Response(commons.ResponseIDMiddleware, commons.StatusUnauthorized, "Unexpected signing method", nil)
 		}
 		return m.secret, nil
 	})
 	if err != nil {
-		return nil, response.Response(commons.StatusUnauthorized, "Invalid JWT token", nil)
+		return nil, response.Response(commons.ResponseIDMiddleware, commons.StatusUnauthorized, "Invalid JWT token", nil)
 	}
 
 	claims, ok := token.Claims.(*store.Claims)
 	if !ok || !token.Valid {
-		return nil, response.Response(commons.StatusUnauthorized, "Invalid JWT token", nil)
+		return nil, response.Response(commons.ResponseIDMiddleware, commons.StatusUnauthorized, "Invalid JWT token", nil)
 	}
 	return claims, nil
 }

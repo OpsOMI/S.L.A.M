@@ -2,7 +2,7 @@ package users
 
 import (
 	"bufio"
-	"fmt"
+	"encoding/json"
 	"os"
 	"strings"
 
@@ -138,13 +138,15 @@ func (s *module) SendMessage(
 		Content: content,
 	}
 
-	baseResp, err := utils.SendRequest(s.conn, req, payload)
+	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
-		return err
+		return apperrors.NewError("failed to encode payload: " + err.Error())
 	}
 
-	if baseResp.Code != "OK" && baseResp.Message != "" {
-		return fmt.Errorf("server error: %s ", baseResp.Message)
+	req.Payload = payloadBytes
+
+	if err := request.Send(s.conn, req); err != nil {
+		return apperrors.NewError("failed to send message: " + err.Error())
 	}
 
 	return apperrors.NewNotification("Sent!")

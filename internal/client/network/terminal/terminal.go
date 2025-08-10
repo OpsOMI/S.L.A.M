@@ -191,6 +191,12 @@ func (t *Terminal) SetMessages(
 	messages *message.MessagesReps,
 ) {
 	t.messages = nil
+
+	if messages == nil {
+		t.Render()
+		return
+	}
+
 	for _, m := range messages.Items {
 		t.messages = append(t.messages, Messages{
 			SenderNickname: m.SenderNickname,

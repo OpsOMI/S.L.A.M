@@ -37,6 +37,7 @@ func (r *Router) HandleLogout(
 	req *request.ClientRequest,
 ) error {
 	r.store.Logout()
+	r.terminal.SetMessages(nil)
 	r.terminal.Render()
 
 	return apperrors.NewNotification("Logout Successful")

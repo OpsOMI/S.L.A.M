@@ -48,7 +48,7 @@ func (p *Controller) Route(
 ) error {
 	handler, ok := p.routes[cmd]
 	if !ok {
-		return response.Response(commons.StatusBadRequest, "Unknown Command", cmd)
+		return response.Response(commons.ResponseIDJustMessage, commons.StatusBadRequest, "Unknown Command: "+cmd, nil)
 	}
 
 	return handler(conn, args, nil)

@@ -21,9 +21,10 @@ import (
 
 type Controller struct {
 	// Mutablable connection and related structures
-	conn   net.Conn
-	api    api.IAPI
-	router router.Router
+	conn     net.Conn
+	listener net.Conn
+	api      api.IAPI
+	router   router.Router
 
 	// Immutable Deps
 	logger   logger.ILogger
@@ -40,6 +41,7 @@ type Controller struct {
 
 func NewController(
 	conn net.Conn,
+	listener net.Conn,
 	logger logger.ILogger,
 	config config.Configs,
 ) *Controller {
@@ -51,6 +53,7 @@ func NewController(
 
 	return &Controller{
 		conn:        conn,
+		listener:    listener,
 		config:      config,
 		logger:      logger,
 		terminal:    terminal,
@@ -69,7 +72,7 @@ func (c *Controller) Run() {
 	c.terminal.SetConnected(c.conn != nil)
 	c.terminal.ClearScreen()
 
-	// if c.conn != nil {
+	// if c.listener != nil {
 	// 	c.ListenServerMessages()
 	// }
 
@@ -231,14 +234,14 @@ func (c *Controller) Reconnect() error {
 
 func (c *Controller) ListenServerMessages() {
 	go func() {
-		reader := bufio.NewReader(c.conn)
+		reader := bufio.NewReader(c.listener)
 
 		for {
-			_ = c.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+			_ = c.listener.SetReadDeadline(time.Now().Add(1 * time.Second))
 
 			msg, err := reader.ReadString('\n')
 
-			_ = c.conn.SetReadDeadline(time.Time{})
+			_ = c.listener.SetReadDeadline(time.Time{})
 
 			if err != nil {
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {

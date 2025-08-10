@@ -23,8 +23,9 @@ func Handle(conn net.Conn, err error) error {
 	var appErr *apperrors.AppError
 	if errors.As(err, &appErr) {
 		resp := response.BaseResponse{
-			Message: appErr.Message,
-			Code:    appErr.Code,
+			ReponseID: appErr.ResponseID,
+			Message:   appErr.Message,
+			Code:      appErr.Code,
 		}
 
 		// Hide internal details if error source is repository
@@ -39,18 +40,20 @@ func Handle(conn net.Conn, err error) error {
 
 	// For unknown error types, send generic internal server error
 	resp := response.BaseResponse{
-		Message: "Internal Server Error",
-		Code:    "status.internal_server_error",
-		Data:    nil,
+		ReponseID: appErr.ResponseID,
+		Message:   "Internal Server Error",
+		Code:      "status.internal_server_error",
+		Data:      nil,
 	}
 	return request.Send(conn, resp)
 }
 
-func Response(code, message string, data any) error {
+func Response(responseID int, code, message string, data any) error {
 	return &response.BaseResponse{
-		Code:    code,
-		Message: message,
-		Data:    data,
-		Errors:  nil,
+		ReponseID: responseID,
+		Code:      code,
+		Message:   message,
+		Data:      data,
+		Errors:    nil,
 	}
 }

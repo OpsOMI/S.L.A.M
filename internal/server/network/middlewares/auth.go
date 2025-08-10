@@ -24,6 +24,7 @@ func JWTAuthMiddleware(
 			if len(targetRole) == 1 {
 				if claims.Role != targetRole[0] {
 					return response.Response(
+						commons.ResponseIDMiddleware,
 						commons.StatusUnauthorized,
 						"unauthorized: role mismatch",
 						nil,

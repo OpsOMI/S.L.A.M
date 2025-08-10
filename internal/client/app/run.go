@@ -32,7 +32,22 @@ func Run(cfg *config.Configs) {
 	defer conn.Close()
 	logg.Info("Successfully connected to server")
 
+	listenerConn, err := network.ConnectToServer(
+		cfg.ServerName,
+		cfg.ServerHost,
+		cfg.ServerPort,
+		cfg.TSLCertPath,
+		cfg.TimeoutSeconds,
+		cfg.ReconnectRetry,
+	)
+	if err != nil {
+		logg.Error("Failed to connect to server (listener connection): " + err.Error())
+		return
+	}
+	defer listenerConn.Close()
+	logg.Info("Successfully connected to server (listener connection)")
+
 	logg.Info("Controller Started")
-	controller := controller.NewController(conn, logg, *cfg)
+	controller := controller.NewController(conn, listenerConn, logg, *cfg)
 	controller.Run()
 }

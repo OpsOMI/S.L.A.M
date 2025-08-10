@@ -39,5 +39,5 @@ func (p *Controller) HandleLogin(
 
 	p.connecions.Register(user.Clients.ID, conn)
 
-	return response.Response(commons.StatusOK, "Login successful", users.ToLoginResponse(jwt))
+	return response.Response(commons.ResponseIDLogin, commons.StatusOK, "Login successful", users.ToLoginResponse(jwt))
 }
