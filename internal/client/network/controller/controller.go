@@ -11,6 +11,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/config"
 	"github.com/OpsOMI/S.L.A.M/internal/client/infrastructure/network"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
+	"github.com/OpsOMI/S.L.A.M/internal/client/network/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/requester"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/responder"
@@ -23,7 +24,6 @@ import (
 type Controller struct {
 	// Mutablable connection and related structures
 	conn      net.Conn
-	listener  net.Conn
 	api       api.IAPI
 	requester requester.Requesters
 	responder responder.Responder
@@ -36,38 +36,36 @@ type Controller struct {
 	config   config.Configs
 
 	// Channels
-	done      chan struct{}              // Close to stop everything
-	responses chan response.BaseResponse // Server - ui messages
-	inputChan chan string                // Stdin lines
+	done      chan struct{}
+	responses chan response.BaseResponse
+	inputChan chan string
 }
 
 func NewController(
 	conn net.Conn,
-	listener net.Conn,
 	logger logger.ILogger,
 	config config.Configs,
 ) *Controller {
-	terminal := terminal.NewTerminal()
-	parser := parser.NewParser()
 	api := api.NewAPI(conn, logger)
+	parser := parser.NewParser()
+	terminal := terminal.NewTerminal()
 	store := store.NewSessionStore()
 	requester := requester.NewRequesters(api, store, terminal)
 	responder := responder.NewResponder(store, terminal)
 
 	return &Controller{
+		api:       api,
 		conn:      conn,
-		listener:  listener,
+		store:     store,
 		config:    config,
 		logger:    logger,
-		terminal:  terminal,
 		parser:    parser,
+		terminal:  terminal,
 		requester: requester,
 		responder: responder,
-		store:     store,
-		api:       api,
 		done:      make(chan struct{}),
-		responses: make(chan response.BaseResponse, 200),
 		inputChan: make(chan string),
+		responses: make(chan response.BaseResponse, 200),
 	}
 }
 
@@ -101,21 +99,6 @@ func (c *Controller) Run() {
 	}
 }
 
-// Use this later.
-func (c *Controller) HandleUserInputGorutine() {
-	for {
-		c.terminal.SetPromptLabel("->", c.store.Nickname)
-		c.terminal.Render()
-
-		input, err := c.terminal.Prompt()
-		if err != nil {
-			c.logger.Error("Error reading input: " + err.Error())
-			continue
-		}
-		c.inputChan <- input
-	}
-}
-
 func (c *Controller) HandleUserInput() string {
 	c.terminal.SetPromptLabel("->", c.store.Nickname)
 	c.terminal.Render()
@@ -140,6 +123,12 @@ func (c *Controller) handleInput(input string) {
 		c.terminal.ClearScreen()
 		return
 
+	case input == "/logout":
+		c.store.Logout()
+		c.terminal.SetMessages(nil)
+		c.terminal.SetRooms(nil)
+		c.terminal.Render()
+
 	case input == "/reconnect":
 		if err := c.Reconnect(); err != nil {
 			c.logger.Warn("Reconnect failed: " + err.Error())
@@ -161,25 +150,17 @@ func (c *Controller) handleInput(input string) {
 		}
 
 	default:
-		if input != "" {
+		if input != "" && c.store.Room != "" {
 			if err := c.api.Users().SendMessage(&request.ClientRequest{
-				RequestID: "SEND_MESSAGE",
+				RequestID: commons.RequestIDSendMessage,
 				JwtToken:  c.store.JWT,
 				Scope:     "private",
 				Command:   "/send",
 			}, input,
 			); err != nil {
-				c.logger.Warn("Send error: " + err.Error())
-				/*
-					FIXME
-					You will see that this error message is triggered
-					when you receive something from the user in special / commands.
-				*/
 				c.terminal.Print(err)
 			}
-			if c.store.GetRoom() != "" {
-				c.terminal.PrintMessage("You", input)
-			}
+			c.terminal.PrintMessage("You", input)
 		}
 	}
 }
@@ -223,12 +204,7 @@ func (c *Controller) ListenServerMessages() {
 		reader := bufio.NewReader(c.conn)
 
 		for {
-			_ = c.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
-
 			msg, err := reader.ReadString('\n')
-
-			_ = c.conn.SetReadDeadline(time.Time{})
-
 			if err != nil {
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 					continue

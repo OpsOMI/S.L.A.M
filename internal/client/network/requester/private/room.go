@@ -21,7 +21,7 @@ func (r *Requester) HandleJoin(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
-	req.RequestID = commons.RequestIDJoin
+	req.RequestID = commons.RequestIDJoinRoom
 	if len(cmd.Args) != 1 {
 		return apperrors.NewNotification("usage: /join [roomcode]")
 	}
@@ -37,6 +37,8 @@ func (r *Requester) HandleCreate(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
+	req.RequestID = commons.RequestIDCreateRoom
+
 	if len(cmd.Args) != 1 {
 		return apperrors.NewNotification("usage: /room/create [isSecure]:[True/False]")
 	}
@@ -56,18 +58,18 @@ func (r *Requester) HandleCreate(
 		return apperrors.NewError("invalid argument: use 'True' or 'False'")
 	}
 
-	code, err := r.api.Rooms().Create(req, isSecure)
-	if err != nil {
+	if err := r.api.Rooms().Create(req, isSecure); err != nil {
 		return err
 	}
 
-	return apperrors.NewNotification("Room Created Successfully, Code: " + *code)
+	return nil
 }
 
 func (r *Requester) HandleList(
 	cmd parser.Command,
 	req *request.ClientRequest,
 ) error {
+	req.RequestID = commons.RequestIDListRoom
 	var page, limit int32
 	if len(cmd.Args) != 0 {
 		if cmd.Args[0] == "help" {
@@ -89,13 +91,11 @@ func (r *Requester) HandleList(
 		}
 	}
 
-	myRooms, err := r.api.Rooms().List(req, page, limit)
-	if err != nil {
+	if err := r.api.Rooms().List(req, page, limit); err != nil {
 		return err
 	}
-	r.terminal.SetRooms(myRooms)
 
-	return apperrors.NewNotification("Your Rooms Listed!")
+	return nil
 }
 
 func (r *Requester) HandleHidden(

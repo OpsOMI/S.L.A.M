@@ -1,6 +1,8 @@
 package rooms
 
 import (
+	"fmt"
+
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
 	"github.com/OpsOMI/S.L.A.M/internal/client/utils"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/rooms"
@@ -10,48 +12,39 @@ import (
 func (s *module) List(
 	req *request.ClientRequest,
 	page, limit int32,
-) (*rooms.RoomsResp, error) {
+) error {
 	payload := rooms.ListRoomReq{
 		Page:  page,
 		Limit: limit,
 	}
 
-	baseResp, err := utils.SendRequest(s.conn, req, payload)
-	if err != nil {
-		return nil, err
+	if err := utils.SendRequest(s.conn, req, payload); err != nil {
+		return err
 	}
 
-	if err := utils.CheckBaseResponse(baseResp); err != nil {
-		return nil, err
-	}
-
-	var data rooms.RoomsResp
-	if err := utils.LoadData(baseResp.Data, &data); err != nil {
-		return nil, err
-	}
-
-	return &data, nil
+	return nil
 }
 
 func (s *module) Create(
 	req *request.ClientRequest,
 	isSecure bool,
-) (*string, error) {
+) error {
 	var password string
 	if isSecure {
 
 		password, err := utils.ReadPassword("Password")
 		if err != nil {
-			return nil, err
+			return err
 		}
+		fmt.Println()
 
 		confirmPassword, err := utils.ReadPassword("Confirm Password")
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		if password != confirmPassword {
-			return nil, apperrors.NewNotification("Passwords do not match!")
+			return apperrors.NewNotification("Passwords do not match!")
 		}
 	}
 
@@ -59,19 +52,9 @@ func (s *module) Create(
 		Password: password,
 	}
 
-	baseResp, err := utils.SendRequest(s.conn, req, payload)
-	if err != nil {
-		return nil, err
+	if err := utils.SendRequest(s.conn, req, payload); err != nil {
+		return err
 	}
 
-	if err := utils.CheckBaseResponse(baseResp); err != nil {
-		return nil, err
-	}
-
-	var data rooms.CreateResp
-	if err := utils.LoadData(baseResp.Data, &data); err != nil {
-		return nil, err
-	}
-
-	return &data.Code, nil
+	return nil
 }

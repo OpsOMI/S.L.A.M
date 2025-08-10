@@ -18,20 +18,20 @@ func SendRequest(
 	conn net.Conn,
 	req *request.ClientRequest,
 	payload any,
-) (*response.BaseResponse, error) {
+) error {
 	if payload != nil {
 		payloadBytes, err := marshal(payload)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		req.Payload = payloadBytes
 	}
 
 	if err := request.Send(conn, req); err != nil {
-		return nil, apperrors.NewError("failed to send message: " + err.Error())
+		return apperrors.NewError("failed to send message: " + err.Error())
 	}
 
-	return nil, nil
+	return nil
 }
 
 func ResponseRead(conn net.Conn) (*response.BaseResponse, error) {

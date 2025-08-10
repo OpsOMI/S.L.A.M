@@ -206,6 +206,21 @@ func (t *Terminal) SetMessages(
 	t.Render()
 }
 
+func (t *Terminal) AppendMessage(
+	message *message.MessageResp,
+) {
+	if message == nil {
+		return
+	}
+
+	t.messages = append(t.messages, Messages{
+		SenderNickname: message.SenderNickname,
+		Content:        message.Content,
+	})
+
+	t.Render()
+}
+
 func (t *Terminal) SetRooms(
 	rooms *rooms.RoomsResp,
 ) {

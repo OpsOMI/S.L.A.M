@@ -4,7 +4,6 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
-	"github.com/google/uuid"
 )
 
 type IUserModule interface {
@@ -14,7 +13,7 @@ type IUserModule interface {
 
 	Register(
 		req *request.ClientRequest,
-	) (*uuid.UUID, error)
+	) error
 
 	Join(
 		req *request.ClientRequest,

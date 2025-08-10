@@ -7,11 +7,6 @@ import (
 )
 
 func (r *Responder) HandleLogin(response response.BaseResponse) {
-	if err := utils.CheckBaseResponse(&response); err != nil {
-		r.terminal.PrintError(err.Error())
-		return
-	}
-
 	var data users.LoginResp
 	if err := utils.LoadData(response.Data, &data); err != nil {
 		r.terminal.PrintError(err.Error())
@@ -20,7 +15,17 @@ func (r *Responder) HandleLogin(response response.BaseResponse) {
 
 	r.store.SetToken(data.Token)
 	r.store.ParseJWT()
-	r.terminal.Render()
+	r.terminal.SetPromptLabel("->", r.store.Nickname)
 
 	r.terminal.PrintNotification("Login Successfull")
+}
+
+func (r *Responder) HandleRegister(response response.BaseResponse) {
+	var data users.RegisterResp
+	if err := utils.LoadData(response.Data, &data); err != nil {
+		r.terminal.PrintError(err.Error())
+		return
+	}
+
+	r.terminal.PrintNotification("New User Created: " + data.ID.String())
 }

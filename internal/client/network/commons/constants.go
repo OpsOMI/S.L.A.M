@@ -1,7 +1,11 @@
 package commons
 
 const (
-	RequestIDLogin  = "LOGIN"
-	RequestIDLogout = "LOGOUT"
-	RequestIDJoin   = "JOIN"
+	RequestIDLogin           = "LOGIN"
+	RequestIDRegister        = "REGISTER"
+	RequestIDJoinRoom        = "JOIN_ROOM"
+	RequestIDCreateRoom      = "CREATE_ROOM"
+	RequestIDListRoom        = "LIST_ROOM"
+	RequestIDSendMessage     = "SEND_MESSAGE"
+	RequestIDIncomingMessage = "INCOMING_MESSAGE"
 )

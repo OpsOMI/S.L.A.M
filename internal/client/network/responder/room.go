@@ -7,11 +7,6 @@ import (
 )
 
 func (r *Responder) HandleJoin(response response.BaseResponse) {
-	if err := utils.CheckBaseResponse(&response); err != nil {
-		r.terminal.PrintError(err.Error())
-		return
-	}
-
 	var data rooms.JoinResp
 	if err := utils.LoadData(response.Data, &data); err != nil {
 		r.terminal.PrintError(err.Error())
@@ -23,4 +18,25 @@ func (r *Responder) HandleJoin(response response.BaseResponse) {
 	r.terminal.SetMessages(&data.Messages)
 
 	r.terminal.PrintNotification("You joined room " + data.RoomCode)
+}
+
+func (r *Responder) HandleCreateRoom(response response.BaseResponse) {
+	var data rooms.CreateResp
+	if err := utils.LoadData(response.Data, &data); err != nil {
+		r.terminal.PrintError(err.Error())
+		return
+	}
+
+	r.terminal.PrintNotification("Room Created Successfully, Code: " + data.Code)
+}
+
+func (r *Responder) HandleListRoom(response response.BaseResponse) {
+	var data rooms.RoomsResp
+	if err := utils.LoadData(response.Data, &data); err != nil {
+		r.terminal.PrintError(err.Error())
+		return
+	}
+
+	r.terminal.SetRooms(&data)
+	r.terminal.PrintNotification("Your Rooms Listed!")
 }
