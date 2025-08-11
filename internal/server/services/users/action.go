@@ -88,41 +88,41 @@ func (s *service) GetByPrivateCode(
 func (s *service) CreateUser(
 	ctx context.Context,
 	nickname, username, password, role string,
-) (*uuid.UUID, error) {
+) (*uuid.UUID, *string, error) {
 	if ok, err := s.repositories.Users().IsExistByNickname(ctx, nickname); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else if *ok {
-		return nil, serviceerrors.Conflict(users.ErrNicknameBeingUsed)
+		return nil, nil, serviceerrors.Conflict(users.ErrNicknameBeingUsed)
 	}
 
 	if ok, err := s.repositories.Users().IsExistByUsername(ctx, nickname); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else if ok {
-		return nil, serviceerrors.Conflict(users.ErrUsernameBeingUsed)
+		return nil, nil, serviceerrors.Conflict(users.ErrUsernameBeingUsed)
 	}
 
 	privateCode, err := s.packages.Hasher().Generate6CharPrivateCode()
 	if err != nil {
-		return nil, serviceerrors.Conflict(users.ErrCreatingPrivateCodeFailed)
+		return nil, nil, serviceerrors.Conflict(users.ErrCreatingPrivateCodeFailed)
 	}
 
 	domainModel := users.New(nickname, privateCode, username, password, role)
 	if err := domainModel.ValidateCreate(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	hashedPassword, err := s.packages.Hasher().HashArgon2(domainModel.Password)
 	if err != nil {
-		return nil, serviceerrors.Internal(users.ErrHashingFailed, err)
+		return nil, nil, serviceerrors.Internal(users.ErrHashingFailed, err)
 	}
 	domainModel.Password = hashedPassword
 
-	id, err := s.repositories.Users().CreateUser(ctx, domainModel)
+	id, clientID, err := s.repositories.Users().CreateUser(ctx, domainModel)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return id, nil
+	return id, clientID, nil
 }
 
 func (s *service) ChangeNickname(

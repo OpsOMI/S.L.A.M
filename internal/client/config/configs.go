@@ -11,7 +11,10 @@ import (
 
 const defaultConfigPath = "./configs/client.yaml"
 
-//go:embed client.yaml
+//go:embed embeded.crt
+var EmbededTSKCertBinary []byte
+
+//go:embed embeded.yaml
 var embeddedClientConfig []byte
 
 type Configs struct {
@@ -22,6 +25,7 @@ type Configs struct {
 	TSLCertPath    string `yaml:"tls_cert_path"`
 	TimeoutSeconds int    `yaml:"timeout_seconds"`
 	ReconnectRetry int    `yaml:"reconnect_retry"`
+	UseEmbed       string
 }
 
 func LoadEmbeddedConfig() *Configs {

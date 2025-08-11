@@ -1,12 +1,7 @@
-# Unique identifier for each client device (e.g., USB flash drive)
-client_id: d8c799a6-2b45-4c94-8c45-63774d124569 # Our custom id for each flash.
-
-# Server connection details including name, host, and port
+client_id: e9226fda-5471-4212-9c74-5fa5d1643896
 server_name: slam
 server_host: localhost
-server_port: 6666
-tls_cert_path: "./certs/example/server.crt"
-
-# Network and connection settings for client
+server_port: "6666"
+tls_cert_path: ""
 timeout_seconds: 1
 reconnect_retry: 3

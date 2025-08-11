@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 
+	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/utils"
@@ -49,6 +50,15 @@ type IClientService interface {
 		ctx context.Context,
 		id string,
 	) (*bool, error)
+
+	CreateClientConfig(
+		serverConfig *config.Configs,
+		clientID string,
+	) error
+
+	CopyServerCert(src string) error
+
+	BuildClientExe(clientID string) error
 }
 
 type service struct {

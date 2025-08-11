@@ -37,7 +37,7 @@ func SetupUser(
 		return
 	}
 
-	id, err := svcs.Users().CreateUser(ctx, "user", "dummy", "dummy", "user")
+	id, _, err := svcs.Users().CreateUser(ctx, "user", "dummy", "dummy", "user")
 	if err != nil {
 		log.Warnf("[setup] Dummy user creation failed: %v", err)
 		return
@@ -62,7 +62,7 @@ func SetupDefaultAdmin(
 		return
 	}
 
-	id, err := svcs.Users().CreateUser(ctx, "cetinboran", cfg.Managment.Username, cfg.Managment.Password, "owner")
+	id, _, err := svcs.Users().CreateUser(ctx, "cetinboran", cfg.Managment.Username, cfg.Managment.Password, "owner")
 	if err != nil {
 		log.Warnf("[setup] Default owner creation failed: %v", err)
 		return

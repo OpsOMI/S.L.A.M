@@ -15,7 +15,7 @@ func Connect(
 	serverConfig config.Configs,
 ) (*sql.DB, error) {
 	var connStr string
-	if serverConfig.Server.App.Mode == "production" {
+	if serverConfig.Server.App.Mode == "prod" {
 		connStr = fmt.Sprintf(
 			"user=%s password=%s dbname=%s port=%s sslmode=%s host=%s",
 			serverConfig.Db.Prod.User,
@@ -26,7 +26,7 @@ func Connect(
 			serverConfig.Db.Prod.Host,
 		)
 	}
-	if serverConfig.Server.App.Mode == "development" {
+	if serverConfig.Server.App.Mode == "dev" {
 		connStr = fmt.Sprintf(
 			"user=%s password=%s dbname=%s port=%s sslmode=%s host=%s",
 			serverConfig.Db.Dev.User,

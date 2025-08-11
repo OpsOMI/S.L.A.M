@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
+	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/middlewares"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
@@ -19,12 +20,14 @@ type Controller struct {
 	store       store.IJwtManager
 	middlewares []types.Middleware
 	services    services.IServices
+	cfg         *config.Configs
 }
 
 func NewController(
 	logger logger.ILogger,
 	store store.IJwtManager,
 	services services.IServices,
+	cfg *config.Configs,
 ) *Controller {
 	pc := &Controller{
 		store:       store,
@@ -32,6 +35,7 @@ func NewController(
 		routes:      make(map[string]types.HandlerFunc),
 		middlewares: make([]types.Middleware, 0),
 		services:    services,
+		cfg:         cfg,
 	}
 
 	pc.Use(middlewares.JWTAuthMiddleware(store, commons.RoleOwner))

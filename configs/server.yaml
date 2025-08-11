@@ -1,12 +1,13 @@
 # Application specific settings including mode and migration path
 app:
-  mode: development
+  mode: dev
   migration_path: "/app/internal/adapters/postgres/migrations"
 
 # Server configuration including host, port, and TLS certificate paths
 server:
-  host: 0.0.0.0
+  host: localhost
   port: 6666
+  tsl_server_name: slam
   tls_cert_path: "./certs/example/server.crt"
   tls_key_path: "./certs/example/server.key"
 

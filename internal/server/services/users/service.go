@@ -39,7 +39,7 @@ type IUserService interface {
 	CreateUser(
 		ctx context.Context,
 		nickname, username, password, role string,
-	) (*uuid.UUID, error)
+	) (*uuid.UUID, *string, error)
 
 	ChangeNickname(
 		ctx context.Context,

@@ -69,8 +69,9 @@ func (r *repository) GetByNickname(
 func (r *repository) CreateUser(
 	ctx context.Context,
 	domainModel users.User,
-) (*uuid.UUID, error) {
+) (*uuid.UUID, *string, error) {
 	var userID uuid.UUID
+	var clientID string
 
 	if err := r.txManager.RunInTx(ctx, func(tx *sql.Tx) error {
 		qtx := r.queries.WithTx(tx)
@@ -87,10 +88,12 @@ func (r *repository) CreateUser(
 			return repoerrors.Internal(users.ErrCreateFailed, err)
 		}
 
-		clientParams := r.mappers.Clients().CreateClient(uid, uuid.New())
+		clientKey := uuid.New()
+		clientParams := r.mappers.Clients().CreateClient(uid, clientKey)
 		if _, err = qtx.CreateClient(ctx, clientParams); err != nil {
 			return repoerrors.Internal(clients.ErrCreateFailed, err)
 		}
+		clientID = clientKey.String()
 
 		// roomParams := r.mappers.Rooms().CreateParams(uid, domainModel.PrivateCode)
 		// if _, err := qtx.CreateRoom(ctx, roomParams); err != nil {
@@ -100,10 +103,10 @@ func (r *repository) CreateUser(
 
 		return nil
 	}); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return &userID, nil
+	return &userID, &clientID, nil
 }
 
 func (r *repository) ChangeNickname(

@@ -14,6 +14,7 @@ func main() {
 	} else {
 		cfg = config.LoadConfig("./configs/client.yaml")
 	}
+	cfg.UseEmbed = useEmbed
 
 	app.Run(cfg)
 }

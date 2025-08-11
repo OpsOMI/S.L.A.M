@@ -34,7 +34,7 @@ type IUserRepository interface {
 	CreateUser(
 		ctx context.Context,
 		domainModel users.User,
-	) (*uuid.UUID, error)
+	) (*uuid.UUID, *string, error)
 
 	ChangeNickname(
 		ctx context.Context,
