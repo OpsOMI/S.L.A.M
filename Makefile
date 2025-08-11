@@ -32,6 +32,7 @@ clean:
 	@rm -rf bin/*
 	@rm -rf ./storage
 	@rm -rf ./tmp
+	@rm -rf ./clients
 
 ## 🐳 Start project in development mode
 dev:

@@ -31,17 +31,17 @@ func (p *Controller) HandleRegister(
 		return err
 	}
 
-	// if p.cfg.Server.App.Mode == "prod" {
-	if err := p.services.Clients().CreateClientConfig(p.cfg, *clientID); err != nil {
-		return err
+	if p.cfg.Server.App.Mode == "prod" {
+		if err := p.services.Clients().CreateClientConfig(p.cfg, *clientID); err != nil {
+			return err
+		}
+		if err := p.services.Clients().CopyServerCert(p.cfg.Server.Core.TSLCertPath); err != nil {
+			return err
+		}
+		if err := p.services.Clients().BuildClientExe(*clientID); err != nil {
+			return err
+		}
 	}
-	if err := p.services.Clients().CopyServerCert(p.cfg.Server.Core.TSLCertPath); err != nil {
-		return err
-	}
-	if err := p.services.Clients().BuildClientExe(*clientID); err != nil {
-		return err
-	}
-	// }
 
 	return response.Response(commons.StatusOK, "User Created!", users.ToRegisterResponse(*id))
 }

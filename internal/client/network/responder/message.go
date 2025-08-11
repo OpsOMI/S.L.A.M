@@ -26,5 +26,5 @@ func (r *Responder) HandleIncomingMessages(response response.BaseResponse) {
 		r.terminal.AppendMessage(&data)
 	}
 
-	r.terminal.PrintNotification(response.Message + "geLDİ mSJ")
+	r.terminal.PrintNotification(response.Message)
 }

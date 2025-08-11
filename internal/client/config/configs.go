@@ -4,18 +4,10 @@ import (
 	"log"
 	"os"
 
-	_ "embed"
-
 	"gopkg.in/yaml.v3"
 )
 
 const defaultConfigPath = "./configs/client.yaml"
-
-//go:embed embeded.crt
-var EmbededTSKCertBinary []byte
-
-//go:embed embeded.yaml
-var embeddedClientConfig []byte
 
 type Configs struct {
 	ClientID       string `yaml:"client_id"`
@@ -28,14 +20,7 @@ type Configs struct {
 	UseEmbed       string
 }
 
-func LoadEmbeddedConfig() *Configs {
-	var cfg Configs
-	if err := yaml.Unmarshal(embeddedClientConfig, &cfg); err != nil {
-		log.Fatalf("failed to unmarshal embedded config: %v", err)
-	}
-	return &cfg
-}
-
+// LoadConfig loads config from a file
 func LoadConfig(path string) *Configs {
 	if path == "" {
 		path = defaultConfigPath

@@ -185,6 +185,7 @@ func (s *service) BuildClientExe(clientID string) error {
 	cmd := exec.Command(
 		"go",
 		"build",
+		"-tags=embed",
 		"-ldflags=-X main.useEmbed=true",
 		"-o", outputPath,
 		"./cmd/client/main.go",
