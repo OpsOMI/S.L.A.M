@@ -11,9 +11,9 @@ import (
 
 func (s *service) Login(
 	ctx context.Context,
-	username, password string,
+	clientKey, username, password string,
 ) (*users.User, error) {
-	domainModel, err := s.repositories.Users().Login(ctx, username)
+	user, err := s.repositories.Users().GetByUsername(ctx, username)
 	if err != nil {
 		if strings.Contains(err.Error(), "not_found") {
 			return nil, serviceerrors.BadRequest(users.ErrInvalidCredentials)
@@ -21,7 +21,19 @@ func (s *service) Login(
 		return nil, err
 	}
 
-	ok, err := s.packages.Hasher().CompareArgon2(domainModel.Password, password)
+	client, err := s.clients.GetByClientKey(ctx, clientKey)
+	if err != nil {
+		if strings.Contains(err.Error(), "not_found") {
+			return nil, serviceerrors.BadRequest(users.ErrInvalidCredentials)
+		}
+		return nil, err
+	}
+
+	if client.UserID != user.ID {
+		return nil, serviceerrors.Forbidden(users.ErrInvalidClient)
+	}
+
+	ok, err := s.packages.Hasher().CompareArgon2(user.Password, password)
 	if err != nil {
 		return nil, serviceerrors.Internal(users.ErrHashCompareFailed, err)
 	}
@@ -29,7 +41,7 @@ func (s *service) Login(
 		return nil, serviceerrors.BadRequest(users.ErrInvalidCredentials)
 	}
 
-	return domainModel, nil
+	return user, nil
 }
 
 func (s *service) GetByID(

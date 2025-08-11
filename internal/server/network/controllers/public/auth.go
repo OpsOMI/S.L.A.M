@@ -9,6 +9,7 @@ import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/client"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/users"
 )
 
@@ -27,12 +28,17 @@ func (p *Controller) HandleLogin(
 	}
 
 	ctx := context.Background()
-	user, err := p.services.Users().Login(ctx, req.Username, req.Password)
+	user, err := p.services.Users().Login(ctx, req.ClientKey, req.Username, req.Password)
 	if err != nil {
 		return err
 	}
 
-	jwt, err := p.store.GenerateToken(user.Clients.ID, user.ID, user.Username, user.Nickname, user.Role, 24*time.Hour)
+	client, err := p.services.Clients().GetByClientKey(ctx, req.ClientKey)
+	if err != nil {
+		return err
+	}
+
+	jwt, err := p.store.GenerateToken(client.ClientKey, user.ID, user.Username, user.Nickname, user.Role, 24*time.Hour)
 	if err != nil {
 		return err
 	}
@@ -40,4 +46,23 @@ func (p *Controller) HandleLogin(
 	p.connecions.Register(user.Clients.ID, conn)
 
 	return response.Response(commons.StatusOK, "Login successful", users.ToLoginResponse(jwt))
+}
+
+func (p *Controller) HandleClient(
+	conn net.Conn,
+	args json.RawMessage,
+	jwtToken *string,
+) error {
+	var req client.ClientReq
+	if err := utils.ParseJSON(args, &req); err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	isExists, err := p.services.Clients().IsExistByClientKey(ctx, req.ClientKey)
+	if err != nil {
+		return err
+	}
+
+	return response.Response(commons.StatusOK, "Login successful", client.ToClientResp(*isExists))
 }

@@ -33,8 +33,8 @@ func NewServices(
 	repositories repositories.IRepositories,
 ) IServices {
 	utils := utils.NewServices()
-	users := users.NewService(utils, packages, repositories)
 	clients := clients.NewService(utils, packages, repositories)
+	users := users.NewService(utils, packages, repositories, clients)
 	rooms := rooms.NewService(utils, packages, repositories, users, clients)
 	messages := messages.NewService(utils, packages, repositories, users, rooms)
 

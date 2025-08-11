@@ -10,7 +10,7 @@ import (
 const defaultConfigPath = "./configs/client.yaml"
 
 type Configs struct {
-	ClientID       string `yaml:"client_id"`
+	ClientKey      string `yaml:"client_key"`
 	ServerName     string `yaml:"server_name"`
 	ServerHost     string `yaml:"server_host"`
 	ServerPort     string `yaml:"server_port"`

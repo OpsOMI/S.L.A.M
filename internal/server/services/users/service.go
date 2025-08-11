@@ -5,6 +5,7 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/users"
 	"github.com/OpsOMI/S.L.A.M/internal/server/repositories"
+	"github.com/OpsOMI/S.L.A.M/internal/server/services/clients"
 	"github.com/OpsOMI/S.L.A.M/internal/server/services/utils"
 	"github.com/OpsOMI/S.L.A.M/pkg"
 	"github.com/google/uuid"
@@ -13,7 +14,7 @@ import (
 type IUserService interface {
 	Login(
 		ctx context.Context,
-		username, password string,
+		clientKey, username, password string,
 	) (*users.User, error)
 
 	GetByID(
@@ -61,16 +62,19 @@ type service struct {
 	utils        utils.IUtilServices
 	packages     pkg.IPackages
 	repositories repositories.IRepositories
+	clients      clients.IClientService
 }
 
 func NewService(
 	utils utils.IUtilServices,
 	packages pkg.IPackages,
 	repositories repositories.IRepositories,
+	clients clients.IClientService,
 ) IUserService {
 	return &service{
 		utils:        utils,
 		packages:     packages,
 		repositories: repositories,
+		clients:      clients,
 	}
 }

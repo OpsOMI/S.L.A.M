@@ -71,7 +71,7 @@ func (r *repository) CreateUser(
 	domainModel users.User,
 ) (*uuid.UUID, *string, error) {
 	var userID uuid.UUID
-	var clientID string
+	var cKey string
 
 	if err := r.txManager.RunInTx(ctx, func(tx *sql.Tx) error {
 		qtx := r.queries.WithTx(tx)
@@ -93,12 +93,7 @@ func (r *repository) CreateUser(
 		if _, err = qtx.CreateClient(ctx, clientParams); err != nil {
 			return repoerrors.Internal(clients.ErrCreateFailed, err)
 		}
-		clientID = clientKey.String()
-
-		// roomParams := r.mappers.Rooms().CreateParams(uid, domainModel.PrivateCode)
-		// if _, err := qtx.CreateRoom(ctx, roomParams); err != nil {
-		// 	return repoerrors.Internal(rooms.ErrCreateFailed, err)
-		// }
+		cKey = clientKey.String()
 		userID = uid
 
 		return nil
@@ -106,7 +101,7 @@ func (r *repository) CreateUser(
 		return nil, nil, err
 	}
 
-	return &userID, &clientID, nil
+	return &userID, &cKey, nil
 }
 
 func (r *repository) ChangeNickname(

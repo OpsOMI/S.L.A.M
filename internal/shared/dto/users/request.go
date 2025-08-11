@@ -1,8 +1,9 @@
 package users
 
 type LoginReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	ClientKey string `json:"clientKey"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
 }
 
 type RegisterReq struct {
