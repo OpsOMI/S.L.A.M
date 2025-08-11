@@ -14,6 +14,7 @@ import (
 
 func (s *module) Login(
 	req *request.ClientRequest,
+	clientKey string,
 ) error {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -28,8 +29,9 @@ func (s *module) Login(
 	}
 
 	payload := users.LoginReq{
-		Username: username,
-		Password: password,
+		ClientKey: clientKey,
+		Username:  username,
+		Password:  password,
 	}
 
 	if err := utils.SendRequest(s.conn, req, payload); err != nil {

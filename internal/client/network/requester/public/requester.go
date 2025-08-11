@@ -2,6 +2,7 @@ package public
 
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/client/apperrors"
+	"github.com/OpsOMI/S.L.A.M/internal/client/config"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
@@ -15,15 +16,18 @@ type Requester struct {
 	terminal *terminal.Terminal
 	store    *store.SessionStore
 	routes   map[string]commons.RouteFunc
+	cfg      *config.Configs
 }
 
 func NewRequester(
+	cfg *config.Configs,
 	terminal *terminal.Terminal,
 	store *store.SessionStore,
 	api api.IAPI,
 ) Requester {
 	r := Requester{
 		api:      api,
+		cfg:      cfg,
 		store:    store,
 		terminal: terminal,
 		routes:   make(map[string]commons.RouteFunc),

@@ -50,7 +50,7 @@ func NewController(
 	parser := parser.NewParser()
 	terminal := terminal.NewTerminal()
 	store := store.NewSessionStore()
-	requester := requester.NewRequesters(api, store, terminal)
+	requester := requester.NewRequesters(api, store, terminal, &config)
 	responder := responder.NewResponder(store, terminal)
 
 	return &Controller{
@@ -127,6 +127,7 @@ func (c *Controller) handleInput(input string) {
 		c.store.Logout()
 		c.terminal.SetMessages(nil)
 		c.terminal.SetRooms(nil)
+		c.terminal.SetCurrentRoom("")
 		c.terminal.Render()
 
 	case input == "/reconnect":
@@ -194,7 +195,7 @@ func (c *Controller) Reconnect() error {
 	}
 	c.conn = conn
 	c.api = api.NewAPI(c.conn, c.logger)
-	c.requester = requester.NewRequesters(c.api, c.store, c.terminal)
+	c.requester = requester.NewRequesters(c.api, c.store, c.terminal, &c.config)
 
 	return nil
 }

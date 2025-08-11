@@ -11,7 +11,7 @@ import (
 
 func (s *service) Login(
 	ctx context.Context,
-	clientKey, username, password string,
+	clientKey, username, password, mode string,
 ) (*users.User, error) {
 	user, err := s.repositories.Users().GetByUsername(ctx, username)
 	if err != nil {
@@ -21,16 +21,20 @@ func (s *service) Login(
 		return nil, err
 	}
 
-	client, err := s.clients.GetByClientKey(ctx, clientKey)
-	if err != nil {
-		if strings.Contains(err.Error(), "not_found") {
-			return nil, serviceerrors.BadRequest(users.ErrInvalidCredentials)
+	if mode == "prod" {
+		client, err := s.clients.GetByClientKey(ctx, clientKey)
+		if err != nil {
+			// If the below if is entered, the user must have stolen someone else's flash.
+			if strings.Contains(err.Error(), "not_found") {
+				return nil, serviceerrors.Forbidden(users.ErrStolenClient)
+			}
+			return nil, err
 		}
-		return nil, err
-	}
 
-	if client.UserID != user.ID {
-		return nil, serviceerrors.Forbidden(users.ErrInvalidClient)
+		// If the below if is entered, the user will have stolen or using someone else's flash.
+		if client.UserID != user.ID {
+			return nil, serviceerrors.Forbidden(users.ErrInvalidOrStolenClient)
+		}
 	}
 
 	ok, err := s.packages.Hasher().CompareArgon2(user.Password, password)

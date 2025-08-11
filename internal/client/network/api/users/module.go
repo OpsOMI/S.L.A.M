@@ -9,6 +9,7 @@ import (
 type IUserModule interface {
 	Login(
 		req *request.ClientRequest,
+		clientKey string,
 	) error
 
 	Register(

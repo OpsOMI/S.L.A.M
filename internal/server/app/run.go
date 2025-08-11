@@ -80,7 +80,7 @@ func Run(cfg config.Configs) {
 	logg.Info("Controller Starting...")
 	controller := controllers.NewController(listener, logg, cfg)
 
-	if err := controller.Start(services); err != nil {
+	if err := controller.Start(services, &cfg); err != nil {
 		logg.Error("Controller stopped with error", zap.Error(err))
 	}
 }

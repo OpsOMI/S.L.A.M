@@ -14,7 +14,7 @@ import (
 type IUserService interface {
 	Login(
 		ctx context.Context,
-		clientKey, username, password string,
+		clientKey, username, password, mode string,
 	) (*users.User, error)
 
 	GetByID(

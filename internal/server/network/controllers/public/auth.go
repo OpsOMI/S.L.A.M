@@ -28,7 +28,7 @@ func (p *Controller) HandleLogin(
 	}
 
 	ctx := context.Background()
-	user, err := p.services.Users().Login(ctx, req.ClientKey, req.Username, req.Password)
+	user, err := p.services.Users().Login(ctx, req.ClientKey, req.Username, req.Password, p.cfg.Server.App.Mode)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (p *Controller) HandleLogin(
 		return err
 	}
 
-	p.connecions.Register(user.Clients.ID, conn)
+	p.connecions.Register(client.ClientKey, conn)
 
 	return response.Response(commons.StatusOK, "Login successful", users.ToLoginResponse(jwt))
 }

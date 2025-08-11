@@ -3,6 +3,7 @@ package requester
 import (
 	"errors"
 
+	"github.com/OpsOMI/S.L.A.M/internal/client/config"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/api"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/parser"
 	"github.com/OpsOMI/S.L.A.M/internal/client/network/requester/owner"
@@ -23,8 +24,10 @@ func NewRequesters(
 	api api.IAPI,
 	store *store.SessionStore,
 	terminal *terminal.Terminal,
+	cfg *config.Configs,
 ) Requesters {
 	public := public.NewRequester(
+		cfg,
 		terminal,
 		store,
 		api,

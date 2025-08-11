@@ -43,6 +43,7 @@ func (m *mapper) One(
 
 	return &Client{
 		ID:        dbModel.ID,
+		UserID:    dbModel.UserID,
 		ClientKey: dbModel.ClientKey,
 		RevokedAt: &dbModel.RevokedAt.Time,
 		CreatedAt: dbModel.CreatedAt.Time,

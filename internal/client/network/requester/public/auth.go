@@ -20,7 +20,7 @@ func (r *Requester) HandleLogin(
 		return apperrors.NewNotification("Already logged in")
 	}
 
-	if err := r.api.Users().Login(req); err != nil {
+	if err := r.api.Users().Login(req, r.cfg.ClientKey); err != nil {
 		return err
 	}
 
