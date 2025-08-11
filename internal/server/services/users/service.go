@@ -47,6 +47,11 @@ type IUserService interface {
 		id, nickname string,
 	) error
 
+	BanUser(
+		ctx context.Context,
+		id string,
+	) error
+
 	DeleteByID(
 		ctx context.Context,
 		id string,

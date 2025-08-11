@@ -27,5 +27,7 @@ const (
 	ErrHashCompareFailed         = "users.hash_compare_failed"
 	ErrInvalidCredentials        = "users.invalid_credentials"
 	ErrInvalidOrStolenClient     = "users.invalid_or_stolen_client"
-	ErrStolenClient              = "users.stolen_client"
+	ErrUnregisteredClient        = "users.unregistered_client"
+	ErrClientIsRevoked           = "users.client_is_revoked"
+	ErrUserBanned                = "users.user_banned"
 )

@@ -11,6 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
+const banUser = `-- name: BanUser :exec
+UPDATE users
+SET
+    role = 'banned'
+WHERE
+    id = $1
+`
+
+func (q *Queries) BanUser(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, banUser, id)
+	return err
+}
+
 const changeNickname = `-- name: ChangeNickname :exec
 UPDATE users
 SET

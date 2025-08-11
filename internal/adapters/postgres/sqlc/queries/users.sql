@@ -37,6 +37,13 @@ SET
 WHERE
     id = @id;
 
+-- name: BanUser :exec
+UPDATE users
+SET
+    role = 'banned'
+WHERE
+    id = @id;
+
 -- name: DeleteUser :exec
 DELETE FROM users WHERE id = @id;
 

@@ -40,7 +40,9 @@ func (c *Client) ValidateCreate() error {
 	return nil
 }
 
-// IsRevoked checks if the client is revoked.
 func (c *Client) IsRevoked() bool {
-	return c.RevokedAt != nil
+	if c.RevokedAt == nil {
+		return false
+	}
+	return !c.RevokedAt.IsZero()
 }

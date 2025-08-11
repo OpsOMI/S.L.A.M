@@ -22,17 +22,33 @@ func (s *service) Login(
 	}
 
 	if mode == "prod" {
+		if user.Role == "banned" {
+			return nil, serviceerrors.Forbidden(users.ErrUserBanned)
+		}
+
 		client, err := s.clients.GetByClientKey(ctx, clientKey)
 		if err != nil {
-			// If the below if is entered, the user must have stolen someone else's flash.
+			// If this condition is met, it likely means the user is trying to use a client executable
+			// that is not registered in our database—probably due to tampering or reverse engineering.
+			// In other words, they are attempting unauthorized access with a modified or stolen client.
 			if strings.Contains(err.Error(), "not_found") {
-				return nil, serviceerrors.Forbidden(users.ErrStolenClient)
+				if err := s.BanUser(ctx, user.ID.String()); err != nil {
+					return nil, err
+				}
+				return nil, serviceerrors.Forbidden(users.ErrUnregisteredClient)
 			}
 			return nil, err
 		}
 
+		if client.IsRevoked() {
+			return nil, serviceerrors.Forbidden(users.ErrClientIsRevoked)
+		}
+
 		// If the below if is entered, the user will have stolen or using someone else's flash.
 		if client.UserID != user.ID {
+			if err := s.clients.RevokeByID(ctx, client.ID.String()); err != nil {
+				return nil, err
+			}
 			return nil, serviceerrors.Forbidden(users.ErrInvalidOrStolenClient)
 		}
 	}
@@ -160,6 +176,18 @@ func (s *service) ChangeNickname(
 	}
 
 	return nil
+}
+
+func (s *service) BanUser(
+	ctx context.Context,
+	id string,
+) error {
+	model, err := s.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return s.repositories.Users().BanUser(ctx, model.ID)
 }
 
 func (s *service) DeleteByID(

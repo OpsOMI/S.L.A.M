@@ -42,6 +42,11 @@ type IUserRepository interface {
 		nickname string,
 	) error
 
+	BanUser(
+		ctx context.Context,
+		id uuid.UUID,
+	) error
+
 	DeleteByID(
 		ctx context.Context,
 		id uuid.UUID,

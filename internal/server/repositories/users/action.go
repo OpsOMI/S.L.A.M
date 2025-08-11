@@ -116,6 +116,16 @@ func (r *repository) ChangeNickname(
 	return nil
 }
 
+func (r *repository) BanUser(
+	ctx context.Context,
+	id uuid.UUID,
+) error {
+	if err := r.queries.BanUser(ctx, id); err != nil {
+		return repoerrors.Internal(users.ErrUpdateFailed, err)
+	}
+	return nil
+}
+
 func (r *repository) DeleteByID(
 	ctx context.Context,
 	id uuid.UUID,
