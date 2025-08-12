@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   chat-server:
     container_name: slam-server-prod
@@ -13,9 +11,8 @@ services:
     networks:
       - secure-chat
     volumes:
+      - ../../clients:/app/clients # Make sure that we can see clients.
       - ../../logs:/app/logs # Make sure this matches the log file path set in config.yaml.
-    env_file:
-      - .env.prod
 
   database:
     container_name: slam-postgres-prod
@@ -26,10 +23,10 @@ services:
     networks:
       - secure-chat
     environment:
-      POSTGRES_DB: ${DEV_DB_NAME}
-      POSTGRES_USER: ${DEV_DB_USER}
-      POSTGRES_PASSWORD: ${DEV_DB_PASSWORD}
-      POSTGRES_PORT: ${DEV_DB_PORT}
+      POSTGRES_DB: ${PROD_DB_NAME}
+      POSTGRES_USER: ${PROD_DB_USER}
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
+      POSTGRES_PORT: ${PROD_DB_PORT}
 
 networks:
   secure-chat:

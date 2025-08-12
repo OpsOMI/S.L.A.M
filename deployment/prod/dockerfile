@@ -8,18 +8,20 @@ RUN go mod tidy
 
 COPY . .
 
-RUN go build -o Asistolog ./cmd/project
+RUN go build -o ./build/server ./cmd/server
 
 # 2. Production image
 FROM debian:bookworm-slim
 
 WORKDIR /app
 
-COPY --from=builder /app/Asistolog .
-COPY --from=builder /app/config ./config
+COPY --from=builder /app/deployment/ ./deployment
+COPY --from=builder /app/build/server .
+COPY --from=builder /app/configs ./configs
 COPY --from=builder /app/env ./env
 COPY --from=builder /app/internal/adapters/postgres/migrations ./internal/adapters/postgres/migrations
+COPY --from=builder /app/certs/ ./certs
 
 EXPOSE 8080
 
-CMD ["./Asistolog"]
+CMD ["./server"]

@@ -29,7 +29,7 @@ test:
 ## 🧹 Clean built binaries and storage
 clean:
 	@echo "[i] Cleaning binaries and storage..."
-	@rm -rf bin/*
+	@rm -rf build/*
 	@rm -rf ./storage
 	@rm -rf ./tmp
 	@rm -rf ./clients
