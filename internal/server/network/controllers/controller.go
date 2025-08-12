@@ -47,7 +47,7 @@ func (c *Controller) Start(
 	cfg *config.Configs,
 ) error {
 	public := public.NewController(cfg, c.logger, c.store, services, c.connections)
-	private := private.NewController(c.logger, c.store, services, c.connections)
+	private := private.NewController(cfg, c.logger, c.store, services, c.connections)
 	owner := owner.NewController(c.logger, c.store, services, &c.config, c.connections)
 
 	for {

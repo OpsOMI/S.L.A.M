@@ -6,6 +6,7 @@ import (
 
 	"github.com/OpsOMI/S.L.A.M/internal/adapters/logger"
 
+	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/commons"
 	"github.com/OpsOMI/S.L.A.M/internal/server/infrastructure/connection"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/middlewares"
@@ -16,6 +17,7 @@ import (
 )
 
 type Controller struct {
+	cfg         *config.Configs
 	logger      logger.ILogger
 	routes      map[string]types.HandlerFunc
 	store       store.IJwtManager
@@ -25,12 +27,14 @@ type Controller struct {
 }
 
 func NewController(
+	cfg *config.Configs,
 	logger logger.ILogger,
 	store store.IJwtManager,
 	services services.IServices,
 	connections *connection.ConnectionManager,
 ) *Controller {
 	pc := &Controller{
+		cfg:         cfg,
 		store:       store,
 		logger:      logger,
 		routes:      make(map[string]types.HandlerFunc),

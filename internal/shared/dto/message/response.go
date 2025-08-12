@@ -31,7 +31,7 @@ func ManyMessage(
 	result := make([]MessageResp, 0, len(domainModel.Items))
 
 	for _, msg := range domainModel.Items {
-		result = append(result, *OneMessage(&msg))
+		result = append(result, *OneMessage(msg))
 	}
 
 	return MessagesReps{

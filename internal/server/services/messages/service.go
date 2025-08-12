@@ -15,13 +15,12 @@ import (
 type IMessageService interface {
 	GetMessagesByRoomCode(
 		ctx context.Context,
-		roomCode string,
+		roomCode, secret string,
 	) (*messages.RoomMessages, error)
 
 	CreateMessage(
 		ctx context.Context,
-		senderID, roomCode string,
-		content string,
+		senderID, roomCode, content, secret string,
 	) error
 
 	DeleteMessages(

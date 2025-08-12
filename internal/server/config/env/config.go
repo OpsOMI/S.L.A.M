@@ -9,10 +9,11 @@ import (
 )
 
 type EnvConfig struct {
-	TSL       models.TSL
-	Jwt       models.Jwt
-	Room      models.Room
-	Managment models.Managment
+	MessageSecret string
+	TSL           models.TSL
+	Jwt           models.Jwt
+	Room          models.Room
+	Managment     models.Managment
 }
 
 var defaultPath = "./env/real/.env"
@@ -29,6 +30,7 @@ func LoadAll(
 	}
 
 	return &EnvConfig{
+		MessageSecret: os.Getenv("MESSAGE_SECRET"),
 		Managment: models.Managment{
 			Nickname: os.Getenv("MANAGEMENT_NICKNAME"),
 			Username: os.Getenv("MANAGEMENT_USERNAME"),

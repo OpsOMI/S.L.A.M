@@ -36,7 +36,7 @@ func (p *Controller) HandleJoin(
 	}
 	p.connections.SetClientRoom(userInfo.ClientID, room.Code)
 
-	domainMessages, err := p.services.Messages().GetMessagesByRoomCode(ctx, room.Code)
+	domainMessages, err := p.services.Messages().GetMessagesByRoomCode(ctx, room.Code, p.cfg.Env.MessageSecret)
 	if err != nil {
 		return err
 	}

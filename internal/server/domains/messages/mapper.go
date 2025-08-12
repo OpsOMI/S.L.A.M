@@ -91,9 +91,9 @@ func (m *mapper) ManyRoomMessages(
 	dbModels []pgqueries.GetMessagesByRoomCodeRow,
 	count int64,
 ) *RoomMessages {
-	var appModels []RoomMessage
+	var appModels []*RoomMessage
 	for _, dbModel := range dbModels {
-		appModels = append(appModels, *m.OneRoomMessage(&dbModel))
+		appModels = append(appModels, m.OneRoomMessage(&dbModel))
 	}
 
 	return &RoomMessages{

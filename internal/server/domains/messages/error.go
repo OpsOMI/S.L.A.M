@@ -14,4 +14,8 @@ const (
 	// Domain Errors
 	ErrSenderIDRequired = "messages.sender_id_required"
 	ErrRoomIDRequired   = "messages.room_id_required"
+
+	// Service Errors
+	ErrMessageEncryptFailed = "messages.message_encrypt_failed"
+	ErrMessageDecryptFailed = "messages.message_dencrypt_failed"
 )

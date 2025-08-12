@@ -57,7 +57,7 @@ func (p *Controller) HandleMessage(
 	if !ok {
 		p.logger.Info("No active clients in room. Message will be saved to DB.")
 
-		if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), chatRoom, req.Content); err != nil {
+		if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), chatRoom, req.Content, p.cfg.Env.MessageSecret); err != nil {
 			p.logger.Error("Failed to save room message: " + err.Error())
 			return err
 		}
@@ -85,7 +85,7 @@ func (p *Controller) HandleMessage(
 
 	}
 
-	if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), chatRoom, req.Content); err != nil {
+	if err := p.services.Messages().CreateMessage(ctx, userInfo.UserID.String(), chatRoom, req.Content, p.cfg.Env.MessageSecret); err != nil {
 		p.logger.Error("Failed to save room message: " + err.Error())
 		return err
 	}

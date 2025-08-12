@@ -26,7 +26,7 @@ type RoomMessage struct {
 }
 
 type RoomMessages struct {
-	Items      []RoomMessage
+	Items      []*RoomMessage
 	TotalCount int64
 }
 

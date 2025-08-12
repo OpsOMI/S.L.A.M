@@ -12,15 +12,27 @@ import (
 
 func (s *service) GetMessagesByRoomCode(
 	ctx context.Context,
-	roomCode string,
+	roomCode, secret string,
 ) (*messages.RoomMessages, error) {
-	return s.repositories.Messages().GetMessagesByRoomCode(ctx, roomCode)
+	models, err := s.repositories.Messages().GetMessagesByRoomCode(ctx, roomCode)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ms := range models.Items {
+		content, err := s.packages.Hasher().DecryptMessage(ms.ContentEnc, []byte(secret))
+		if err != nil {
+			return nil, serviceerrors.Internal(messages.ErrMessageDecryptFailed, err)
+		}
+		ms.ContentEnc = content
+	}
+
+	return models, nil
 }
 
 func (s *service) CreateMessage(
 	ctx context.Context,
-	senderID, roomCode string,
-	content string,
+	senderID, roomCode, content, secret string,
 ) error {
 	sender, err := s.users.GetByID(ctx, senderID)
 	if err != nil {
@@ -32,7 +44,12 @@ func (s *service) CreateMessage(
 		return err
 	}
 
-	if err := s.repositories.Messages().CreateMessage(ctx, sender.ID, rooms.ID, content); err != nil {
+	hashedContent, err := s.packages.Hasher().EncryptMessage(content, []byte(secret))
+	if err != nil {
+		return serviceerrors.Internal(messages.ErrMessageEncryptFailed, err)
+	}
+
+	if err := s.repositories.Messages().CreateMessage(ctx, sender.ID, rooms.ID, hashedContent); err != nil {
 		return serviceerrors.Internal(messages.ErrCreateFailed, err)
 	}
 
