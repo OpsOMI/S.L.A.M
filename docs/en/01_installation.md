@@ -21,7 +21,7 @@ The project uses your own certificates for secure communication with TLS.
 1. Copy the `cert.example.conf` file in `/certs/example` folder and save it as `cert.conf`:
 
 ```bash
-cp certs/example/cert.example.conf certs/example/cert.conf
+cp certs/example/cert.example.conf certs/real/cert.conf
 ```
 
 2. Edit the `DNS` field under the **alt_names** section inside `cert.conf` to match your server address.
@@ -116,3 +116,5 @@ After the server is started:
   - One with the code **public**
   - Another with the code **private**
   - The **private** room’s password is the value you set for **PRIVATE_ROOM_PASS** in your `env` file.
+
+- [Next](docs/en/02_features.md)

@@ -21,7 +21,7 @@ Proje, TLS ile güvenli iletişim için kendi sertifikalarınızı kullanır.
 1. `/certs/example` dizinindeki `cert.example.conf` dosyasını kopyalayıp `cert.conf` olarak kaydedin:
 
 ```bash
-cp certs/example/cert.example.conf certs/example/cert.conf
+cp certs/example/cert.example.conf certs/real/cert.conf
 ```
 
 2. `cert.conf` içindeki **alt_names** bölümündeki `DNS` alanını kendi sunucu adresinize göre düzenleyin.
@@ -112,6 +112,9 @@ Sunucu başlatıldıktan sonra:
 - Bu kullanıcıya ait **client binary** dosyası `./clients` dizininde oluşturulur.
 - Oluşan client ile yönetici bilgileri kullanılarak sunucuya bağlanabilirsiniz.
 - Yönetici için otomatik olarak **2 adet oda** oluşturulur:
+
   - Birinin kodu **public**
   - Diğerinin kodu **private**
   - **Private** odanın şifresi, sizin `env` dosyanızda belirttiğiniz **PRIVATE_ROOM_PASS** değeridir.
+
+- [İleri](docs/tr/02_features.md)
