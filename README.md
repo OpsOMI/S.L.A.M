@@ -14,9 +14,9 @@ The goal of S.L.A.M is to enable users to communicate securely, anonymously, and
 
 ## Documentation
 
-- [Installation](docs/en/installation.md)
-- [Features](docs/en/features.md)
-- [Commands](docs/en/commands.md)
+- [Installation](docs/en/01_installation.md)
+- [Features](docs/en/02_features.md)
+- [Commands](docs/en/03_commands.md)
 
 ## Support Us
 

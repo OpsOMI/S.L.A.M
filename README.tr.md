@@ -14,9 +14,9 @@ S.L.A.M'in amacı, kullanıcıların güvenli, anonim ve hızlı şekilde mesajl
 
 ## Dökümantasyon
 
-- [Kurulum](docs/tr/installation.md)
-- [Özellikler](docs/tr/features.md)
-- [Komutlar](docs/tr/commands.md)
+- [Kurulum](docs/tr/01_installation.md)
+- [Özellikler](docs/tr/02_features.md)
+- [Komutlar](docs/tr/03_commands.md)
 
 ## Destek Olun
 
