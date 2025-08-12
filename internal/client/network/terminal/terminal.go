@@ -298,24 +298,34 @@ func (t *Terminal) Print(err error) {
 	}
 }
 
-func (t *Terminal) PrintError(msg string) {
+func (t *Terminal) PrintError(msg string, timeouts ...int) {
 	t.output.Message = msg
 	t.output.Code = "error"
 	t.Render()
 
+	var to time.Duration = time.Second
+	if len(timeouts) > 0 {
+		to = time.Duration(timeouts[0]) * time.Second
+	}
+
 	go func() {
-		time.Sleep(1 * time.Second)
+		time.Sleep(to)
 		t.ClearLine(t.height - 1)
 	}()
 }
 
-func (t *Terminal) PrintNotification(msg string) {
+func (t *Terminal) PrintNotification(msg string, timeouts ...int) {
 	t.output.Message = msg
 	t.output.Code = "info"
 	t.Render()
 
+	var to time.Duration = time.Second
+	if len(timeouts) > 0 {
+		to = time.Duration(timeouts[0]) * time.Second
+	}
+
 	go func() {
-		time.Sleep(1 * time.Second)
+		time.Sleep(to)
 		t.ClearLine(t.height - 1)
 	}()
 }

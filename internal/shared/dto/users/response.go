@@ -6,20 +6,20 @@ import (
 )
 
 type MeResp struct {
-	ClientID uuid.UUID `json:"clientID"`
-	UserID   uuid.UUID `json:"userID"`
-	Username string    `json:"username"`
-	Nickname string    `json:"nickname"`
+	UserID    uuid.UUID `json:"userID"`
+	ClientKey uuid.UUID `json:"clientKey"`
+	Username  string    `json:"username"`
+	Nickname  string    `json:"nickname"`
 }
 
 func ToMeResp(
 	info *store.TokenInfo,
 ) MeResp {
 	return MeResp{
-		ClientID: info.ClientID,
-		UserID:   info.UserID,
-		Username: info.Username,
-		Nickname: info.Nickname,
+		ClientKey: info.ClientID,
+		UserID:    info.UserID,
+		Username:  info.Username,
+		Nickname:  info.Nickname,
 	}
 }
 
