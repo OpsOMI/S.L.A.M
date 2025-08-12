@@ -9,12 +9,23 @@ import (
 	responseserver "github.com/OpsOMI/S.L.A.M/internal/server/network/response"
 	"github.com/OpsOMI/S.L.A.M/internal/server/network/utils"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/message"
+	"github.com/OpsOMI/S.L.A.M/internal/shared/dto/users"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/request"
 	"github.com/OpsOMI/S.L.A.M/internal/shared/network/response"
 )
 
 func (p *Controller) InitUserRoutes() {
 	p.routes["/send"] = p.HandleMessage
+	p.routes["/me"] = p.Me
+}
+
+func (p *Controller) Me(
+	conn net.Conn,
+	args json.RawMessage,
+	jwtToken *string,
+) error {
+	userInfo := p.store.ParseToken(jwtToken)
+	return responseserver.Response(commons.StatusOK, "Me!", users.ToMeResp(userInfo))
 }
 
 func (p *Controller) HandleMessage(
