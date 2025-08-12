@@ -10,8 +10,9 @@ import (
 
 type EnvConfig struct {
 	TSL       models.TSL
-	Managment models.Managment
 	Jwt       models.Jwt
+	Room      models.Room
+	Managment models.Managment
 }
 
 var defaultPath = "./env/real/.env"
@@ -29,6 +30,7 @@ func LoadAll(
 
 	return &EnvConfig{
 		Managment: models.Managment{
+			Nickname: os.Getenv("MANAGEMENT_NICKNAME"),
 			Username: os.Getenv("MANAGEMENT_USERNAME"),
 			Password: os.Getenv("MANAGEMENT_PASSWORD"),
 		},
@@ -38,6 +40,9 @@ func LoadAll(
 		},
 		TSL: models.TSL{
 			ServerName: os.Getenv("TSL_SERVER_NAME"),
+		},
+		Room: models.Room{
+			PrivateRoomPass: os.Getenv("PRIVATE_ROOM_PASS"),
 		},
 	}
 }

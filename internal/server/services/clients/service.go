@@ -51,14 +51,10 @@ type IClientService interface {
 		id string,
 	) (*bool, error)
 
-	CreateClientConfig(
+	CreateClient(
 		serverConfig *config.Configs,
 		clientID string,
 	) error
-
-	CopyServerCert(src string) error
-
-	BuildClientExe(clientID string) error
 }
 
 type service struct {

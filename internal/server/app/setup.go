@@ -15,34 +15,6 @@ func Setup(
 ) {
 	// Create Admin
 	SetupDefaultAdmin(cfg, svcs, log)
-
-	// Create Dummy User
-	SetupUser(cfg, svcs, log)
-}
-
-func SetupUser(
-	cfg config.Configs,
-	svcs services.IServices,
-	log logger.ILogger,
-) {
-	ctx := context.Background()
-
-	ok, err := svcs.Users().IsExistsByUsername(ctx, "dummy")
-	if err != nil {
-		log.Warnf("[setup] Default owner is_exist failed: %v", err)
-		return
-	}
-	if ok {
-		log.Info("[setup] Dummy user already exists, skipping creation.")
-		return
-	}
-
-	id, _, err := svcs.Users().CreateUser(ctx, "user", "dummy", "dummy", "user")
-	if err != nil {
-		log.Warnf("[setup] Dummy user creation failed: %v", err)
-		return
-	}
-	log.Infof("[setup] Default owner user created successfully. ID: %v", id)
 }
 
 func SetupDefaultAdmin(
@@ -62,20 +34,25 @@ func SetupDefaultAdmin(
 		return
 	}
 
-	id, _, err := svcs.Users().CreateUser(ctx, "cetinboran", cfg.Env.Managment.Username, cfg.Env.Managment.Password, "owner")
+	id, clientKey, err := svcs.Users().CreateUser(ctx, cfg.Env.Managment.Nickname, cfg.Env.Managment.Username, cfg.Env.Managment.Password, "owner")
 	if err != nil {
 		log.Warnf("[setup] Default owner creation failed: %v", err)
 		return
 	}
 	log.Infof("[setup] Default owner user created successfully. ID: %v", id)
 
-	roomID, err := svcs.Rooms().Create(ctx, id.String(), "room")
+	if err := svcs.Clients().CreateClient(&cfg, *clientKey); err != nil {
+		log.Warnf("[setup] Creating client failed: %v", err)
+		return
+	}
+
+	privateRoomID, err := svcs.Rooms().CreateWithCode(ctx, id.String(), "private", cfg.Env.Room.PrivateRoomPass)
 	if err != nil {
 		log.Warnf("[setup] Default room creation failed: %v", err)
 		return
 	}
-	log.Infof("[setup] Default room created successfully. ID: %v", roomID)
+	log.Infof("[setup] Default room created successfully. ID: %v", privateRoomID)
 
-	emptyrom, _ := svcs.Rooms().Create(ctx, id.String(), "")
-	log.Infof("[setup] Default room created successfully. ID: %v", emptyrom)
+	publicRoomID, _ := svcs.Rooms().CreateWithCode(ctx, id.String(), "public", "")
+	log.Infof("[setup] Default room created successfully. ID: %v", publicRoomID)
 }
