@@ -25,12 +25,12 @@ func NewConnectionManager() *ConnectionManager {
 }
 
 func (cm *ConnectionManager) Register(
-	clientID uuid.UUID,
+	clientKey uuid.UUID,
 	conn net.Conn,
 ) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
-	cm.clients[clientID] = &ClientInfo{
+	cm.clients[clientKey] = &ClientInfo{
 		Conn:     conn,
 		RoomCode: "",
 	}
@@ -38,28 +38,32 @@ func (cm *ConnectionManager) Register(
 }
 
 func (cm *ConnectionManager) SetClientRoom(
-	clientID uuid.UUID,
+	clientKey uuid.UUID,
 	roomCode string,
 ) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
-	if client, ok := cm.clients[clientID]; ok {
+	if client, ok := cm.clients[clientKey]; ok {
 		client.RoomCode = roomCode
 	}
 }
 
-func (cm *ConnectionManager) GetClientRoom(clientID uuid.UUID) (string, bool) {
+func (cm *ConnectionManager) GetClientRoom(
+	clientKey uuid.UUID,
+) (string, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 
-	client, ok := cm.clients[clientID]
+	client, ok := cm.clients[clientKey]
 	if !ok || client.RoomCode == "" {
 		return "", false
 	}
 	return client.RoomCode, true
 }
 
-func (cm *ConnectionManager) GetConnectionsByRoomCode(roomCode string) ([]net.Conn, bool) {
+func (cm *ConnectionManager) GetConnectionsByRoomCode(
+	roomCode string,
+) ([]net.Conn, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 
@@ -76,16 +80,20 @@ func (cm *ConnectionManager) GetConnectionsByRoomCode(roomCode string) ([]net.Co
 	return conns, true
 }
 
-func (cm *ConnectionManager) Unregister(clientID uuid.UUID) {
+func (cm *ConnectionManager) Unregister(
+	clientKey uuid.UUID,
+) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
-	delete(cm.clients, clientID)
+	delete(cm.clients, clientKey)
 }
 
-func (cm *ConnectionManager) GetConn(clientID uuid.UUID) (net.Conn, bool) {
+func (cm *ConnectionManager) GetConn(
+	clientKey uuid.UUID,
+) (net.Conn, bool) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
-	if client, ok := cm.clients[clientID]; ok {
+	if client, ok := cm.clients[clientKey]; ok {
 		return client.Conn, true
 	}
 	return nil, false
