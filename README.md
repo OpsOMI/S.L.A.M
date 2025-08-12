@@ -30,4 +30,4 @@ Thank you! 🙌
 
 ## Languages
 
-[Turkish](README.md)
+[Turkish](README.tr.md)
