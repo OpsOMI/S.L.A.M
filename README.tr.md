@@ -23,6 +23,10 @@ S.L.A.M'in amacı, kullanıcıların güvenli, anonim ve hızlı şekilde mesajl
 Projemizi beğendiyseniz, ⭐️ **Star** atmayı unutmayın!. Bu, bizi motive eder ve projenin daha çok kişiye ulaşmasına yardımcı olur.  
 Teşekkürler! 🙌
 
+## Sorumluluk Reddi
+
+Bu proje “olduğu gibi” sunulmaktadır ve herhangi bir garanti içermez. Yazarlar, yazılımın üçüncü kişiler tarafından kötüye kullanılması veya zararlı amaçlarla kullanılmasından sorumlu değildir. Yazılımı sorumluluk bilinciyle ve kendi riskinizde kullanınız.
+
 ## Diller
 
 [İngilizce](README.md)

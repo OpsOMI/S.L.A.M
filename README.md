@@ -22,6 +22,10 @@ The goal of S.L.A.M is to enable users to communicate securely, anonymously, and
 
 If you like our project, don't forget to give it a ⭐️ **Star**!. This motivates us and helps the project reach more people. Thank you! 🙌
 
+## Disclaimer
+
+This project is provided "as is" without any warranties. The authors are not responsible for any misuse or malicious use of this software by third parties. Use it responsibly and at your own risk.
+
 ## Languages
 
 [Turkish](README.tr.md)
