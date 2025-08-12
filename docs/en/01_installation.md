@@ -1,7 +1,6 @@
 ## 📦 Installation with Docker
 
-This project can be easily run using **Docker** and **Docker Compose**.
-Before getting started, make sure the following are installed:
+This project can be easily run using **Docker** and **Docker Compose**. Before getting started, make sure the following are installed:
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)

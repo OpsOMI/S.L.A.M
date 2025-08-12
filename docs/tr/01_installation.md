@@ -1,7 +1,6 @@
 ## 📦 Docker ile Kurulum
 
-Bu proje, **Docker** ve **Docker Compose** kullanılarak kolayca çalıştırılabilir.
-Başlamadan önce aşağıdakilerin yüklü olduğundan emin olun:
+Bu proje, **Docker** ve **Docker Compose** kullanılarak kolayca çalıştırılabilir. Başlamadan önce aşağıdakilerin yüklü olduğundan emin olun:
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
