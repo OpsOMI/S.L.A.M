@@ -1,6 +1,6 @@
 package models
 
 type App struct {
-	Mode          string `yaml:"mode"`
+	Mode          string
 	MigrationPath string `yaml:"migration_path"`
 }

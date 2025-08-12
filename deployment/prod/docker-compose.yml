@@ -10,9 +10,10 @@ services:
       - database
     networks:
       - secure-chat
+    environment:
+      - APP_MODE=prod
     volumes:
       - ../../clients:/app/clients # Make sure that we can see clients.
-      - ../../logs:/app/logs # Make sure this matches the log file path set in config.yaml.
 
   database:
     container_name: slam-postgres-prod

@@ -1,5 +1,20 @@
+# System Files
 .DS_Store
+
+# Build & Generated Files
+build/
+
+# Temporary & Runtime Storage
 storage/
 tmp/
 clients/
-build/
+logs/
+
+# Environment Configuration Files
+.env
+**/.env
+
+# Certifications
+cert.conf
+server.crt
+server.key

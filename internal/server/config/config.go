@@ -3,13 +3,13 @@ package config
 import (
 	"github.com/OpsOMI/S.L.A.M/internal/server/config/core"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config/db"
-	"github.com/OpsOMI/S.L.A.M/internal/server/config/managment"
+	"github.com/OpsOMI/S.L.A.M/internal/server/config/env"
 )
 
 type Configs struct {
-	Server    core.Configs
-	Managment managment.ManagementConfig
-	Db        db.DatabaseConfig
+	Server core.Configs
+	Env    env.EnvConfig
+	Db     db.DatabaseConfig
 }
 
 func LoadConfig(
@@ -23,7 +23,7 @@ func LoadConfig(
 	}
 
 	if managmentEnvPath != "" {
-		cfg.Managment = *managment.LoadAll(managmentEnvPath)
+		cfg.Env = *env.LoadAll(managmentEnvPath)
 	}
 
 	return cfg

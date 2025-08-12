@@ -111,7 +111,7 @@ func Reconnect(
 	}
 
 	newConn, err := ConnectToServer(
-		cfg.ServerName,
+		cfg.TSLServerName,
 		cfg.ServerHost,
 		cfg.ServerPort,
 		certData,

@@ -31,7 +31,7 @@ func NewController(
 	logger logger.ILogger,
 	config config.Configs,
 ) *Controller {
-	tokenstore := store.NewManager(config.Server.Jwt.Issuer, config.Server.Jwt.Secret)
+	tokenstore := store.NewManager(config.Env.Jwt.Issuer, config.Env.Jwt.Secret)
 	connections := connection.NewConnectionManager()
 
 	return &Controller{

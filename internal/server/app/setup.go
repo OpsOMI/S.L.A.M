@@ -52,7 +52,7 @@ func SetupDefaultAdmin(
 ) {
 	ctx := context.Background()
 
-	ok, err := svcs.Users().IsExistsByUsername(ctx, cfg.Managment.Username)
+	ok, err := svcs.Users().IsExistsByUsername(ctx, cfg.Env.Managment.Username)
 	if err != nil {
 		log.Warnf("[setup] Default owner is_exist failed: %v", err)
 		return
@@ -62,7 +62,7 @@ func SetupDefaultAdmin(
 		return
 	}
 
-	id, _, err := svcs.Users().CreateUser(ctx, "cetinboran", cfg.Managment.Username, cfg.Managment.Password, "owner")
+	id, _, err := svcs.Users().CreateUser(ctx, "cetinboran", cfg.Env.Managment.Username, cfg.Env.Managment.Password, "owner")
 	if err != nil {
 		log.Warnf("[setup] Default owner creation failed: %v", err)
 		return

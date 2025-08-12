@@ -38,13 +38,12 @@ func (e *AppError) Unwrap() error {
 }
 
 // New creates a new AppError with the given status code, message, optional cause, and source.
-func New(resposeID int, code string, message string, cause error, source ErrorSource) error {
+func New(code string, message string, cause error, source ErrorSource) error {
 	return &AppError{
-		ResponseID: resposeID,
-		Code:       code,
-		Message:    message,
-		Cause:      cause,
-		Source:     source,
-		Timestamp:  time.Now(),
+		Code:      code,
+		Message:   message,
+		Cause:     cause,
+		Source:    source,
+		Timestamp: time.Now(),
 	}
 }

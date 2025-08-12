@@ -34,7 +34,7 @@ func Run(
 	}
 
 	conn, err := network.ConnectToServer(
-		cfg.ServerName,
+		cfg.TSLServerName,
 		cfg.ServerHost,
 		cfg.ServerPort,
 		certData,
