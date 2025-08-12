@@ -54,5 +54,5 @@ func (r *Requester) Route(
 		return handler(command, req)
 	}
 
-	return apperrors.NewError("unknown public command:" + command.Name)
+	return apperrors.NewError("Unknown Command:" + command.Name)
 }

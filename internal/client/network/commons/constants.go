@@ -3,6 +3,7 @@ package commons
 const (
 	RequestIDLogin           = "LOGIN"
 	RequestIDRegister        = "REGISTER"
+	RequestIDOnline          = "ONLINE"
 	RequestIDJoinRoom        = "JOIN_ROOM"
 	RequestIDMe              = "ME"
 	RequestIDCreateRoom      = "CREATE_ROOM"
