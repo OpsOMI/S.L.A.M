@@ -114,7 +114,6 @@ func (c *Controller) HandleUserInput() string {
 func (c *Controller) handleInput(input string) {
 	switch {
 	case input == "/exit" || input == "/quit":
-		c.logger.Info("User exited the client.")
 		c.terminal.ClearScreen()
 		close(c.done)
 		return

@@ -262,6 +262,9 @@ func (t *Terminal) ClearScreen() {
 }
 
 func (t *Terminal) ClearLine(line int) {
+	t.output.Message = ""
+	t.output.Code = ""
+
 	// Save current cursor position
 	fmt.Print("\0337") // or \033[s
 
@@ -274,12 +277,6 @@ func (t *Terminal) ClearLine(line int) {
 
 	// Restore previous cursor position
 	fmt.Print("\0338") // or \033[u
-}
-
-func (t *Terminal) ClearOutput() {
-	t.output.Code = ""
-	t.output.Message = ""
-	t.Render()
 }
 
 // Prints
