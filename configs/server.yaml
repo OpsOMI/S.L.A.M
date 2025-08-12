@@ -1,6 +1,5 @@
 # Application specific settings including mode and migration path
 app:
-  mode: dev
   migration_path: "/app/internal/adapters/postgres/migrations"
 
 # Server configuration including host, port, and TLS certificate paths

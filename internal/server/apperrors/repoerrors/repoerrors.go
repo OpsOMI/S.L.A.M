@@ -8,7 +8,6 @@ import (
 // Internal returns a 500 error from the repository layer
 func Internal(message string, err error) error {
 	return apperrors.New(
-		commons.ResponseIDJustMessage,
 		commons.StatusInternalServerError,
 		message,
 		err,
@@ -19,7 +18,6 @@ func Internal(message string, err error) error {
 // BadRequest returns a 400 error from the repository layer
 func BadRequest(message string) error {
 	return apperrors.New(
-		commons.ResponseIDJustMessage,
 		commons.StatusBadRequest,
 		message,
 		nil,
@@ -30,7 +28,6 @@ func BadRequest(message string) error {
 // NotFound returns a 404 error from the repository layer
 func NotFound(message string) error {
 	return apperrors.New(
-		commons.ResponseIDJustMessage,
 		commons.StatusNotFound,
 		message,
 		nil,

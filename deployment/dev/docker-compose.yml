@@ -10,6 +10,8 @@ services:
       - ../../:/app
     depends_on:
       - database
+    environment:
+      - APP_MODE=dev
     networks:
       - secure-chat
 

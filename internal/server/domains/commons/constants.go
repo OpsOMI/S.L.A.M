@@ -23,35 +23,13 @@ const (
 	RoleOwner = "owner"
 	RoleUser  = "user"
 
-	// SQL Transaction Errors
-	ErrSQLTxCommit = "sql.tx_commit_error"
-	ErrSQLTxCreate = "sql.tx_create_error"
-
 	// File System Errors
-	ErrFileInvalidType = "file.invalid_type"
-	ErrFileCreateDir   = "file.create_dir_error"
-	ErrFileCreate      = "file.create_error"
-	ErrFileDelete      = "file.delete_error"
-	ErrFileCopy        = "file.copy_error"
-	ErrFileOpen        = "file.open_error"
+	ErrFileCreateDir = "file.create_dir_error"
+	ErrFileCreate    = "file.create_error"
+	ErrFileDelete    = "file.delete_error"
+	ErrFileCopy      = "file.copy_error"
+	ErrFileOpen      = "file.open_error"
 
 	// Parse
 	ErrParseFailed = "parse.invalid_json_payload"
-
-	// Log Messages
-	LogResendVerificationFailed = "Failed to resend verification email for [%s]: %v"
-	LogSend2FACodeFailed        = "Failed to send 2FA code to [%s]: %v"
-	LogSendPasswordResetFailed  = "Failed to send password reset email to [%s]: %v"
-
-	// Response IDs
-	ResponseIDUnkownCommand = 1000
-	ResponseIDMiddleware    = 1001
-	ResponseIDJustMessage   = 1002
-
-	// Controllers
-	ResponseIDJoin       = 1003
-	ResponseIDCreateRoom = 1004
-	ResponseIDListRoom   = 1004
-	ResponseIDLogin      = 1005
-	ResponseIDRegister   = 1006
 )
