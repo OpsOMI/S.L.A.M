@@ -149,12 +149,12 @@ func (s *service) CreateUser(
 	}
 	domainModel.Password = hashedPassword
 
-	id, clientID, err := s.repositories.Users().CreateUser(ctx, domainModel)
+	id, clientKey, err := s.repositories.Users().CreateUser(ctx, domainModel)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return id, clientID, nil
+	return id, clientKey, nil
 }
 
 func (s *service) ChangeNickname(

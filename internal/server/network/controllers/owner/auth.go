@@ -32,13 +32,7 @@ func (p *Controller) HandleRegister(
 	}
 
 	if p.cfg.Server.App.Mode == "prod" {
-		if err := p.services.Clients().CreateClientConfig(p.cfg, *clientID); err != nil {
-			return err
-		}
-		if err := p.services.Clients().CopyServerCert(p.cfg.Server.Core.TSLCertPath); err != nil {
-			return err
-		}
-		if err := p.services.Clients().BuildClientExe(*clientID); err != nil {
+		if err := p.services.Clients().CreateClient(p.cfg, *clientID); err != nil {
 			return err
 		}
 	}

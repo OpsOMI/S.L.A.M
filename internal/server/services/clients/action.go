@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/OpsOMI/S.L.A.M/internal/server/apperrors/serviceerrors"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config"
 	"github.com/OpsOMI/S.L.A.M/internal/server/config/core/models"
 	"github.com/OpsOMI/S.L.A.M/internal/server/domains/clients"
@@ -120,13 +121,30 @@ func (s *service) IsRevoked(
 	return s.repositories.Clients().IsRevoked(ctx, uid)
 }
 
+func (s *service) CreateClient(
+	serverConfig *config.Configs,
+	clientKey string,
+) error {
+	if err := s.CreateClientConfig(serverConfig, clientKey); err != nil {
+		return serviceerrors.BadRequest(clients.ErrConfigCreateFailed)
+	}
+	if err := s.CopyServerCert(serverConfig.Server.Core.TSLCertPath); err != nil {
+		return serviceerrors.BadRequest(clients.ErrTslCertCopyFailed)
+	}
+	if err := s.BuildClientExe(clientKey); err != nil {
+		return serviceerrors.BadRequest(clients.ErrBuildClientFailed)
+	}
+
+	return nil
+}
+
 func (s *service) CreateClientConfig(
 	serverConfig *config.Configs,
 	clientID string,
 ) error {
 	cfg := models.ClientConfig{
 		ClientID:       clientID,
-		ServerName:     serverConfig.Env.TSL.ServerName,
+		TSLServerName:  serverConfig.Env.TSL.ServerName,
 		ServerHost:     serverConfig.Server.Core.Host,
 		ServerPort:     serverConfig.Server.Core.Port,
 		TimeoutSeconds: 1,

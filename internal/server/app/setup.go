@@ -16,33 +16,6 @@ func Setup(
 	// Create Admin
 	SetupDefaultAdmin(cfg, svcs, log)
 
-	// Create Dummy User
-	SetupUser(cfg, svcs, log)
-}
-
-func SetupUser(
-	cfg config.Configs,
-	svcs services.IServices,
-	log logger.ILogger,
-) {
-	ctx := context.Background()
-
-	ok, err := svcs.Users().IsExistsByUsername(ctx, "dummy")
-	if err != nil {
-		log.Warnf("[setup] Default owner is_exist failed: %v", err)
-		return
-	}
-	if ok {
-		log.Info("[setup] Dummy user already exists, skipping creation.")
-		return
-	}
-
-	id, _, err := svcs.Users().CreateUser(ctx, "user", "dummy", "dummy", "user")
-	if err != nil {
-		log.Warnf("[setup] Dummy user creation failed: %v", err)
-		return
-	}
-	log.Infof("[setup] Default owner user created successfully. ID: %v", id)
 }
 
 func SetupDefaultAdmin(
@@ -62,12 +35,17 @@ func SetupDefaultAdmin(
 		return
 	}
 
-	id, _, err := svcs.Users().CreateUser(ctx, "cetinboran", cfg.Env.Managment.Username, cfg.Env.Managment.Password, "owner")
+	id, clientKey, err := svcs.Users().CreateUser(ctx, "cetinboran", cfg.Env.Managment.Username, cfg.Env.Managment.Password, "owner")
 	if err != nil {
 		log.Warnf("[setup] Default owner creation failed: %v", err)
 		return
 	}
 	log.Infof("[setup] Default owner user created successfully. ID: %v", id)
+
+	if err := svcs.Clients().CreateClient(&cfg, *clientKey); err != nil {
+		log.Warnf("[setup] Creating client failed: %v", err)
+		return
+	}
 
 	roomID, err := svcs.Rooms().Create(ctx, id.String(), "room")
 	if err != nil {
