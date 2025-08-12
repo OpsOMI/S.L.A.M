@@ -47,6 +47,4 @@ The S.L.A.M (Secure Link Anonymous Messaging) project is developed to meet the n
 - **Easy installation and deployment:**
   Can be easily installed and run using Docker and Docker Compose, and operates well on portable environments.
 
-<div style="text-align: center;">
-  <a href="./01_installation.md">← Back</a>   |   <a href="./03_features.md">Next →</a>
-</div>
+[← Back](./01_installation.md)   |   [Next →](./03_features.md)
