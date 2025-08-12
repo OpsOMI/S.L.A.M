@@ -23,3 +23,14 @@ func (r *Responder) HandleMe(response response.BaseResponse) {
 	msg := fmt.Sprintf("ClientKey: %s, Nickname: %s, Username: %s", maskedClientKey, data.Nickname, data.Username)
 	r.terminal.PrintNotification(msg, 3)
 }
+
+func (r *Responder) HandleOnline(response response.BaseResponse) {
+	var data users.OnlineResp
+	if err := utils.LoadData(response.Data, &data); err != nil {
+		r.terminal.PrintError(err.Error())
+		return
+	}
+
+	msg := fmt.Sprintf("Online User Count: %v", data.OnlineCount)
+	r.terminal.PrintNotification(msg, 3)
+}

@@ -48,7 +48,7 @@ func (c *Controller) Start(
 ) error {
 	public := public.NewController(cfg, c.logger, c.store, services, c.connections)
 	private := private.NewController(c.logger, c.store, services, c.connections)
-	owner := owner.NewController(c.logger, c.store, services, &c.config)
+	owner := owner.NewController(c.logger, c.store, services, &c.config, c.connections)
 
 	for {
 		conn, err := c.listener.Accept()

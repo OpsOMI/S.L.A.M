@@ -30,6 +30,7 @@ func NewRequester(
 	}
 
 	r.AuthRoutes()
+	r.UserRoutes()
 
 	return r
 }
@@ -45,11 +46,11 @@ func (r *Requester) Route(
 ) error {
 	req.JwtToken = r.store.JWT
 	if req.JwtToken == "" {
-		return apperrors.NewError("unauthorized: command " + command.Name)
+		return apperrors.NewError("Unauthorized: " + command.Name)
 	}
 	r.store.ParseJWT()
 	if r.store.Role != "owner" {
-		return apperrors.NewError("unauthorized: command " + command.Name)
+		return apperrors.NewError("Unauthorized: " + command.Name)
 	}
 	req.Scope = "owner"
 
@@ -57,5 +58,5 @@ func (r *Requester) Route(
 		return handler(command, req)
 	}
 
-	return apperrors.NewError("unknown owner command:" + command.Name)
+	return apperrors.NewError("Unknown Command:" + command.Name)
 }

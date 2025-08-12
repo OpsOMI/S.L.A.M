@@ -16,6 +16,10 @@ type IUserModule interface {
 		req *request.ClientRequest,
 	) error
 
+	Online(
+		req *request.ClientRequest,
+	) error
+
 	Me(
 		req *request.ClientRequest,
 	) error

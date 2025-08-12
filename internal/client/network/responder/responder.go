@@ -35,6 +35,8 @@ func (r *Responder) Listen(responeseChan <-chan response.BaseResponse) {
 			r.HandleIncomingMessages(response)
 		case commons.RequestIDMe:
 			r.HandleMe(response)
+		case commons.RequestIDOnline:
+			r.HandleOnline(response)
 		case commons.RequestIDCleanRoom:
 			r.HandleCleanRoom(response)
 		case commons.RequestIDSendMessage:

@@ -114,6 +114,16 @@ func (s *module) SendMessage(
 	return nil
 }
 
+func (s *module) Online(
+	req *request.ClientRequest,
+) error {
+	if err := utils.SendRequest(s.conn, req, nil); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *module) Me(
 	req *request.ClientRequest,
 ) error {

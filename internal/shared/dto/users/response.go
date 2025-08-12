@@ -23,6 +23,16 @@ func ToMeResp(
 	}
 }
 
+type OnlineResp struct {
+	OnlineCount int `json:"onlineCount"`
+}
+
+func ToOnlineResp(count int) OnlineResp {
+	return OnlineResp{
+		OnlineCount: count,
+	}
+}
+
 type LoginResp struct {
 	Token string
 }

@@ -90,3 +90,9 @@ func (cm *ConnectionManager) GetConn(clientID uuid.UUID) (net.Conn, bool) {
 	}
 	return nil, false
 }
+
+func (cm *ConnectionManager) CountOnlineConnections() int {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+	return len(cm.clients)
+}
