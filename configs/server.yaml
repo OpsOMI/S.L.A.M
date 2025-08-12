@@ -9,8 +9,3 @@ server:
   port: 6666
   tls_cert_path: "./certs/example/server.crt"
   tls_key_path: "./certs/example/server.key"
-
-# JWT configuration for token issuer and secret key (change for production)
-jwt:
-  issuer: slam
-  secret: u549QD5weh9A04n
