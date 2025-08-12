@@ -3,7 +3,7 @@
 # Modify values as needed before use.
 
 # Unique identifier for each client device.
-client_key: 9adbf5cd-bac5-4b2c-a3f1-34b5a7ad17bb
+client_key: 7499926d-4dcb-4ae2-aca3-5e99ab7a1e59
 
 # Server connection details including name, host, and port
 server_host: localhost
