@@ -29,6 +29,7 @@ func NewRequester(
 		routes:   make(map[string]commons.RouteFunc),
 	}
 	r.RoomRoutes()
+	r.UserRoutes()
 
 	return r
 }

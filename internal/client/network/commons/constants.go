@@ -4,6 +4,7 @@ const (
 	RequestIDLogin           = "LOGIN"
 	RequestIDRegister        = "REGISTER"
 	RequestIDJoinRoom        = "JOIN_ROOM"
+	RequestIDMe              = "ME"
 	RequestIDCreateRoom      = "CREATE_ROOM"
 	RequestIDCleanRoom       = "CLEAN_ROOM"
 	RequestIDListRoom        = "LIST_ROOM"

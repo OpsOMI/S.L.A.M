@@ -15,6 +15,7 @@ type Configs struct {
 }
 
 func LoadConfig(
+	mode string,
 	serverConfigPath string,
 	managmentEnvPath string,
 	envFiles ...string,
@@ -27,6 +28,7 @@ func LoadConfig(
 	if managmentEnvPath != "" {
 		cfg.Env = *env.LoadAll(managmentEnvPath)
 	}
+	cfg.Server.App.Mode = mode
 
 	checkConfig(cfg)
 

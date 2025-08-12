@@ -10,16 +10,16 @@ import (
 func main() {
 	mode := os.Getenv("APP_MODE")
 	if mode == "" {
-		mode = "dexv"
+		mode = "dev"
 	}
 
 	configs := config.LoadConfig(
+		mode,
 		"./configs/server.yaml",
 		"./env/real/.env",
 		"./deployment/dev/.env",
 		"./deployment/prod/.env",
 	)
-	configs.Server.App.Mode = mode
 
 	app.Run(*configs)
 }
