@@ -25,4 +25,4 @@ Teşekkürler! 🙌
 
 ## Diller
 
-[English](README.md)
+[İngilizce](README.md)
