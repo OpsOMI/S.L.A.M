@@ -217,26 +217,49 @@ func (s *service) DeleteEmbeddedFiles() error {
 }
 
 func (s *service) BuildClientExe(nickname string) error {
-	dirPath := filepath.Join("clients", nickname)
-	if err := os.MkdirAll(dirPath, 0755); err != nil {
-		return fmt.Errorf("failed to create directory: %w", err)
+	platforms := []struct {
+		GOOS   string
+		GOARCH string
+	}{
+		{"darwin", "amd64"},
+		{"linux", "amd64"},
+		{"windows", "amd64"},
 	}
 
-	outputPath := filepath.Join(dirPath, "main")
+	for _, p := range platforms {
+		dirPath := filepath.Join("clients", nickname, fmt.Sprintf("%s_%s", p.GOOS, p.GOARCH))
 
-	cmd := exec.Command(
-		"go",
-		"build",
-		"-tags=embed",
-		"-ldflags=-X main.useEmbed=true",
-		"-o", outputPath,
-		"./cmd/client/main.go",
-	)
-	cmd.Env = append(os.Environ(), "GOOS=darwin", "GOARCH=amd64") // ya da kendi platformuna göre ayarla
+		if err := os.MkdirAll(dirPath, 0755); err != nil {
+			return fmt.Errorf("failed to create directory %s: %w", dirPath, err)
+		}
 
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("build failed: %w\nOutput: %s", err, string(output))
+		outputName := "main"
+		if p.GOOS == "windows" {
+			outputName = "main.exe"
+		}
+
+		outputPath := filepath.Join(dirPath, outputName)
+
+		cmd := exec.Command(
+			"go",
+			"build",
+			"-tags=embed",
+			"-ldflags=-X main.useEmbed=true",
+			"-o", outputPath,
+			"./cmd/client/main.go",
+		)
+
+		cmd.Env = append(os.Environ(),
+			"GOOS="+p.GOOS,
+			"GOARCH="+p.GOARCH,
+		)
+
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("build failed for %s/%s: %w\nOutput: %s", p.GOOS, p.GOARCH, err, string(output))
+		}
+
+		fmt.Printf("Built client for %s/%s: %s\n", p.GOOS, p.GOARCH, outputPath)
 	}
 
 	return nil
