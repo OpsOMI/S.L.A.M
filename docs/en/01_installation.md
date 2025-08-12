@@ -117,4 +117,4 @@ After the server is started:
   - Another with the code **private**
   - The **private** room’s password is the value you set for **PRIVATE_ROOM_PASS** in your `env` file.
 
-- [Next](docs/en/02_features.md)
+[Next →](docs/en/02_features.md)

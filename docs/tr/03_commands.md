@@ -26,4 +26,4 @@ S.L.A.M istemcisinde kullanıcıların ve yöneticilerin kullanabileceği komutl
 | `/register` | Yeni bir kullanıcı oluşturur. İstemci binary dosyası otomatik oluşturulur (`client/[username]/main`). | `/register` |
 | `/online`   | Sunucuya bağlı anlık online kullanıcıların sayısını listeler.                                         | `/online`   |
 
-- [Geri](docs/tr/02_features.md)
+[← Geri](docs/tr/02_features.md)

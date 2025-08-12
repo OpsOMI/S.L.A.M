@@ -48,5 +48,4 @@ S.L.A.M (Secure Link Anonymous Messaging) projesi, gizlilik ve güvenlik odaklı
 - **Kolay kurulum ve dağıtım:**
   Docker ve Docker Compose ile kolayca kurulabilir, taşınabilir ortamlarda çalışabilir.
 
-- [Geri](docs/tr/01_installation.md)
-- [İleri](docs/tr/03_commands.md)
+[← Geri](docs/tr/01_installation.md)   |   [İleri →](docs/tr/03_commands.md)
