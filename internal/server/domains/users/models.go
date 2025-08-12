@@ -15,7 +15,7 @@ type User struct {
 	Password  string
 	Nickname  string
 	Role      string
-	Clients   *clients.Client
+	Clients   []clients.Client
 	CreatedAt time.Time
 }
 

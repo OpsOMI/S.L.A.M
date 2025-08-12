@@ -11,11 +11,6 @@ import (
 )
 
 type IUserRepository interface {
-	Login(
-		ctx context.Context,
-		username string,
-	) (*users.User, error)
-
 	GetByID(
 		ctx context.Context,
 		id uuid.UUID,

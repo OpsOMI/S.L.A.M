@@ -12,10 +12,6 @@ type IUsersMapper interface {
 		dbModel *pgqueries.User,
 	) *User
 
-	OneWithClient(
-		dbModel *pgqueries.UserLoginRow,
-	) *User
-
 	Many(
 		dbModels []pgqueries.User,
 		count int64,
@@ -61,21 +57,6 @@ func (m *mapper) One(
 		Nickname:  dbModel.Nickname,
 		CreatedAt: dbModel.CreatedAt.Time,
 	}
-}
-
-func (m *mapper) OneWithClient(
-	dbModel *pgqueries.UserLoginRow,
-) *User {
-	if dbModel == nil {
-		return nil
-	}
-
-	userModel := m.One(&dbModel.User)
-	clientModel := m.clients.One(&dbModel.Client)
-
-	userModel.Clients = clientModel
-
-	return userModel
 }
 
 func (m *mapper) Many(

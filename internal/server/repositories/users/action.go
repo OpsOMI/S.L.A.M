@@ -10,20 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func (r *repository) Login(
-	ctx context.Context,
-	username string,
-) (*users.User, error) {
-	dbModel, err := r.queries.UserLogin(ctx, username)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, repoerrors.NotFound(users.ErrNotFound)
-		}
-		return nil, repoerrors.Internal(users.ErrFetchFailed, err)
-	}
-	return r.mappers.Users().OneWithClient(&dbModel), nil
-}
-
 func (r *repository) GetByID(
 	ctx context.Context,
 	id uuid.UUID,
