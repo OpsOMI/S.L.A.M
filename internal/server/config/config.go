@@ -65,6 +65,11 @@ func checkConfig(configs *Configs) {
 		log.Fatal("[config] Server mode must be set (dev or prod)")
 	}
 
+	length := len(configs.Env.MessageSecret)
+	if length != 16 && length != 24 && length != 32 {
+		log.Fatalf("Invalid MESSAGE_SECRET length: %d. Must be 16, 24, or 32 characters.", length)
+	}
+
 	switch configs.Server.App.Mode {
 	case "dev":
 		if configs.Db.Dev.User == "" {

@@ -42,6 +42,7 @@ openssl req -x509 -nodes -days 365 \
 Fill in the variables located in the `env/` folder:
 
 ```env
+MESSAGE_SECRET=                # Strong secret key for message encryption, must be 16/24/32 characters long
 JWT_ISSUER=slam                # Identity for JWT package
 JWT_SECRET=                    # Secret key for JWT
 TSL_SERVER_NAME=               # DNS name from cert.conf

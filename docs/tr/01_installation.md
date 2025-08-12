@@ -42,6 +42,7 @@ openssl req -x509 -nodes -days 365 \
 `env/` klasöründe bulunan aşağıdaki değişkenleri doldurun:
 
 ```env
+MESSAGE_SECRET=                # Mesaj şifreleme için 16/24/32 karakter uzunluğunda güçlü gizli anahtar
 JWT_ISSUER=slam                # JWT paketi için gerekli kimlik
 JWT_SECRET=                    # JWT'nin gizli anahtarı
 TSL_SERVER_NAME=               # cert.conf içindeki DNS ismi
