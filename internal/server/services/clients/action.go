@@ -143,7 +143,7 @@ func (s *service) CreateClientConfig(
 	clientID string,
 ) error {
 	cfg := models.ClientConfig{
-		ClientID:       clientID,
+		ClientKey:      clientID,
 		TSLServerName:  serverConfig.Env.TSL.ServerName,
 		ServerHost:     serverConfig.Server.Core.Host,
 		ServerPort:     serverConfig.Server.Core.Port,

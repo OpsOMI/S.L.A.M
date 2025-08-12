@@ -1,7 +1,7 @@
 package models
 
 type ClientConfig struct {
-	ClientID       string `yaml:"client_id"`
+	ClientKey      string `yaml:"client_key"`
 	ServerHost     string `yaml:"server_host"`
 	ServerPort     string `yaml:"server_port"`
 	TSLServerName  string `yaml:"tsl_server_name"`
