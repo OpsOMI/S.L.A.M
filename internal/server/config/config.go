@@ -28,10 +28,12 @@ func LoadConfig(
 		cfg.Env = *env.LoadAll(managmentEnvPath)
 	}
 
+	checkConfig(cfg)
+
 	return cfg
 }
 
-func CheckConfig(configs *Configs) {
+func checkConfig(configs *Configs) {
 	if configs.Env.Managment.Nickname == "" {
 		log.Fatal("[config] Management Nickname cannot be empty")
 	}
@@ -47,6 +49,14 @@ func CheckConfig(configs *Configs) {
 	}
 	if configs.Server.Core.Port == "" {
 		configs.Server.Core.Port = "6666"
+	}
+
+	if configs.Server.Core.TSLCertPath == "" {
+		log.Fatal("[config] TLS certificate path cannot be empty")
+	}
+
+	if configs.Server.Core.TSLKeyPath == "" {
+		log.Fatal("[config] TLS key path cannot be empty")
 	}
 
 	if configs.Server.App.Mode == "" {
