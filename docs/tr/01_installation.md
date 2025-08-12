@@ -117,4 +117,4 @@ Sunucu başlatıldıktan sonra:
   - Diğerinin kodu **private**
   - **Private** odanın şifresi, sizin `env` dosyanızda belirttiğiniz **PRIVATE_ROOM_PASS** değeridir.
 
-[İleri →](./02_features.md)
+[← Geri](../../README.tr.md)   |   [İleri →](./02_features.md)
