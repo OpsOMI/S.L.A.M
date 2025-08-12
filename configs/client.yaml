@@ -1,5 +1,5 @@
 # Unique identifier for each client device (e.g., USB flash drive)
-client_key: f2191b8a-acaa-4d27-9774-5615c3bdfe48 # Our custom id for each flash.
+client_key: 8539a6ce-4d10-45bc-a83c-e8f9463833e0 # Our custom id for each flash.
 
 # Server connection details including name, host, and port
 server_name: slam

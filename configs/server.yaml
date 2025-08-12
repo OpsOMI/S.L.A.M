@@ -1,17 +1,16 @@
 # Application specific settings including mode and migration path
 app:
-  mode: prod
+  mode: dev
   migration_path: "/app/internal/adapters/postgres/migrations"
 
 # Server configuration including host, port, and TLS certificate paths
 server:
   host: localhost
   port: 6666
-  tsl_server_name: slam
   tls_cert_path: "./certs/example/server.crt"
   tls_key_path: "./certs/example/server.key"
 
 # JWT configuration for token issuer and secret key (change for production)
 jwt:
-  issuer: SLAM
+  issuer: slam
   secret: u549QD5weh9A04n

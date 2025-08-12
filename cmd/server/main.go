@@ -8,7 +8,7 @@ import (
 func main() {
 	configs := config.LoadConfig(
 		"./configs/server.yaml",
-		"./env/real/.env.management",
+		"./env/real/.env",
 		"./deployment/dev/.env",
 		"./deployment/prod/.env",
 	)

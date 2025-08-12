@@ -126,7 +126,7 @@ func (s *service) CreateClientConfig(
 ) error {
 	cfg := models.ClientConfig{
 		ClientID:       clientID,
-		ServerName:     serverConfig.Server.Core.TSLServerName,
+		ServerName:     serverConfig.Server.Jwt.Issuer,
 		ServerHost:     serverConfig.Server.Core.Host,
 		ServerPort:     serverConfig.Server.Core.Port,
 		TimeoutSeconds: 1,
