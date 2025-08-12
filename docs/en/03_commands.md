@@ -26,4 +26,4 @@ Below is the list of commands that can be used by both users and administrators 
 | `/register` | Creates a new user. A client binary file is automatically generated (`client/[username]/main`). | `/register` |
 | `/online`   | Lists the number of currently connected users on the server.                                    | `/online`   |
 
-[← Back](docs/en/02_features.md)
+[← Back](./02_features.md)
