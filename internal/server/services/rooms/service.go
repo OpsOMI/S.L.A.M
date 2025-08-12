@@ -38,6 +38,11 @@ type IRoomService interface {
 		ownerID, password string,
 	) (*string, error)
 
+	CreateWithCode(
+		ctx context.Context,
+		ownerID, roomCode, password string,
+	) (*string, error)
+
 	DeleteByID(
 		ctx context.Context,
 		id string,

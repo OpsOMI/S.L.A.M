@@ -89,6 +89,30 @@ func (s *service) Create(
 	return &roomCode, nil
 }
 
+func (s *service) CreateWithCode(
+	ctx context.Context,
+	ownerID, roomCode, password string,
+) (*string, error) {
+	owner, err := s.users.GetByID(ctx, ownerID)
+	if err != nil {
+		return nil, err
+	}
+
+	var hashedPassword string
+	if password != "" {
+		hashedPassword, err = s.packages.Hasher().HashArgon2(password)
+		if err != nil {
+			return nil, serviceerrors.Internal(rooms.ErrPasswordHashFailed, err)
+		}
+	}
+
+	if _, err := s.repositories.Rooms().Create(ctx, owner.ID, roomCode, hashedPassword); err != nil {
+		return nil, err
+	}
+
+	return &roomCode, nil
+}
+
 func (s *service) DeleteByID(
 	ctx context.Context,
 	id string,

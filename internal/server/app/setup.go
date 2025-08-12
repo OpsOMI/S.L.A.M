@@ -15,7 +15,6 @@ func Setup(
 ) {
 	// Create Admin
 	SetupDefaultAdmin(cfg, svcs, log)
-
 }
 
 func SetupDefaultAdmin(
@@ -35,7 +34,7 @@ func SetupDefaultAdmin(
 		return
 	}
 
-	id, clientKey, err := svcs.Users().CreateUser(ctx, "cetinboran", cfg.Env.Managment.Username, cfg.Env.Managment.Password, "owner")
+	id, clientKey, err := svcs.Users().CreateUser(ctx, cfg.Env.Managment.Nickname, cfg.Env.Managment.Username, cfg.Env.Managment.Password, "owner")
 	if err != nil {
 		log.Warnf("[setup] Default owner creation failed: %v", err)
 		return
@@ -47,13 +46,13 @@ func SetupDefaultAdmin(
 		return
 	}
 
-	roomID, err := svcs.Rooms().Create(ctx, id.String(), "room")
+	privateRoomID, err := svcs.Rooms().CreateWithCode(ctx, id.String(), "private", cfg.Env.Room.PrivateRoomPass)
 	if err != nil {
 		log.Warnf("[setup] Default room creation failed: %v", err)
 		return
 	}
-	log.Infof("[setup] Default room created successfully. ID: %v", roomID)
+	log.Infof("[setup] Default room created successfully. ID: %v", privateRoomID)
 
-	emptyrom, _ := svcs.Rooms().Create(ctx, id.String(), "")
-	log.Infof("[setup] Default room created successfully. ID: %v", emptyrom)
+	publicRoomID, _ := svcs.Rooms().CreateWithCode(ctx, id.String(), "public", "")
+	log.Infof("[setup] Default room created successfully. ID: %v", publicRoomID)
 }
