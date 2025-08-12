@@ -3,7 +3,6 @@ package public
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net"
 	"time"
 
@@ -27,8 +26,6 @@ func (p *Controller) HandleLogin(
 	if err := utils.ParseJSON(args, &req); err != nil {
 		return err
 	}
-
-	fmt.Println(req, "Request")
 
 	ctx := context.Background()
 	user, err := p.services.Users().Login(ctx, req.ClientKey, req.Username, req.Password, p.cfg.Server.App.Mode)

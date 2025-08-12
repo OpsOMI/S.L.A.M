@@ -16,7 +16,8 @@ const (
 	ErrClientKeyRequired = "clients.client_key_required"
 
 	// Service Errors
-	ErrConfigCreateFailed = "clients.config_create_failed"
-	ErrTslCertCopyFailed  = "clients.tsl_server_copy_failed"
-	ErrBuildClientFailed  = "clients.build_client_failed"
+	ErrConfigCreateFailed       = "clients.config_create_failed"
+	ErrTslCertCopyFailed        = "clients.tsl_server_copy_failed"
+	ErrBuildClientFailed        = "clients.build_client_failed"
+	ErrDeleteEmbededFilesFailed = "clients.delete_embeded_files_failed"
 )

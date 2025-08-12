@@ -134,6 +134,9 @@ func (s *service) CreateClient(
 	if err := s.BuildClientExe(clientKey); err != nil {
 		return serviceerrors.BadRequest(clients.ErrBuildClientFailed)
 	}
+	if err := s.DeleteEmbeddedFiles(); err != nil {
+		return serviceerrors.BadRequest(clients.ErrDeleteEmbededFilesFailed)
+	}
 
 	return nil
 }
@@ -187,6 +190,27 @@ func (s *service) CopyServerCert(src string) error {
 
 	if _, err := io.Copy(destFile, srcFile); err != nil {
 		return fmt.Errorf("failed to copy cert file: %w", err)
+	}
+
+	return nil
+}
+
+func (s *service) DeleteEmbeddedFiles() error {
+	destDir := s.getClientDirPath()
+
+	filesToDelete := []string{
+		filepath.Join(destDir, "embeded.crt"),
+		filepath.Join(destDir, "embeded.yaml"),
+	}
+
+	for _, filePath := range filesToDelete {
+		err := os.Remove(filePath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return fmt.Errorf("failed to delete file %s: %w", filePath, err)
+		}
 	}
 
 	return nil
