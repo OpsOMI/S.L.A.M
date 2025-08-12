@@ -16,9 +16,6 @@ func StartServer(
 	config := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 	}
-	if mode == "development" {
-		config.InsecureSkipVerify = true
-	}
 
 	listener, err := tls.Listen("tcp", ":"+port, config)
 	if err != nil {
