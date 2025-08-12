@@ -32,7 +32,7 @@ func (p *Controller) HandleRegister(
 	}
 
 	if p.cfg.Server.App.Mode == "prod" {
-		if err := p.services.Clients().CreateClient(p.cfg, *clientID); err != nil {
+		if err := p.services.Clients().CreateClient(p.cfg, *clientID, req.Nickname); err != nil {
 			return err
 		}
 	}

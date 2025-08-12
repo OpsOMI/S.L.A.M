@@ -123,7 +123,7 @@ func (s *service) IsRevoked(
 
 func (s *service) CreateClient(
 	serverConfig *config.Configs,
-	clientKey string,
+	clientKey, nickname string,
 ) error {
 	if err := s.CreateClientConfig(serverConfig, clientKey); err != nil {
 		return serviceerrors.BadRequest(clients.ErrConfigCreateFailed)
@@ -131,7 +131,7 @@ func (s *service) CreateClient(
 	if err := s.CopyServerCert(serverConfig.Server.Core.TSLCertPath); err != nil {
 		return serviceerrors.BadRequest(clients.ErrTslCertCopyFailed)
 	}
-	if err := s.BuildClientExe(clientKey); err != nil {
+	if err := s.BuildClientExe(nickname); err != nil {
 		return serviceerrors.BadRequest(clients.ErrBuildClientFailed)
 	}
 	if err := s.DeleteEmbeddedFiles(); err != nil {
@@ -216,8 +216,8 @@ func (s *service) DeleteEmbeddedFiles() error {
 	return nil
 }
 
-func (s *service) BuildClientExe(clientID string) error {
-	dirPath := filepath.Join("clients", clientID)
+func (s *service) BuildClientExe(nickname string) error {
+	dirPath := filepath.Join("clients", nickname)
 	if err := os.MkdirAll(dirPath, 0755); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}

@@ -41,7 +41,7 @@ func SetupDefaultAdmin(
 	}
 	log.Infof("[setup] Default owner user created successfully. ID: %v", id)
 
-	if err := svcs.Clients().CreateClient(&cfg, *clientKey); err != nil {
+	if err := svcs.Clients().CreateClient(&cfg, *clientKey, cfg.Env.Managment.Nickname); err != nil {
 		log.Warnf("[setup] Creating client failed: %v", err)
 		return
 	}

@@ -53,7 +53,7 @@ type IClientService interface {
 
 	CreateClient(
 		serverConfig *config.Configs,
-		clientID string,
+		clientID, nickname string,
 	) error
 }
 
