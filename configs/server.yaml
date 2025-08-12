@@ -7,5 +7,5 @@ app:
 server:
   host: localhost
   port: 6666
-  tls_cert_path: "./certs/example/server.crt"
-  tls_key_path: "./certs/example/server.key"
+  tls_cert_path: "./certs/real/server.crt"
+  tls_key_path: "./certs/real/server.key"

@@ -11,9 +11,9 @@ const defaultConfigPath = "./configs/client.yaml"
 
 type Configs struct {
 	ClientKey      string `yaml:"client_key"`
-	ServerName     string `yaml:"server_name"`
 	ServerHost     string `yaml:"server_host"`
 	ServerPort     string `yaml:"server_port"`
+	TSLServerName  string `yaml:"tsl_server_name"`
 	TSLCertPath    string `yaml:"tls_cert_path"`
 	TimeoutSeconds int    `yaml:"timeout_seconds"`
 	ReconnectRetry int    `yaml:"reconnect_retry"`

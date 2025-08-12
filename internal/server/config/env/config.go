@@ -9,6 +9,7 @@ import (
 )
 
 type EnvConfig struct {
+	TSL       models.TSL
 	Managment models.Managment
 	Jwt       models.Jwt
 }
@@ -34,6 +35,9 @@ func LoadAll(
 		Jwt: models.Jwt{
 			Issuer: os.Getenv("JWT_ISSUER"),
 			Secret: os.Getenv("JWT_SECRET"),
+		},
+		TSL: models.TSL{
+			ServerName: os.Getenv("TSL_SERVER_NAME"),
 		},
 	}
 }
