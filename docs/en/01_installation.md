@@ -149,4 +149,4 @@ After the server starts:
   - One with code **private**
   - The private room password is the **PRIVATE_ROOM_PASS** from your `.env` file
 
-[← Back](../../README.en.md)   |   [Next →](./02_features.md)
+[← Back](../../README.md)   |   [Next →](./02_features.md)
