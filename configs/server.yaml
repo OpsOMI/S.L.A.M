@@ -4,7 +4,8 @@ app:
 
 # Server configuration including host, port, and TLS certificate paths
 server:
-  host: localhost
+  external_host:
+  host: 192.168.1.27
   port: 6666
   tls_cert_path: "./certs/real/server.crt"
   tls_key_path: "./certs/real/server.key"

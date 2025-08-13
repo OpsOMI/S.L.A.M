@@ -145,10 +145,17 @@ func (s *service) CreateClientConfig(
 	serverConfig *config.Configs,
 	clientID string,
 ) error {
+	var host string
+	if serverConfig.Server.Core.ExternalHost != "" {
+		host = serverConfig.Server.Core.ExternalHost
+	} else {
+		host = serverConfig.Server.Core.Host
+	}
+
 	cfg := models.ClientConfig{
 		ClientKey:      clientID,
 		TSLServerName:  serverConfig.Env.TSL.ServerName,
-		ServerHost:     serverConfig.Server.Core.Host,
+		ServerHost:     host,
 		ServerPort:     serverConfig.Server.Core.Port,
 		TimeoutSeconds: 1,
 		ReconnectRetry: 3,

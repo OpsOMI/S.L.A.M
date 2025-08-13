@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/OpsOMI/S.L.A.M/internal/client/app"
 	"github.com/OpsOMI/S.L.A.M/internal/client/config"
 )
@@ -15,6 +17,8 @@ func main() {
 		cfg = config.LoadConfig("./configs/client.yaml")
 	}
 	cfg.UseEmbed = useEmbed
+
+	fmt.Println(cfg.ServerHost, "2")
 
 	app.Run(cfg)
 }
