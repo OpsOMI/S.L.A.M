@@ -230,7 +230,7 @@ func (s *service) BuildClientExe(nickname string) error {
 	}{
 		{"darwin", "amd64"},
 		{"linux", "amd64"},
-		{"windows", "amd64"},
+		// {"windows", "amd64"},
 	}
 
 	for _, p := range platforms {

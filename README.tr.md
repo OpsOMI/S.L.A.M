@@ -27,6 +27,11 @@ Teşekkürler! 🙌
 
 Bu proje “olduğu gibi” sunulmaktadır ve herhangi bir garanti içermez. Yazarlar, yazılımın üçüncü kişiler tarafından kötüye kullanılması veya zararlı amaçlarla kullanılmasından sorumlu değildir. Yazılımı sorumluluk bilinciyle ve kendi riskinizde kullanınız.
 
+## Platform Uyumluluğu
+
+- **Sunucu:** Docker kullanıldığı için herhangi bir işletim sisteminde çalışabilir ✅
+- **İstemci:** Linux ✅, macOS ✅, Windows ❌ — İstemci şu anda **Windows'ta desteklenmiyor**
+
 ## Diller
 
 [İngilizce](README.md)

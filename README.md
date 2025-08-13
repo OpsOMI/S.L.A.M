@@ -26,6 +26,11 @@ If you like our project, don't forget to give it a ⭐️ **Star**!. This motiva
 
 This project is provided "as is" without any warranties. The authors are not responsible for any misuse or malicious use of this software by third parties. Use it responsibly and at your own risk.
 
+## Platform Compatibility
+
+- **Server:** Can run on any operating system ✅ (thanks to Docker)
+- **Client:** Linux ✅, macOS ✅, Windows ❌ — The client is currently **not supported on Windows**
+
 ## Languages
 
 [Turkish](README.tr.md)
