@@ -18,7 +18,7 @@ cd S.L.A.M
 
 The project uses your own certificates for secure communication with TLS.
 
-1. Copy the `cert.example.conf` file in `/certs/example` folder and save it as `cert.conf`:
+1. Copy the `cert.example.conf` file from the `/certs/example` directory to the `/certs/real` directory and save it as `cert.conf`.
 
 ```bash
 cp certs/example/cert.example.conf certs/real/cert.conf
@@ -34,12 +34,12 @@ openssl req -x509 -nodes -days 365 \
   -newkey rsa:2048 \
   -keyout server.key \
   -out server.crt \
-  -config cert.conf
+  -config certs/real/cert.conf
 ```
 
 ### 3️⃣ Set Environment Variables (ENV)
 
-Fill in the variables located in the `env/` folder:
+Fill in the following variables by copying the file from `env/example/.env.example` to `env/real/.env` and then updating the values below.
 
 ```env
 MESSAGE_SECRET=                # Strong secret key for message encryption, must be 16/24/32 characters long

@@ -36,6 +36,12 @@ The S.L.A.M (Secure Link Anonymous Messaging) project is developed to meet the n
 - **Encrypted messages in the database:**
   Messages are stored encrypted within the database.
 
+- **Client ban protection:**
+  If you attempt to access another user's account using your own client, your client will be permanently banned and cannot be used again.
+
+- **Account ban protection:**
+  If you attempt to log in using someone else's client and successfully access a valid user account, your user account will be permanently banned and cannot be accessed again.
+
 ## Usage and Administration
 
 - **Automatic admin and client creation:**

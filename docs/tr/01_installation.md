@@ -18,7 +18,7 @@ cd S.L.A.M
 
 Proje, TLS ile güvenli iletişim için kendi sertifikalarınızı kullanır.
 
-1. `/certs/example` dizinindeki `cert.example.conf` dosyasını kopyalayıp `cert.conf` olarak kaydedin:
+1. `/certs/example` dizinindeki `cert.example.conf` dosyasını `/certs/real` içine kopyalayıp `cert.conf` olarak kaydedin:
 
 ```bash
 cp certs/example/cert.example.conf certs/real/cert.conf
@@ -34,12 +34,12 @@ openssl req -x509 -nodes -days 365 \
   -newkey rsa:2048 \
   -keyout server.key \
   -out server.crt \
-  -config cert.conf
+  -config ./certs/real/cert.conf
 ```
 
 ### 3️⃣ Ortam Değişkenlerini (ENV) Ayarlama
 
-`env/` klasöründe bulunan aşağıdaki değişkenleri doldurun:
+Aşağıdaki değişkenleri doldurmak için `env/example/.env.example` dosyasını `env/real/.env` olarak kopyalayın ve ardından değerlerini güncelleyin.
 
 ```env
 MESSAGE_SECRET=                # Mesaj şifreleme için 16/24/32 karakter uzunluğunda güçlü gizli anahtar

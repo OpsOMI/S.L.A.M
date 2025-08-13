@@ -29,13 +29,19 @@ S.L.A.M (Secure Link Anonymous Messaging) projesi, gizlilik ve güvenlik odaklı
 ## Güvenlik Özellikleri
 
 - **TLS ile uçtan uca şifreleme:**
-  Ağdaki tüm iletişim TLS üzerinden şifrelenerek dinleme ve müdahaleye karşı korunur.
+  Tüm ağ iletişimi TLS üzerinden şifrelenir, böylece dinleme ve veri değiştirme girişimlerine karşı korunur.
 
 - **JWT tabanlı kimlik doğrulama:**
-  Kullanıcı kimlik doğrulaması JWT tokenlarıyla güvence altına alınır.
+  Kullanıcı kimlik doğrulaması JWT tokenları ile güvence altına alınır.
 
-- **Veritabanı mesaj şifreleme:**
-  Mesajlar veritabanında şifrelenmiş olarak tutulur.
+- **Veritabanında şifreli mesajlar:**
+  Mesajlar veritabanında şifrelenmiş olarak saklanır.
+
+- **İstemci yasaklama koruması:**
+  Kendi istemcinizi kullanarak başka bir kullanıcının hesabına girmeye çalışırsanız, istemciniz kalıcı olarak yasaklanır ve tekrar kullanılamaz.
+
+- **Hesap yasaklama koruması:**
+  Başka bir kullanıcıya ait istemci ile giriş yapmaya çalışır ve geçerli bir hesaba erişirseniz, kullanıcı hesabınız kalıcı olarak yasaklanır ve tekrar giriş yapamazsınız.
 
 ## Kullanım ve Yönetim
 
