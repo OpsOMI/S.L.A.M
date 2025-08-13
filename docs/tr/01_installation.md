@@ -37,7 +37,38 @@ openssl req -x509 -nodes -days 365 \
   -config ./certs/real/cert.conf
 ```
 
-### 3️⃣ Ortam Değişkenlerini (ENV) Ayarlama
+### 3️⃣ Sunucu Config Ayarları
+
+Kurulumdan önce `/configs/server.yaml` dosyasındaki önemli ayarları kontrol edin:
+
+```yaml
+# Server configuration including host, port, and TLS certificate paths
+server:
+  external_host:
+  host: 192.168.1.27
+  port: 6666
+  tls_cert_path: "./certs/real/server.crt"
+  tls_key_path: "./certs/real/server.key"
+```
+
+- **external_host** → Eğer server’i başka bir sunucuda açtıysanız, o sunucunun **public IP**’sini buraya yazın.
+
+  - Eğer bu alan boş değilse, client **external_host**’a bağlanır.
+  - Boş ise client, server’in `host` alanına bağlanır.
+
+- **host** → Kendi bilgisayarınızda açtığınız server için kullanılır.
+
+  - Sunucu başka bir makinede açıldıysa, local IP’nizi verin.
+  - Aynı ağdaysanız client, bu IP’ye bağlanacaktır.
+
+- **port** → Server’in hangi portta çalışacağını belirler.
+- **tls_cert_path / tls_key_path** → Sertifika ve anahtar yolu.
+
+  - Kurulum dokümanındaki adımları takip ettiyseniz değiştirmeye gerek yoktur.
+
+Diğer config ayarlarına dokunmanıza gerek yoktur.
+
+### 4️⃣ Ortam Değişkenlerini (ENV) Ayarlama
 
 Aşağıdaki değişkenleri doldurmak için `env/example/.env.example` dosyasını `env/real/.env` olarak kopyalayın ve ardından değerlerini güncelleyin.
 
@@ -60,7 +91,7 @@ Açıklamalar:
 - **PRIVATE_ROOM_PASS** → Varsayılan özel odanın şifresi.
 - **MANAGEMENT\_\*** → Varsayılan sistem yöneticisi bilgileri.
 
-### 4️⃣ Veritabanı Bilgilerini Düzenleme
+### 5️⃣ Veritabanı Bilgilerini Düzenleme
 
 `./deployment/dev` ve `./deployment/prod` dizinlerindeki `.env.example` dosyalarına bakın.
 Yalnızca aşağıdaki alanları doldurmanız yeterlidir:
@@ -75,7 +106,7 @@ PROD_DB_PASSWORD=
 
 Diğer alanları değiştirmeyin.
 
-### 5️⃣ Sunucuyu Başlatma
+### 6️⃣ Sunucuyu Başlatma
 
 Eğer **Make** yüklüyse, aşağıdaki komutlarla arka planda sunucuyu başlatabilirsiniz:
 
@@ -105,7 +136,7 @@ docker compose -f ./deployment/dev/docker-compose.yml up --build -d
 docker compose -f ./deployment/prod/docker-compose.yml up --build -d
 ```
 
-### 6️⃣ Yönetici Kullanıcı ve Client
+### 7️⃣ Yönetici Kullanıcı ve Client
 
 Sunucu başlatıldıktan sonra:
 

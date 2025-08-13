@@ -1,11 +1,11 @@
-## 📦 Installation with Docker
+## 📦 Docker Installation
 
-This project can be easily run using **Docker** and **Docker Compose**. Before getting started, make sure the following are installed:
+This project can be easily run using **Docker** and **Docker Compose**. Before starting, make sure the following are installed:
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
-- **Make** (optional) — Used for running commands more easily.
-  If you don’t have Make on your system, you can also start the server using `docker compose` commands directly.
+- **Make** (optional) — Used to run commands more easily.
+  If your system does not have Make, you can start the server with `docker compose` commands directly.
 
 ### 1️⃣ Clone the Project
 
@@ -14,18 +14,18 @@ git clone https://github.com/OpsOMI/S.L.A.M
 cd S.L.A.M
 ```
 
-### 2️⃣ Create Certificates
+### 2️⃣ Generate Certificates
 
-The project uses your own certificates for secure communication with TLS.
+The project uses TLS for secure communication. You need to generate your own certificates.
 
-1. Copy the `cert.example.conf` file from the `/certs/example` directory to the `/certs/real` directory and save it as `cert.conf`.
+1. Copy the example certificate config:
 
 ```bash
 cp certs/example/cert.example.conf certs/real/cert.conf
 ```
 
-2. Edit the `DNS` field under the **alt_names** section inside `cert.conf` to match your server address.
-   This field is critical for TLS verification.
+2. Edit the **DNS** field under **alt_names** in `cert.conf` to match your server address.
+   This is critical for TLS validation.
 
 3. Generate the certificates:
 
@@ -34,18 +34,49 @@ openssl req -x509 -nodes -days 365 \
   -newkey rsa:2048 \
   -keyout server.key \
   -out server.crt \
-  -config certs/real/cert.conf
+  -config ./certs/real/cert.conf
 ```
 
-### 3️⃣ Set Environment Variables (ENV)
+### 3️⃣ Server Config Settings
 
-Fill in the following variables by copying the file from `env/example/.env.example` to `env/real/.env` and then updating the values below.
+Before running, check the important settings in `/configs/server.yaml`:
+
+```yaml
+# Server configuration including host, port, and TLS certificate paths
+server:
+  external_host:
+  host: 192.168.1.27
+  port: 6666
+  tls_cert_path: "./certs/real/server.crt"
+  tls_key_path: "./certs/real/server.key"
+```
+
+- **external_host** → If you are running the server on another machine, enter the **public IP** of that server here.
+
+  - If this field is not empty, the client will connect to `external_host`.
+  - If empty, the client will connect to the `host` field.
+
+- **host** → Used when running the server on your own computer.
+
+  - If running on a separate server, provide the server’s local IP.
+  - If on the same network, the client will connect to this IP.
+
+- **port** → Port on which the server will listen.
+- **tls_cert_path / tls_key_path** → Path to certificate and key files.
+
+  - If you followed the installation instructions exactly, you don’t need to change these.
+
+Other configuration options do not need to be modified.
+
+### 4️⃣ Set Environment Variables (ENV)
+
+Copy `env/example/.env.example` to `env/real/.env` and update the values:
 
 ```env
-MESSAGE_SECRET=                # Strong secret key for message encryption, must be 16/24/32 characters long
-JWT_ISSUER=slam                # Identity for JWT package
-JWT_SECRET=                    # Secret key for JWT
-TSL_SERVER_NAME=               # DNS name from cert.conf
+MESSAGE_SECRET=                # Strong 16/24/32 character secret for message encryption
+JWT_ISSUER=slam                # Required for JWT token
+JWT_SECRET=                    # JWT secret key
+TSL_SERVER_NAME=               # Must match the DNS name in cert.conf
 PRIVATE_ROOM_PASS=             # Password for the "private" room
 
 MANAGEMENT_NICKNAME=           # Display name for admin
@@ -55,15 +86,15 @@ MANAGEMENT_PASSWORD=           # Admin password
 
 Notes:
 
-- **JWT_ISSUER / JWT_SECRET** → Used for token verification.
-- **TSL_SERVER_NAME** → Must be the same as the DNS name in the certificate.
-- **PRIVATE_ROOM_PASS** → Password for the default private room.
-- **MANAGEMENT\_\*** → Default system administrator credentials.
+- **JWT_ISSUER / JWT_SECRET** → Used for token validation
+- **TSL_SERVER_NAME** → Must match the DNS in your certificate
+- **PRIVATE_ROOM_PASS** → Default password for the private room
+- **MANAGEMENT\_\*** → Default admin account information
 
-### 4️⃣ Configure Database Credentials
+### 5️⃣ Database Settings
 
-Check the `.env.example` files under `./deployment/dev` and `./deployment/prod` directories.
-You only need to fill in the following fields:
+Check the `.env.example` files in `./deployment/dev` and `./deployment/prod`.
+You only need to fill in:
 
 ```env
 DEV_DB_USER=
@@ -75,47 +106,47 @@ PROD_DB_PASSWORD=
 
 Do not modify other fields.
 
-### 5️⃣ Start the Server
+### 6️⃣ Start the Server
 
-If you have **Make** installed, you can start the server in detached mode with the commands below:
+If **Make** is installed, start the server in the background:
 
-- For development mode:
+- Development mode:
 
 ```bash
 make dev-build-d
 ```
 
-- For production mode:
+- Production mode:
 
 ```bash
 make prod-build-d
 ```
 
-If you don’t have Make, you can also run the server using the following `docker compose` commands:
+**Without Make**, you can use `docker compose` directly:
 
-- For development mode:
+- Development mode:
 
 ```bash
 docker compose -f ./deployment/dev/docker-compose.yml up --build -d
 ```
 
-- For production mode:
+- Production mode:
 
 ```bash
 docker compose -f ./deployment/prod/docker-compose.yml up --build -d
 ```
 
-### 6️⃣ Admin User and Client
+### 7️⃣ Admin User and Client
 
-After the server is started:
+After the server starts:
 
-- An **"owner"** role admin user is automatically created using the **MANAGEMENT\_\*** credentials you provided.
-- The **client binary** file for this user is generated under the `./clients` directory.
-- You can connect to the server using this generated client and the admin credentials.
+- An **"owner"** admin user is automatically created using the **MANAGEMENT\_\*** values.
+- The corresponding **client binary** is generated in `./clients`.
+- Use this client and the admin credentials to connect to the server.
 - Two rooms are automatically created for the admin:
 
-  - One with the code **public**
-  - Another with the code **private**
-  - The **private** room’s password is the value you set for **PRIVATE_ROOM_PASS** in your `env` file.
+  - One with code **public**
+  - One with code **private**
+  - The private room password is the **PRIVATE_ROOM_PASS** from your `.env` file
 
-[← Back](../../README.md)   |   [Next →](./02_features.md)
+[← Back](../../README.en.md)   |   [Next →](./02_features.md)
