@@ -251,7 +251,7 @@ func (s *service) BuildClientExe(nickname string) error {
 			"go",
 			"build",
 			"-tags=embed",
-			"-ldflags=-X main.useEmbed=true",
+			"-ldflags=-s -w -X main.useEmbed=true",
 			"-o", outputPath,
 			"./cmd/client/main.go",
 		)
